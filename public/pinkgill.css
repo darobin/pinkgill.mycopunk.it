@@ -30,9 +30,13 @@ main header {
   align-items: center;
 }
 h1 {
+  font-family: var(--header-fam);
   font-weight: 900;
   text-decoration: underline;
   color: var(--deeper-bright);
   text-decoration-color: var(--electric-bright);
-  text-decoration-thickness: 2px;
+  text-decoration-thickness: 10px;
+}
+main header img {
+  margin-right: -6px;
 }
