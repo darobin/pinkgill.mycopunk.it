@@ -10,7 +10,7 @@ import createRouter from './lib/router.js';
 import { createDB, migrateToLatest } from './lib/db.js';
 // import { createIngester } from '#/ingester'
 import { createClient } from './lib/auth-client.js';
-// import { createBidirectionalResolver, createIdResolver, BidirectionalResolver } from '#/id-resolver'
+import { createBidirectionalResolver, createIdResolver } from './lib/id-resolver.js';
 // import { IdResolver, MemoryCache } from '@atproto/identity'
 
 export class Server {
@@ -27,15 +27,15 @@ export class Server {
 
     // Create the atproto utilities
     const oauthClient = await createClient(db);
-    // const baseIdResolver = createIdResolver()
+    const baseIdResolver = createIdResolver();
+    const resolver = createBidirectionalResolver(baseIdResolver);
     // const ingester = createIngester(db, baseIdResolver)
-    // const resolver = createBidirectionalResolver(baseIdResolver)
     const ctx = {
       db,
       // ingester,
       logger,
       oauthClient,
-      // resolver,
+      resolver,
     };
 
     // Subscribe to events on the firehose

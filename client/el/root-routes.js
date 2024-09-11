@@ -62,7 +62,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
         </sl-card>
       </div>`;
     }
-    if (route === 'home') return html`home of ${$identity.get()?.did}`;
+    if (route === 'home') return html`home of <pre>${JSON.stringify($identity.get(), null, 2)}</pre>`;
     if (route === '404') return html`<pg-404></pg-404>`;
   }
 }

@@ -34,6 +34,8 @@
     "rules": {}
   },
   "dependencies": {
+    "@atproto/api": "^0.13.6",
+    "@atproto/identity": "^0.4.1",
     "@atproto/oauth-client-node": "^0.1.0",
     "@atproto/syntax": "^0.3.0",
     "@nanostores/lit": "^0.2.2",
