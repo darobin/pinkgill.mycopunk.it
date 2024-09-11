@@ -55,7 +55,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
             <strong>${errMsg}</strong><br>
             Please trying logging in again to continue.
           </sl-alert>
-          <form action="/api/login">
+          <form action="/api/login" method="post">
             <sl-input name="handle" placeholder="Enter your handle (e.g. alice.bsky.social)" required></sl-input>
             <sl-button type="submit" variant="primary">Log in</sl-button>
           </form>
