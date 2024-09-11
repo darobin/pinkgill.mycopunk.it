@@ -9,9 +9,30 @@
 
 :root {
   --header-fam: "Josefin Sans"; 
+  --max-body-width: 960px;
+
+  --electric-bright: #5dd6f5;
+  --electric-dark: #517ef5;
+  --deeper-bright: #0a0c4d;
+  --deeper-dark: #0d0d0d;
 }
 
 html, body {
   margin: 0;
   padding: 0;
+}
+main {
+  max-width: var(--max-body-width);
+  margin: 0 auto;
+}
+main header {
+  display: flex;
+  align-items: center;
+}
+h1 {
+  font-weight: 900;
+  text-decoration: underline;
+  color: var(--deeper-bright);
+  text-decoration-color: var(--electric-bright);
+  text-decoration-thickness: 2px;
 }
