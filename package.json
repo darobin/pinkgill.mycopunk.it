@@ -1,0 +1,41 @@
+{
+  "name": "pinkgill.mycopunk.it",
+  "type": "module",
+  "private": true,
+  "version": "0.0.1",
+  "description": "# pinkgill.mycopunk.it",
+  "author": "Robin Berjon <robin@berjon.com>",
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "node server.js",
+    "watch": "node --watch server.js | pino-pretty"
+  },
+  "bin": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/darobin/pinkgill.mycopunk.it.git"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "mocha": true,
+      "es2021": true
+    },
+    "extends": "eslint:recommended",
+    "overrides": [],
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "sourceType": "module"
+    },
+    "rules": {}
+  },
+  "dependencies": {
+    "@ngrok/ngrok": "^1.4.1",
+    "express": "^4.20.0",
+    "pino": "^9.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.26.0",
+    "pino-pretty": "^11.2.2"
+  }
+}
