@@ -6,9 +6,20 @@
   src: url("JosefinSans-VariableFont_wght.ttf");
   font-style: normal;
 }
+@font-face {
+  font-family: "Mulish";
+  src: url("Mulish-VariableFont_wght.ttf");
+  font-style: normal;
+}
+@font-face {
+  font-family: "Mulish";
+  src: url("Mulish-Italic-VariableFont_wght.ttf");
+  font-style: italic;
+}
 
 :root {
   --header-fam: "Josefin Sans"; 
+  --body-fam: "Mulish"; 
   --max-body-width: 960px;
 
   --electric-bright: #5dd6f5;
@@ -20,6 +31,7 @@
 html, body {
   margin: 0;
   padding: 0;
+  font-family: var(--body-fam);
 }
 main {
   max-width: var(--max-body-width);
@@ -36,6 +48,7 @@ h1 {
   color: var(--deeper-bright);
   text-decoration-color: var(--electric-bright);
   text-decoration-thickness: 10px;
+  flex-grow: 1;
 }
 main header img {
   margin-right: -6px;
