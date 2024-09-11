@@ -34,10 +34,14 @@
     "rules": {}
   },
   "dependencies": {
+    "@atproto/oauth-client-node": "^0.1.0",
+    "@atproto/syntax": "^0.3.0",
     "@nanostores/lit": "^0.2.2",
     "@ngrok/ngrok": "^1.4.1",
+    "better-sqlite3": "^11.3.0",
     "express": "^4.20.0",
     "iron-session": "^8.0.3",
+    "kysely": "^0.27.4",
     "lit": "^3.2.0",
     "nanostores": "^0.11.3",
     "pino": "^9.4.0"

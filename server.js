@@ -2,18 +2,15 @@
 import events from 'node:events';
 import process from 'node:process';
 import express from 'express';
-import { HOST, PORT } from './lib/config.js';
+import { HOST, PORT, DB_PATH } from './lib/config.js';
 import { pino } from 'pino'
-// import type { OAuthClient } from '@atproto/oauth-client-node'
 // import { Firehose } from '@atproto/sync'
 
 import createRouter from './lib/router.js';
-// import { createDb, migrateToLatest } from '#/db'
-// import { env } from '#/lib/env'
+import { createDB, migrateToLatest } from './lib/db.js';
 // import { createIngester } from '#/ingester'
-// import { createClient } from '#/auth/client'
+import { createClient } from './lib/auth-client.js';
 // import { createBidirectionalResolver, createIdResolver, BidirectionalResolver } from '#/id-resolver'
-// import type { Database } from '#/db'
 // import { IdResolver, MemoryCache } from '@atproto/identity'
 
 export class Server {
@@ -25,21 +22,19 @@ export class Server {
 
   static async create () {
     const logger = pino({ name: 'pinkgill start' });
-
-    // Set up the SQLite database
-    // const db = createDb(DB_PATH)
-    // await migrateToLatest(db)
+    const db = createDB(DB_PATH);
+    await migrateToLatest(db);
 
     // Create the atproto utilities
-    // const oauthClient = await createClient(db)
+    const oauthClient = await createClient(db);
     // const baseIdResolver = createIdResolver()
     // const ingester = createIngester(db, baseIdResolver)
     // const resolver = createBidirectionalResolver(baseIdResolver)
     const ctx = {
-      // db,
+      db,
       // ingester,
       logger,
-      // oauthClient,
+      oauthClient,
       // resolver,
     };
 
