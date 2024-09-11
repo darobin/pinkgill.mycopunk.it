@@ -132,3 +132,4 @@ scratch/
 pinkgill.secret
 data/
 ngrok.token
+copy-secret.sh

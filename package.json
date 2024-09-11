@@ -8,7 +8,9 @@
   "license": "Apache-2.0",
   "scripts": {
     "start": "node server.js",
-    "watch": "node --watch server.js | pino-pretty"
+    "watch": "concurrently --handle-input npm:watch-css npm:watch-server",
+    "watch-server": "node --watch server.js | pino-pretty",
+    "watch-css": "cssn --watch public/pinkgill.css public/pinkgill.min.css"
   },
   "bin": {},
   "repository": {
@@ -35,6 +37,9 @@
     "pino": "^9.4.0"
   },
   "devDependencies": {
+    "@shoelace-style/shoelace": "^2.16.0",
+    "concurrently": "^9.0.0",
+    "cssn": "^4.1.0",
     "eslint": "^8.26.0",
     "pino-pretty": "^11.2.2"
   }

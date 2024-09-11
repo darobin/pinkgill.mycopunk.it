@@ -7,10 +7,10 @@ import { pino } from 'pino'
 // import type { OAuthClient } from '@atproto/oauth-client-node'
 // import { Firehose } from '@atproto/sync'
 
+import createRouter from './lib/router.js';
 // import { createDb, migrateToLatest } from '#/db'
 // import { env } from '#/lib/env'
 // import { createIngester } from '#/ingester'
-// import { createRouter } from '#/routes'
 // import { createClient } from '#/auth/client'
 // import { createBidirectionalResolver, createIdResolver, BidirectionalResolver } from '#/id-resolver'
 // import type { Database } from '#/db'
@@ -48,11 +48,11 @@ export class Server {
 
     const app = express();
     app.set('trust proxy', true);
-    // const router = createRouter(ctx)
+    const router = createRouter(ctx);
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
-    // app.use(router)
-    app.use((_req, res) => res.sendStatus(404).json({ ok: false, error: 'Not found' }));
+    app.use(router);
+    app.use((req, res) => res.status(404).json({ ok: false, error: 'Not found' }));
     const server = app.listen(PORT);
     await events.once(server, 'listening');
     logger.info(`Pinkgill running at http://${HOST}/.`);

@@ -1,0 +1,17 @@
+
+@import "@shoelace-style/shoelace/dist/themes/light.css";
+
+@font-face {
+  font-family: "Josefin Sans";
+  src: url("JosefinSans-VariableFont_wght.ttf");
+  font-style: normal;
+}
+
+:root {
+  --header-fam: "Josefin Sans"; 
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}

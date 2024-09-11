@@ -1,6 +1,6 @@
 
 - [x] Grab example code
-- [ ] Set up cookie secret on server
+- [x] Set up cookie secret on server
 - [x] Add pinkgill.mycopunk.it & bast to caddy configs
 - [x] Get port and keep it here
 - [ ] Run the polity tool to deploy it automatically
