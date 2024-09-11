@@ -6,4 +6,4 @@
 - [ ] Run the polity tool to deploy it automatically
 - [ ] Set up the bare minimum to get OAuth
 - [ ] Think about how the routing works
-- [ ] Build setup including cssn and esbuild
+- [x] Build setup including cssn and esbuild

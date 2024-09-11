@@ -1,4 +1,13 @@
 
-import { yolo } from '../client/store/router.js';
+import { loadIdentity, $isLoggedIn, $loginLoading } from '../client/store/identity.js';
 
-yolo();
+import '../client/el/root-routes.js';
+import '../client/el/404.js';
+import '../client/el/loading.js';
+
+$isLoggedIn.subscribe(val => console.warn(`logged in: ${val}`));
+$loginLoading.subscribe(val => console.warn(`loading: ${val}`));
+
+(async function () {
+  await loadIdentity();
+})();
