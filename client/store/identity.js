@@ -14,6 +14,12 @@ export async function loadIdentity () {
   }
   else {
     $isLoggedIn.set(true);
+    // const json = await res.text();
+    // console.warn(`TEXT`, json);
+    // const { data } = JSON.parse(json);
+    // console.warn(`JSON`, data);
+    // $identity.set(data);
+    // console.warn(await res.text());
     $identity.set((await res.json())?.data);
   }
   $loginLoading.set(false);

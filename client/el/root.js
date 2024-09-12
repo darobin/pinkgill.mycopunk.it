@@ -3,9 +3,11 @@ import { LitElement, html, css } from 'lit';
 import { withStores } from "@nanostores/lit";
 import { $computedRoute } from '../store/router.js';
 import { $identity } from '../store/identity.js';
+import { $uiTileOverlayOpen, openTileOverlay, closeTileOverlay } from '../store/ui.js';
 import { header2, buttons } from './styles.js';
+import { handleForm } from '../lib/form.js';
 
-export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $identity]) {
+export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $identity, $uiTileOverlayOpen]) {
   static styles = [
     css`
       :host {
@@ -55,12 +57,28 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
       .empty-timeline {
         color: var(--sl-color-neutral-500);
       }
+      sl-dialog {
+        --width: 600px;
+      }
+      sl-dialog sl-input {
+        margin-bottom: var(--sl-spacing-small);
+      } 
     `,
     header2,
     buttons,
   ];
+  handleOverlayClose (ev) {
+    if (ev.detail.source === 'overlay') ev.preventDefault();
+  }
+  async handleCreateTile (ev) {
+    const data = handleForm(ev);
+    console.warn(data);
+    // XXX do something with the data here
+  }
   render () {
     const route = $computedRoute.get();
+    const overlayOpen = $uiTileOverlayOpen.get();
+    console.warn(`overlayOpen ${overlayOpen}`);
     if (route === 'loading') return html`<div class="loading"><pg-loading></pg-loading></div>`;
     if (route === 'login') {
       const errMsg = new URL(window.location).searchParams.get('error');
@@ -87,15 +105,28 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
             <li class="no-results">No installed tiles.</li>
           </ul>
         </sl-card>
-        <sl-button @click=${this.handleCreateTile} class="action">
+        <sl-button @click=${openTileOverlay} class="action" ?disabled=${overlayOpen}>
           <sl-icon slot="prefix" name="pencil-square"></sl-icon>
           Create tile
         </sl-button>
       </div>
+
       <div class="timeline">
         <span class="empty-timeline">Nothing to show.</span>
       </div>
+
+      <sl-dialog label="Create tile" @sl-request-close=${this.handleOverlayClose} ?open=${overlayOpen} @sl-after-hide=${closeTileOverlay}>
+        <form @submit=${this.handleCreateTile} id="tile-maker">
+          <sl-input label="Name" name="name" required @sl-focus=${() => console.warn(this.closest('body'))}></sl-input>
+          <pg-upload name="tile"></pg-upload>
+        </form>
+        <div slot="footer">
+          <sl-button>Close</sl-button>
+          <sl-button class="action" type="submit" form="tile-maker">Post</sl-button>
+        </div>
+      </sl-dialog>
     </div>`;
+
     return html`<pg-404></pg-404>`;
   }
 }

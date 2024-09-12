@@ -7,6 +7,7 @@ import '../client/el/root.js';
 import '../client/el/404.js';
 import '../client/el/loading.js';
 import '../client/el/avatar.js';
+import '../client/el/upload.js';
 
 (async function () {
   await loadIdentity();
