@@ -1,6 +1,8 @@
 
 import events from 'node:events';
 import process from 'node:process';
+import { mkdir } from 'node:fs/promises';
+import { basename } from 'node:path';
 import express from 'express';
 import { HOST, PORT, DB_PATH } from './lib/config.js';
 import { pino } from 'pino'
@@ -22,6 +24,7 @@ export class Server {
 
   static async create () {
     const logger = pino({ name: 'pinkgill start' });
+    await mkdir(basename(DB_PATH), { recursive: true });
     const db = createDB(DB_PATH);
     await migrateToLatest(db);
 
