@@ -3,6 +3,7 @@ import { LitElement, html, css } from 'lit';
 import { withStores } from "@nanostores/lit";
 import { $computedRoute } from '../store/router.js';
 import { $identity } from '../store/identity.js';
+import { header2, buttons } from './styles.js';
 
 export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $identity]) {
   static styles = [
@@ -11,23 +12,10 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
         display: block;
       }
       .loading, .login {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-      }
-      .login h2 {
-        font-family: var(--header-fam);
-        font-size: 1rem;
-        font-weight: 900;
-        text-decoration: underline;
-        text-decoration-color: var(--electric-bright);
-        text-decoration-thickness: 2px;
-        margin: 0;
       }
       .login form {
         display: flex;
@@ -40,7 +28,36 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
         min-width: 400px;
         margin-bottom: var(--sl-spacing-small);
       }
-    `
+      ul {
+        padding: 0;
+        margin: 0;
+      }
+      li.no-results {
+        list-style-type: none;
+        padding: 0;
+        color: var(--sl-color-neutral-500);
+      }
+      .home {
+        display: flex;
+        margin-top: var(--sl-spacing-large);
+        gap: var(--sl-spacing-medium);
+      }
+      .sidebar {
+        width: 220px;
+      }
+      .sidebar sl-card {
+        width: 100%;
+        margin-bottom: var(--sl-spacing-medium);
+      }
+      .sidebar sl-button {
+        width: 100%;
+      }
+      .empty-timeline {
+        color: var(--sl-color-neutral-500);
+      }
+    `,
+    header2,
+    buttons,
   ];
   render () {
     const route = $computedRoute.get();
@@ -57,13 +74,29 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
           </sl-alert>
           <form action="/api/login" method="post">
             <sl-input name="handle" placeholder="Enter your handle (e.g. alice.bsky.social)" required></sl-input>
-            <sl-button type="submit" variant="primary">Log in</sl-button>
+            <sl-button type="submit" class="action">Log in</sl-button>
           </form>
         </sl-card>
       </div>`;
     }
-    if (route === 'home') return html`home of <pre>${JSON.stringify($identity.get(), null, 2)}</pre>`;
-    if (route === '404') return html`<pg-404></pg-404>`;
+    if (route === 'home') return html`<div class="home">
+      <div class="sidebar">
+        <sl-card>
+          <h2 slot="header">installed tiles</h2>
+          <ul>
+            <li class="no-results">No installed tiles.</li>
+          </ul>
+        </sl-card>
+        <sl-button @click=${this.handleCreateTile} class="action">
+          <sl-icon slot="prefix" name="pencil-square"></sl-icon>
+          Create tile
+        </sl-button>
+      </div>
+      <div class="timeline">
+        <span class="empty-timeline">Nothing to show.</span>
+      </div>
+    </div>`;
+    return html`<pg-404></pg-404>`;
   }
 }
 

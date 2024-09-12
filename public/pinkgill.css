@@ -32,14 +32,24 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: var(--body-fam);
+  height: 100%;
 }
 main {
   max-width: var(--max-body-width);
   margin: 0 auto;
+  display: grid;
+  grid-template-rows: min-content 1fr min-content;
+  grid-template-areas:
+    "header"
+    "body"
+    "footer"
+  ;
+  height: 100%;
 }
 main header {
   display: flex;
   align-items: center;
+  grid-area: header;
 }
 h1 {
   font-family: var(--header-fam);
@@ -52,4 +62,21 @@ h1 {
 }
 main header img {
   margin-right: -6px;
+}
+pod-root, main > section {
+  grid-area: body;
+}
+footer {
+  grid-area: footer;
+  text-align: right;
+  padding: var(--sl-spacing-small) 0;
+}
+a {
+  color: var(--electric-dark);
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--electric-bright);
+  transition: text-decoration-thickness .2s;
+}
+a:hover {
+  text-decoration-thickness: 3px;
 }
