@@ -1,9 +1,6 @@
 
 import { LitElement, html, css } from 'lit';
 
-const supportsFileSystemAccessAPI = 'getAsFileSystemHandle' in DataTransferItem.prototype;
-const supportsWebkitGetAsEntry = 'webkitGetAsEntry' in DataTransferItem.prototype;
-
 // NOTE
 // Normally, this should be a proper form element based on ShoelaceElement, FormControlController, etc.
 // But it looks like Shoelace doesn't properly export these or make them available. So we're hacking our
@@ -14,10 +11,15 @@ export class PinkgillUpload extends LitElement {
     name: {},
     require: { type: Boolean },
     attachedForm: {},
+    error: { type: String, state: true },
+    hovering: { type: Boolean, state: true },
+    resources: { state: true },
   };
   constructor () {
     super();
-    this.name = '';
+    this.name = 'files';
+    this.resources = {};
+    this.handleFormData = this.handleFormData.bind(this);
   }
   static styles = [
     css`
@@ -39,17 +41,17 @@ export class PinkgillUpload extends LitElement {
         color: var(--electric-dark);
         border-color: var(--electric-dark);
       }
+      .drop.error {
+        background-color: var(--sl-color-danger-100);
+        color: var(--sl-color-danger-500);
+        border-color: var(--sl-color-danger-500);
+      }
       .drop > span.label {
         user-select: none;
         pointer-events: none;
       }
     `
   ];
-  // XXX
-  // - default rendering
-  // - label & help text
-  // - handle file drops
-  // - find containing form and listen to formdata
   connectedCallback () {
     super.connectedCallback();
     this.attachedForm = this.closest('form');
@@ -63,16 +65,17 @@ export class PinkgillUpload extends LitElement {
     this.attachedForm = null;
   }
   handleFormData (ev) {
-    // XXX
-    // - if required, cancel this (possible?) and set invalid
-    // - if data, attach it to the FormData
+    Object.keys(this.resources).forEach(path => {
+      ev.formData.append(this.name, this.resources[path].file, path);
+    });
   }
-
   hover () {
-    this.shadowRoot.querySelector('.drop')?.classList.add('dropping');
+    this.hovering = true;
+    this.error = '';
   }
   unhover () {
-    this.shadowRoot.querySelector('.drop')?.classList.remove('dropping');
+    this.hovering = false;
+    this.error = '';
   }
   handleDragOver (ev) {
     ev.preventDefault();
@@ -85,25 +88,65 @@ export class PinkgillUpload extends LitElement {
   }
   async handleDrop (ev) {
     ev.preventDefault();
-    // NOTE: should probably error earlier since that's unfixable
-    if (!supportsFileSystemAccessAPI && !supportsWebkitGetAsEntry) return;
+    this.error = '';
+    if (!('webkitGetAsEntry' in DataTransferItem.prototype)) {
+      this.error = 'Your browser does not support dropping directories.'
+      return;
+    }
     this.unhover();
-    const handles = await Promise.all([...ev.dataTransfer.items]
-      .filter((item) => item.kind === 'file')
-      .map((item) => supportsFileSystemAccessAPI ? item.getAsFileSystemHandle() : item.webkitGetAsEntry())
-    );
-    handles.forEach(h => console.warn(`[${(h.kind === 'directory' || h.isDirectory) ? 'D' : 'F'}] ${h.name}`));
+    if (ev.dataTransfer.items.length > 1 || ev.dataTransfer.items[0].kind !== 'file') {
+      this.error = 'Only drop one directory.'
+      return;
+    }
+    const entry = ev.dataTransfer.items[0].webkitGetAsEntry();
+    if (!entry.isDirectory) {
+      this.error = 'Drop must be a directory.'
+      return;
+    }
+    const resources = {};
+    await getResourceTree(entry, '/', resources);
+    if (!resources['/index.html']) {
+      this.error = 'There must be a file called "index.html" at the root.'
+      return;
+    }
+    this.resources = resources;
   }
   render () {
-    return html`<div class="drop"
-        @dragover=${this.handleDragOver} 
-        @dragenter=${this.handleDragEnter}
-        @dragleave=${this.handleDragLeave}
-        @drop=${this.handleDrop}
-      >
-      <span class="label">Drop tile directory here.</span>
-    </div>`;
+    const classes = ['drop'];
+    if (this.error) classes.push('error');
+    else if (this.hovering)  classes.push('dropping');
+    const paths = Object.keys(this.resources || {});
+    if (!paths.length) {
+      return html`<div class=${classes.join(' ')}
+          @dragover=${this.handleDragOver} 
+          @dragenter=${this.handleDragEnter}
+          @dragleave=${this.handleDragLeave}
+          @drop=${this.handleDrop}
+        >
+        <span class="label">${this.error || `Drop tile directory here.`}</span>
+      </div>`;
+    }
+    return html`<ul class="resources">
+      ${ paths.sort().map(p => html`<li>${p}</li>` )}
+    </ul>`;
   }
 }
 
 customElements.define('pg-upload', PinkgillUpload);
+
+const ignoreFiles = ['.DS_Store'];
+async function getResourceTree (dir, parentPath, resources) {
+  const dr = dir.createReader();
+  const entries = await new Promise((resolve, reject) => dr.readEntries(resolve, reject));
+  for (let entry of entries) {
+    if (ignoreFiles.find(fn => fn === entry.name)) continue;
+    const path = `${parentPath}${entry.name}${entry.isDirectory ? '/' : ''}`;
+    if (entry.isFile) {
+      const file = await new Promise((resolve, reject) => entry.file(resolve, reject));
+      resources[path] = { file, mediaType: file.type };
+    }
+    else {
+      await getResourceTree(entry, path, resources);
+    }
+  }
+}

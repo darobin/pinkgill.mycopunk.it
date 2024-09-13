@@ -71,14 +71,21 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
     if (ev.detail.source === 'overlay') ev.preventDefault();
   }
   async handleCreateTile (ev) {
-    const data = handleForm(ev);
-    console.warn(data);
+    // const data = handleForm(ev);
+    ev.preventDefault();
+    // console.warn(`target`, ev.target, new FormData(ev.target));
+    const body = new FormData(ev.target);
+    console.warn(body);
+    const res = await fetch('/api/tile', {
+      method: 'post',
+      body,
+    });
+    console.warn(res);
     // XXX do something with the data here
   }
   render () {
     const route = $computedRoute.get();
     const overlayOpen = $uiTileOverlayOpen.get();
-    console.warn(`overlayOpen ${overlayOpen}`);
     if (route === 'loading') return html`<div class="loading"><pg-loading></pg-loading></div>`;
     if (route === 'login') {
       const errMsg = new URL(window.location).searchParams.get('error');
@@ -117,7 +124,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
 
       <sl-dialog label="Create tile" @sl-request-close=${this.handleOverlayClose} ?open=${overlayOpen} @sl-after-hide=${closeTileOverlay}>
         <form @submit=${this.handleCreateTile} id="tile-maker">
-          <sl-input label="Name" name="name" required @sl-focus=${() => console.warn(this.closest('body'))}></sl-input>
+          <sl-input label="Name" name="name" required></sl-input>
           <pg-upload name="tile"></pg-upload>
         </form>
         <div slot="footer">
