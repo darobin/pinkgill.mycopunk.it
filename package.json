@@ -12,7 +12,8 @@
     "watch-server": "node --watch server.js | pino-pretty",
     "watch-js": "./build.js --watch",
     "build-js": "./build.js",
-    "watch-css": "NODE_ENV=production cssn --watch public/pinkgill.css public/pinkgill.min.css"
+    "watch-css": "NODE_ENV=production cssn --watch public/pinkgill.css public/pinkgill.min.css",
+    "gen-lex": "lex gen-server ./lib/lexicons ./lexicons/*"
   },
   "bin": {},
   "repository": {
@@ -36,6 +37,7 @@
   "dependencies": {
     "@atproto/api": "^0.13.6",
     "@atproto/identity": "^0.4.1",
+    "@atproto/lexicon": "^0.4.1",
     "@atproto/oauth-client-node": "^0.1.0",
     "@atproto/syntax": "^0.3.0",
     "@nanostores/lit": "^0.2.2",
@@ -45,10 +47,12 @@
     "iron-session": "^8.0.3",
     "kysely": "^0.27.4",
     "lit": "^3.2.0",
+    "multer2": "^1.1.1",
     "nanostores": "^0.11.3",
     "pino": "^9.4.0"
   },
   "devDependencies": {
+    "@atproto/lex-cli": "^0.5.0",
     "@ngrok/ngrok": "^1.4.1",
     "@shoelace-style/shoelace": "^2.16.0",
     "concurrently": "^9.0.0",
