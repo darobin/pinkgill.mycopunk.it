@@ -6,11 +6,10 @@ import { basename } from 'node:path';
 import express from 'express';
 import { HOST, PORT, DB_PATH, UPLOAD_PATH, BLOB_PATH } from './lib/config.js';
 import { pino } from 'pino'
-// import { Firehose } from '@atproto/sync'
 
 import createRouter from './lib/router.js';
 import { createDB, migrateToLatest } from './lib/db.js';
-// import { createIngester } from '#/ingester'
+import { createIngester } from './lib/ingester.js';
 import { createClient } from './lib/auth-client.js';
 import { createBidirectionalResolver, createIdResolver } from './lib/id-resolver.js';
 // import { IdResolver, MemoryCache } from '@atproto/identity'
@@ -34,17 +33,16 @@ export class Server {
     const oauthClient = await createClient(db);
     const baseIdResolver = createIdResolver();
     const resolver = createBidirectionalResolver(baseIdResolver);
-    // const ingester = createIngester(db, baseIdResolver)
+    const ingester = createIngester(db, baseIdResolver);
     const ctx = {
       db,
-      // ingester,
+      ingester,
       logger,
       oauthClient,
       resolver,
     };
 
-    // Subscribe to events on the firehose
-    // ingester.start()
+    ingester.start();
 
     const app = express();
     app.set('trust proxy', true);
@@ -62,7 +60,7 @@ export class Server {
 
   async close () {
     this.ctx.logger.info('sigint received, shutting down');
-    // await this.ctx.ingester.destroy()
+    await this.ctx.ingester.destroy();
     return new Promise((resolve) => {
       this.server.close(() => {
         this.ctx.logger.info('server terminated');
