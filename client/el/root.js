@@ -5,7 +5,6 @@ import { $computedRoute } from '../store/router.js';
 import { $identity } from '../store/identity.js';
 import { $uiTileOverlayOpen, openTileOverlay, closeTileOverlay } from '../store/ui.js';
 import { header2, buttons } from './styles.js';
-import { handleForm } from '../lib/form.js';
 
 export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $identity, $uiTileOverlayOpen]) {
   static styles = [
