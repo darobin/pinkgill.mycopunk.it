@@ -8,6 +8,8 @@ import '../client/el/404.js';
 import '../client/el/loading.js';
 import '../client/el/avatar.js';
 import '../client/el/upload.js';
+import '../client/el/timeline.js';
+import '../client/el/tile.js';
 
 (async function () {
   await loadIdentity();

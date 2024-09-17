@@ -45,6 +45,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
         display: flex;
         margin-top: var(--sl-spacing-large);
         gap: var(--sl-spacing-medium);
+        height: 100%;
       }
       .sidebar {
         width: 220px;
@@ -56,8 +57,8 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
       .sidebar sl-button {
         width: 100%;
       }
-      .empty-timeline {
-        color: var(--sl-color-neutral-500);
+      .timeline {
+        flex-grow: 1;
       }
       sl-dialog {
         --width: 600px;
@@ -130,7 +131,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
       </div>
 
       <div class="timeline">
-        <span class="empty-timeline">Nothing to show.</span>
+        <pg-timeline></pg-timeline>
       </div>
 
       <sl-dialog label="Create tile" @sl-request-close=${this.handleOverlayClose} ?open=${overlayOpen} @sl-after-hide=${closeTileOverlay}>
@@ -144,7 +145,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
           <pg-upload name="tile"></pg-upload>
         </form>
         <div slot="footer">
-          <sl-button>Close</sl-button>
+          <sl-button @click=${closeTileOverlay}>Close</sl-button>
           <sl-button class="action" type="submit" form="tile-maker">Post</sl-button>
         </div>
       </sl-dialog>
