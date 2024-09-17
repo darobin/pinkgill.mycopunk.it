@@ -66,7 +66,7 @@ export class PinkgillUpload extends LitElement {
   }
   handleFormData (ev) {
     Object.keys(this.resources).forEach(path => {
-      ev.formData.append(this.name, this.resources[path].file, path);
+      ev.formData.append(this.name, this.resources[path].file, encodeURIComponent(path));
     });
   }
   hover () {

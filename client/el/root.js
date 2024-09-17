@@ -7,6 +7,9 @@ import { $uiTileOverlayOpen, openTileOverlay, closeTileOverlay } from '../store/
 import { header2, buttons } from './styles.js';
 
 export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $identity, $uiTileOverlayOpen]) {
+  static properties = {
+    uploadError: { state: true },
+  };
   static styles = [
     css`
       :host {
@@ -66,21 +69,30 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
     header2,
     buttons,
   ];
+  constructor () {
+    super();
+    this.uploadError = '';
+  }
   handleOverlayClose (ev) {
     if (ev.detail.source === 'overlay') ev.preventDefault();
   }
   async handleCreateTile (ev) {
-    // const data = handleForm(ev);
+    this.uploadError = '';
     ev.preventDefault();
-    // console.warn(`target`, ev.target, new FormData(ev.target));
     const body = new FormData(ev.target);
-    console.warn(body);
     const res = await fetch('/api/tile', {
       method: 'post',
       body,
     });
-    console.warn(res);
-    // XXX do something with the data here
+    if (res.ok) {
+      closeTileOverlay();
+      // XXX maybe refresh timeline?
+    }
+    else {
+      console.warn(res);
+      const err = await res.json();
+      this.uploadError = err.error;
+    }
   }
   render () {
     const route = $computedRoute.get();
@@ -94,7 +106,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
           <sl-alert variant="danger" ?open=${!!errMsg} closable>
             <sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
             <strong>${errMsg}</strong><br>
-            Please trying logging in again to continue.
+            Please try logging in again to continue.
           </sl-alert>
           <form action="/api/login" method="post">
             <sl-input name="handle" placeholder="Enter your handle (e.g. alice.bsky.social)" required></sl-input>
@@ -123,6 +135,11 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
 
       <sl-dialog label="Create tile" @sl-request-close=${this.handleOverlayClose} ?open=${overlayOpen} @sl-after-hide=${closeTileOverlay}>
         <form @submit=${this.handleCreateTile} id="tile-maker">
+          <sl-alert variant="danger" ?open=${!!this.uploadError} closable>
+            <sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
+            <strong>${this.uploadError}</strong><br>
+            Please try again.
+          </sl-alert>
           <sl-input label="Name" name="name" required></sl-input>
           <pg-upload name="tile"></pg-upload>
         </form>
