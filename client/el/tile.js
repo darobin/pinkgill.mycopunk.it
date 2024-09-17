@@ -13,7 +13,7 @@ export class PinkgillTile extends LitElement {
     `,
   ];
   render () {
-    return html`<pre>${this.tile}</pre>`;
+    return html`<pre>${JSON.stringify(this.tile, null, 2)}</pre>`;
   }
 }
 

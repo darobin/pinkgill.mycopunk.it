@@ -4,6 +4,7 @@ import { withStores } from "@nanostores/lit";
 import { $computedRoute } from '../store/router.js';
 import { $identity } from '../store/identity.js';
 import { $uiTileOverlayOpen, openTileOverlay, closeTileOverlay } from '../store/ui.js';
+import { refreshTimeline } from '../store/timeline.js';
 import { header2, buttons } from './styles.js';
 
 export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $identity, $uiTileOverlayOpen]) {
@@ -81,13 +82,15 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
     this.uploadError = '';
     ev.preventDefault();
     const body = new FormData(ev.target);
+    ev.target.reset();
+    ev.target.querySelector('pg-upload')?.reset();
     const res = await fetch('/api/tile', {
       method: 'post',
       body,
     });
-    if (res.ok) {
+    if (res.ok && res.status < 400) {
       closeTileOverlay();
-      // XXX maybe refresh timeline?
+      await refreshTimeline();
     }
     else {
       console.warn(res);

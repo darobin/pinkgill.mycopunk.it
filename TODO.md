@@ -1,9 +1,9 @@
 
 ## Issues
 
-- [ ] upload form needs to reset on success
-- [ ] upload form sometimes disappears even though an error is coming in
-- [ ] data is wrong
+- [x] upload form needs to reset on success
+- [x] upload form sometimes disappears even though an error is coming in
+- [x] data is wrong
 - [ ] need to render tiles
 - [ ] need to serve tiles
 - [ ] need to detect correct media type

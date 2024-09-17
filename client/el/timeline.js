@@ -35,7 +35,7 @@ export class PinkgillTimeline extends withStores(LitElement, [$timeline, $timeli
       const div = idx ? html`<sl-divider></sl-divider>` : nothing;
       return html`
         ${div}
-        <pg-tile tile=${tile}></pg-tile>
+        <pg-tile .tile=${tile}></pg-tile>
       `;
     });
   }

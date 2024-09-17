@@ -9,7 +9,7 @@ import { LitElement, html, css } from 'lit';
 export class PinkgillUpload extends LitElement {
   static properties = {
     name: {},
-    require: { type: Boolean },
+    required: { type: Boolean },
     attachedForm: {},
     error: { type: String, state: true },
     hovering: { type: Boolean, state: true },
@@ -85,6 +85,9 @@ export class PinkgillUpload extends LitElement {
   }
   handleDragLeave () {
     this.unhover();
+  }
+  reset () {
+    this.resources = {};
   }
   async handleDrop (ev) {
     ev.preventDefault();
