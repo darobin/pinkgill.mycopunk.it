@@ -4,6 +4,7 @@
 - [x] upload form needs to reset on success
 - [x] upload form sometimes disappears even though an error is coming in
 - [x] data is wrong
+- [ ] add wildcards to polity2 server too
 - [ ] need to render tiles
 - [ ] need to serve tiles
 - [ ] need to detect correct media type
