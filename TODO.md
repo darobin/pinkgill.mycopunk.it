@@ -10,12 +10,13 @@
 - [x] need to detect correct media type
 - [x] optimistic indexing
 - [x] event source to signal stream refresh
-- [ ] tiles need way of rendering inert (with a template and tile data)
-- [ ] tiles need an aspect ratio
+- [x] tiles need an aspect ratio
 - [ ] add support for manifests that can fill in the name but also wishes
 - [ ] add installation support (a new record type)
 - [ ] add wish handling, including posting back
 - [ ] need a way to support feeds and the such
+- [ ] tiles need way of rendering inert (with a template and tile data)
+- [ ] need to check viewport resizing tile aspect support
 
 
 ```json

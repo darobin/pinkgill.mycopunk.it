@@ -79,17 +79,18 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
     if (ev.detail.source === 'overlay') ev.preventDefault();
   }
   async handleCreateTile (ev) {
+    const form = ev.target;
     this.uploadError = '';
     ev.preventDefault();
-    const body = new FormData(ev.target);
-    ev.target.querySelector('pg-upload')?.reset();
+    const body = new FormData(form);
     const res = await fetch('/api/tile', {
       method: 'post',
       body,
     });
     if (res.ok && res.status < 400) {
       closeTileOverlay();
-      ev.target.reset();
+      form.reset();
+      form.querySelector('pg-upload')?.reset();
       await refreshTimeline();
     }
     else {
