@@ -47,7 +47,7 @@ export class Server {
 
     const app = express();
     app.set('trust proxy', true);
-    const router = createRouter(ctx);
+    const router = await createRouter(ctx);
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(router);

@@ -66,7 +66,7 @@ export class PinkgillUpload extends LitElement {
   }
   handleFormData (ev) {
     Object.keys(this.resources).forEach(path => {
-      ev.formData.append(this.name, this.resources[path].file, encodeURIComponent(path));
+      ev.formData.append(this.name, this.resources[path], encodeURIComponent(path));
     });
   }
   hover () {
@@ -146,7 +146,7 @@ async function getResourceTree (dir, parentPath, resources) {
     const path = `${parentPath}${entry.name}${entry.isDirectory ? '/' : ''}`;
     if (entry.isFile) {
       const file = await new Promise((resolve, reject) => entry.file(resolve, reject));
-      resources[path] = { file, mediaType: file.type };
+      resources[path] = file;
     }
     else {
       await getResourceTree(entry, path, resources);

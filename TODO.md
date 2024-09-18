@@ -7,7 +7,7 @@
 - [x] add wildcards to polity2 server too
 - [x] need to render tiles
 - [x] need to serve tiles
-- [ ] need to detect correct media type
+- [x] need to detect correct media type
 - [x] optimistic indexing
 - [x] event source to signal stream refresh
 - [ ] tiles need way of rendering inert (with a template and tile data)

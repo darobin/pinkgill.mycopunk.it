@@ -50,7 +50,8 @@
     "lit": "^3.2.0",
     "multer2": "^1.1.1",
     "nanostores": "^0.11.3",
-    "pino": "^9.4.0"
+    "pino": "^9.4.0",
+    "wasmagic": "^1.0.2"
   },
   "devDependencies": {
     "@atproto/lex-cli": "^0.5.0",
