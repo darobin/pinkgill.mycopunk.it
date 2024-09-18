@@ -82,7 +82,6 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
     this.uploadError = '';
     ev.preventDefault();
     const body = new FormData(ev.target);
-    ev.target.reset();
     ev.target.querySelector('pg-upload')?.reset();
     const res = await fetch('/api/tile', {
       method: 'post',
@@ -90,6 +89,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
     });
     if (res.ok && res.status < 400) {
       closeTileOverlay();
+      ev.target.reset();
       await refreshTimeline();
     }
     else {

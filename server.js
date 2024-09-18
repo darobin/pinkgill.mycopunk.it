@@ -8,7 +8,7 @@ import { HOST, PORT, DB_PATH, UPLOAD_PATH, BLOB_PATH } from './lib/config.js';
 import { pino } from 'pino'
 
 import createRouter from './lib/router.js';
-import { createDB, migrateToLatest } from './lib/db.js';
+import { createDB, migrateToLatest, dbEvents } from './lib/db.js';
 import { createIngester } from './lib/ingester.js';
 import { createClient } from './lib/auth-client.js';
 import { createBidirectionalResolver, createIdResolver } from './lib/id-resolver.js';
@@ -36,6 +36,7 @@ export class Server {
     const ingester = await createIngester(db, baseIdResolver);
     const ctx = {
       db,
+      dbEvents,
       ingester,
       logger,
       oauthClient,

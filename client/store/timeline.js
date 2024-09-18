@@ -1,6 +1,8 @@
 
 import { atom, onMount } from "nanostores";
 
+let sse;
+
 export const $timeline = atom([]);
 export const $timelineLoading = atom(true);
 export const $timelineError = atom(false);
@@ -21,4 +23,10 @@ export async function refreshTimeline () {
   $timelineLoading.set(false);
 }
 
-onMount($timeline, refreshTimeline);
+onMount($timeline, async () => {
+  await refreshTimeline();
+  sse = new EventSource('/api/events');
+  sse.addEventListener('new-tile', async () => {
+    await refreshTimeline();
+  });
+});

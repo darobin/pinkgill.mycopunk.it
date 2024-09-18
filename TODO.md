@@ -4,12 +4,12 @@
 - [x] upload form needs to reset on success
 - [x] upload form sometimes disappears even though an error is coming in
 - [x] data is wrong
-- [ ] add wildcards to polity2 server too
-- [ ] need to render tiles
-- [ ] need to serve tiles
+- [x] add wildcards to polity2 server too
+- [x] need to render tiles
+- [x] need to serve tiles
 - [ ] need to detect correct media type
-- [ ] optimistic indexing
-- [ ] event source to signal stream refresh
+- [x] optimistic indexing
+- [x] event source to signal stream refresh
 - [ ] tiles need way of rendering inert (with a template and tile data)
 - [ ] tiles need an aspect ratio
 - [ ] add support for manifests that can fill in the name but also wishes
