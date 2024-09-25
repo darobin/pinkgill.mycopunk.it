@@ -9,10 +9,9 @@ import { pino } from 'pino'
 
 import createRouter from './lib/router.js';
 import { createDB, migrateToLatest, dbEvents } from './lib/db.js';
-import { createIngester } from './lib/ingester.js';
+import { createJetStreamIngester } from './lib/ingester.js';
 import { createClient } from './lib/auth-client.js';
 import { createBidirectionalResolver, createIdResolver } from './lib/id-resolver.js';
-// import { IdResolver, MemoryCache } from '@atproto/identity'
 
 export class Server {
   constructor(app, server, ctx) {
@@ -33,7 +32,8 @@ export class Server {
     const oauthClient = await createClient(db);
     const baseIdResolver = createIdResolver();
     const resolver = createBidirectionalResolver(baseIdResolver);
-    const ingester = await createIngester(db, baseIdResolver);
+    // const ingester = await createIngester(db, baseIdResolver);
+    const ingester = await createJetStreamIngester(db);
     const ctx = {
       db,
       dbEvents,
