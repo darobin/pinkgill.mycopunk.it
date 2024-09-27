@@ -1,5 +1,6 @@
 
 import { LitElement, html, css } from 'lit';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { withStores } from "@nanostores/lit";
 import { $computedRoute } from '../store/router.js';
 import { $identity } from '../store/identity.js';
@@ -105,6 +106,9 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
     if (route === 'loading') return html`<div class="loading"><pg-loading></pg-loading></div>`;
     if (route === 'login') {
       const errMsg = new URL(window.location).searchParams.get('error');
+      const match = (document.cookie || '').match(/\bhandle=([\w.-]+)\b/);
+      let handle;
+      if (match) handle = match[1];
       return html`<div class="login">
         <sl-card>
           <h2 slot="header">login</h2>
@@ -114,7 +118,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $ident
             Please try logging in again to continue.
           </sl-alert>
           <form action="/api/login" method="post">
-            <sl-input name="handle" placeholder="Enter your handle (e.g. alice.bsky.social)" required></sl-input>
+            <sl-input name="handle" placeholder="Enter your handle (e.g. alice.bsky.social)" value=${ifDefined(handle)} required></sl-input>
             <sl-button type="submit" class="action">Log in</sl-button>
           </form>
         </sl-card>

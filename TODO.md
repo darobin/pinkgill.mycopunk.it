@@ -11,7 +11,8 @@
 - [x] optimistic indexing
 - [x] event source to signal stream refresh
 - [x] tiles need an aspect ratio
-- [ ] switch to Jetstream
+- [x] switch to Jetstream
+  - [ ] Test Jetstream
 - [ ] obtain blobs when you don't have them, on indexing: agent.com.atproto.sync.getBlob({ cid, did })
 - [ ] add support for manifests that can fill in the name but also wishes
 - [ ] add installation support (a new record type)
