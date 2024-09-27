@@ -21,6 +21,18 @@
 - [ ] tiles need way of rendering inert (with a template and tile data)
 - [ ] need to check viewport resizing tile aspect support
 
+- [ ] test `postMessage`
+- [ ] library in `/.well-known/tiles/wishing`
+- [ ] `window.wish.ready` as a promise that resolves when it is indeed ready (messaged up, got response)
+- [ ] install API + lexicon + ingester + fetch + store
+- [ ] install / uninstall affordances + list
+- [ ] several different palettes for installed wishes
+- [ ] an `instantiate` wish type (takes no `what`), shows with a (+) button
+  - [ ] popup with the tile, ready with no data
+  - [ ] popup has a Post affordance + API to talk to the tile on post (to get the data)
+  - [ ] instance API + lexicon + ingester + fetch + render
+  - [ ] rendering an instance is the tile + ready with data (not supposed to show editable)
+- [ ] test by copying the manifest & cheating
 
 ```json
 {

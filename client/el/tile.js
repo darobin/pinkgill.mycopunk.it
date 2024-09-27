@@ -1,5 +1,6 @@
 
 import { LitElement, html, css, nothing } from 'lit';
+import { urlForTile } from '../lib/utils.js';
 
 export class PinkgillTile extends LitElement {
   static properties = {
@@ -62,11 +63,23 @@ export class PinkgillTile extends LitElement {
     this.manifest = res.ok ? json?.data : {};
     this.loading = false;
   }
+  handleMessage (ev) {
+    const url = urlForTile(this.tile).replace(/\/$/, '');
+    if (ev.origin !== url) return;
+    const { data } = ev;
+    if (data?.action === 'wish-receiving') {
+      ev.source.postMessage({
+        action: 'make-wish-ready',
+        payload: {
+          mode: 'bare',
+        },
+      }, ev.origin);
+    }
+  }
   render () {
     if (!this.tile) return nothing;
     // did.plc.izttpdp3l6vss5crelt5kcux.3l4e5yozvmk2j.tile.pinkgill.bast
-    const [did, , tid] = this.tile.uri.replace(/^at:\/\//, '').split('/');
-    const url = `https://${did.replace(/:/g, '.')}.${tid}.tile.${window.location.hostname}/`;
+    const url = urlForTile(this.tile);
     let content = html`<pg-loading></pg-loading>`;
     if (!this.loading) {
       let dynHeight;

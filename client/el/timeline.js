@@ -2,6 +2,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { withStores } from "@nanostores/lit";
 import { $timeline, $timelineError, $timelineLoading } from '../store/timeline.js';
+import { urlForTile } from '../lib/utils.js';
 
 export class PinkgillTimeline extends withStores(LitElement, [$timeline, $timelineError, $timelineLoading]) {
   static styles = [
@@ -25,6 +26,23 @@ export class PinkgillTimeline extends withStores(LitElement, [$timeline, $timeli
       }
     `,
   ];
+  constructor () {
+    super();
+    this.handleMessageDispatching = this.handleMessageDispatching.bind(this);
+  }
+  connectedCallback () {
+    super.connectedCallback();
+    window.addEventListener('message', this.handleMessageDispatching);
+  }
+  disconnectedCallback () {
+    super.disconnectedCallback();
+    window.removeEventListener('message', this.handleMessageDispatching);
+  }
+  handleMessageDispatching (ev) {
+    const tile = this.shadowRoot.querySelector(`pg-tile[data-tile-url="${ev.origin}/"]`);
+    if (!tile) return;
+    tile.handleMessage(ev);
+  }
   render () {
     const error = $timelineError.get();
     if (error) return html`<div class="error">${error}</div>`;
@@ -35,7 +53,7 @@ export class PinkgillTimeline extends withStores(LitElement, [$timeline, $timeli
       const div = idx ? html`<sl-divider></sl-divider>` : nothing;
       return html`
         ${div}
-        <pg-tile .tile=${tile}></pg-tile>
+        <pg-tile .tile=${tile} data-tile-url=${urlForTile(tile)}></pg-tile>
       `;
     });
   }
