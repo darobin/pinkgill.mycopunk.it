@@ -20,13 +20,21 @@
 - [ ] need a way to support feeds and the such
 - [ ] tiles need way of rendering inert (with a template and tile data)
 - [ ] need to check viewport resizing tile aspect support
+- [x] refactor root to split components out
+- [ ] several different palettes for installed wishes of different kinds
+- [ ] paginate with endless scroll
+- [ ] better URLs
 
-- [ ] test `postMessage`
-- [ ] library in `/.well-known/tiles/wishing`
-- [ ] `window.wish.ready` as a promise that resolves when it is indeed ready (messaged up, got response)
-- [ ] install API + lexicon + ingester + fetch + store
+### NEXT THING TO DO ###
+- [ ] finish refactoring of create-tile so that it uses the store properly (create and error)
+- [ ] do the same for installs and get back to do 
+### /NEXT THING TO DO ###
+
+- [x] test `postMessage`
+- [x] library in `/.well-known/tiles/wishing`
+- [x] `window.wish.ready` as a promise that resolves when it is indeed ready (messaged up, got response)
+- [x] ~~install API + lexicon + ingester~~ + fetch + store
 - [ ] install / uninstall affordances + list
-- [ ] several different palettes for installed wishes
 - [ ] an `instantiate` wish type (takes no `what`), shows with a (+) button
   - [ ] popup with the tile, ready with no data
   - [ ] popup has a Post affordance + API to talk to the tile on post (to get the data)

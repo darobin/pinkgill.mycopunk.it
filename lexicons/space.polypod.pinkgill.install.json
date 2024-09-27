@@ -1,0 +1,32 @@
+{
+  "lexicon": 1,
+  "id": "space.polypod.pinkgill.install",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Record installing or uninstalling a Tile.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["operation", "tile", "createdAt"],
+        "properties": {
+          "operation": {
+            "type": "string",
+            "enum": ["install", "uninstall"],
+            "description": "The operation that is performed."
+          },
+          "tile": {
+            "type": "string",
+            "format": "at-uri",
+            "description": "AT URL pointing to the tile."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Client-declared timestamp when the operation was carried out."
+          }
+        }
+      }
+    }
+  }
+}
