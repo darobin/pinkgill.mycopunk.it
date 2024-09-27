@@ -48,6 +48,7 @@
     "iron-session": "^8.0.3",
     "kysely": "^0.27.4",
     "lit": "^3.2.0",
+    "mime-types": "^2.1.35",
     "multer2": "^1.1.1",
     "nanostores": "^0.11.3",
     "pino": "^9.4.0",
@@ -62,6 +63,7 @@
     "cssn": "^4.1.0",
     "esbuild": "^0.23.1",
     "eslint": "^8.26.0",
+    "nodemon": "^3.1.7",
     "pino-pretty": "^11.2.2"
   }
 }

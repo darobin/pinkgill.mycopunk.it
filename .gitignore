@@ -133,3 +133,4 @@ pinkgill.secret
 data/
 ngrok.token
 copy-secret.sh
+examples/fake-wishing.sh

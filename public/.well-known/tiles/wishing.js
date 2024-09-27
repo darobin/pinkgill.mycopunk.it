@@ -14,7 +14,6 @@ class Wishing {
     this.#readyPromise = new Promise((resolve, reject) => {
       window.addEventListener('message', (ev) => {
         if (!ev.data?.action) return;
-        console.warn(`in tile`, ev);
         const { action, payload } = ev.data;
         if (action === 'make-wish-ready') {
           if (!payload || !validModes.has(payload.mode)) return reject(new Error(`Invalid mode: ${payload.mode || '<unspecified>'}`));
