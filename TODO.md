@@ -32,6 +32,7 @@
 - [x] library in `/.well-known/tiles/wishing`
 - [x] `window.wish.ready` as a promise that resolves when it is indeed ready (messaged up, got response)
 - [x] ~~install API + lexicon + ingester~~ + fetch + store
+- [ ] fix tile URLs to hash instead
 - [ ] install / uninstall affordances + list
 - [ ] an `instantiate` wish type (takes no `what`), shows with a (+) button
   - [ ] popup with the tile, ready with no data
