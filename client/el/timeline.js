@@ -2,7 +2,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { withStores } from "@nanostores/lit";
 import { $timeline, $timelineError, $timelineLoading } from '../store/timeline.js';
-import { urlForTile } from '../lib/utils.js';
+import { urlForTile } from '../store/tiles.js';
 
 export class PinkgillTimeline extends withStores(LitElement, [$timeline, $timelineError, $timelineLoading]) {
   static styles = [

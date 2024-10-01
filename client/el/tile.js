@@ -1,12 +1,11 @@
 
 import { LitElement, html, css, nothing } from 'lit';
-import { urlForTile } from '../lib/utils.js';
+import { MultiStoreController } from '@nanostores/lit';
+import { originForTile, urlForTile, makeTileStores } from '../store/tiles.js';
 
 export class PinkgillTile extends LitElement {
   static properties = {
     tile: { attribute: false },
-    manifest: { attribute: false },
-    loading: { attribute: false },
   };
   static styles = [
     css`
@@ -51,20 +50,15 @@ export class PinkgillTile extends LitElement {
       }
     `,
   ];
-  constructor () {
-    super();
-    this.loading = true;
-  }
+  #storeData = makeTileStores();
+  #controller = new MultiStoreController(this, [this.#storeData.$manifest, this.#storeData.$manifestLoading, this.#storeData.$manifestError]);
   async connectedCallback () {
     super.connectedCallback();
     if (!this.tile) return;
-    const res = await fetch(`/api/manifest?${new URLSearchParams({ url: this.tile.uri })}`);
-    const json = await res.json();
-    this.manifest = res.ok ? json?.data : {};
-    this.loading = false;
+    await this.#storeData.loadManifest(this.tile);
   }
   handleMessage (ev) {
-    const url = urlForTile(this.tile).replace(/\/$/, '');
+    const url = originForTile(this.tile);
     if (ev.origin !== url) return;
     const { data } = ev;
     if (data?.action === 'wish-receiving') {
@@ -80,11 +74,13 @@ export class PinkgillTile extends LitElement {
     if (!this.tile) return nothing;
     // did.plc.izttpdp3l6vss5crelt5kcux.3l4e5yozvmk2j.tile.pinkgill.bast
     const url = urlForTile(this.tile);
+    const loading = this.#storeData.$manifestLoading.get();
     let content = html`<pg-loading></pg-loading>`;
-    if (!this.loading) {
+    if (!loading) {
       let dynHeight;
-      if (this.manifest?.sizing?.width && this.manifest?.sizing?.height) {
-        const { width, height } = this.manifest.sizing;
+      const manifest = this.#storeData.$manifest.get();
+      if (manifest?.sizing?.width && manifest?.sizing?.height) {
+        const { width, height } = manifest.sizing;
         const ratio = height / width;
         const bannerHeight = (document.querySelector('header')?.clientHeight + 16) || 98;
         const maxHeight = window.visualViewport.height - bannerHeight;
