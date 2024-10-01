@@ -1,6 +1,10 @@
 
 import { atom } from "nanostores";
 
+// We'll want something more sophisticated later
+const manifestCache = {};
+const tileCache = {};
+
 export function urlForTile (tile) {
   const [did, , tid] = tile.uri.replace(/^at:\/\//, '').split('/');
   return `https://${did.replace(/:/g, '.')}.${tid}.tile.${window.location.hostname}/`;
@@ -16,10 +20,20 @@ export function makeTileStores () {
   const $manifestError = atom(false);
 
   const loadManifest = async (tile) => {
+    tileCache[tile.uri] = tile;
     $manifestLoading.set(true);
-    const res = await fetch(`/api/manifest?${new URLSearchParams({ url: tile.uri })}`);
-    if (res.ok) {
+    const { uri } = tile;
+    if (manifestCache[uri]) {
       $manifest.set(await res.json()?.data || {});
+      $manifestError.set(false);
+      $manifestLoading.set(false);
+      return;
+    }
+    const res = await fetch(`/api/manifest?${new URLSearchParams({ url: uri })}`);
+    if (res.ok) {
+      const man = (await res.json())?.data || {};
+      $manifest.set(man);
+      manifestCache[uri] = man;
       $manifestError.set(false);
     }
     else {
@@ -65,4 +79,8 @@ export function makeTileUploaderStores () {
     $uploadError,
     uploadTile,
   };
+}
+
+export function getCachedManifest (tile) {
+  return manifestCache[tile.uri];
 }

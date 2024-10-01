@@ -3,6 +3,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { withStores } from "@nanostores/lit";
 import { $timeline, $timelineError, $timelineLoading } from '../store/timeline.js';
 import { urlForTile } from '../store/tiles.js';
+import { errors } from './styles.js';
 
 export class PinkgillTimeline extends withStores(LitElement, [$timeline, $timelineError, $timelineLoading]) {
   static styles = [
@@ -18,13 +19,11 @@ export class PinkgillTimeline extends withStores(LitElement, [$timeline, $timeli
         align-items: center;
         justify-content: center;
       }
-      .error {
-        color: var(--sl-color-danger-500);
-      }
       .empty-timeline {
         color: var(--sl-color-neutral-500);
       }
     `,
+    errors,
   ];
   constructor () {
     super();

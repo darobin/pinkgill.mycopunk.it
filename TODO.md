@@ -14,8 +14,8 @@
 - [x] switch to Jetstream
   - [ ] Test Jetstream
 - [ ] obtain blobs when you don't have them, on indexing: agent.com.atproto.sync.getBlob({ cid, did })
-- [ ] add support for manifests that can fill in the name but also wishes
-- [ ] add installation support (a new record type)
+- [ ] add support for manifests that can fill in the name
+- [x] add installation support (a new record type)
 - [ ] add wish handling, including posting back
 - [ ] need a way to support feeds and the such
 - [ ] tiles need way of rendering inert (with a template and tile data)
@@ -24,11 +24,9 @@
 - [ ] several different palettes for installed wishes of different kinds
 - [ ] paginate with endless scroll
 - [ ] better URLs
-
-### NEXT THING TO DO ###
-- [ ] finish refactoring of create-tile so that it uses the store properly (create and error)
+- [ ] Go through all `onMount` that add a listener on `sse` and make sure they clean up on unmount
+- [x] finish refactoring of create-tile so that it uses the store properly (create and error)
 - [ ] do the same for installs and get back to do 
-### /NEXT THING TO DO ###
 
 - [x] test `postMessage`
 - [x] library in `/.well-known/tiles/wishing`

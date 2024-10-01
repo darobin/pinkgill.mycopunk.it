@@ -4,17 +4,19 @@ import { MultiStoreController } from "@nanostores/lit";
 import { refreshTimeline } from '../store/timeline.js';
 import { $uiTileOverlayOpen, closeTileOverlay } from '../store/ui.js';
 import { makeTileUploaderStores } from '../store/tiles.js';
-
+import { buttons } from './styles.js';
 
 class PinkgillCreateTileDialog extends LitElement {
-  static styles = css`
-    sl-dialog {
-      --width: 600px;
-    }
-    sl-dialog sl-input {
-      margin-bottom: var(--sl-spacing-small);
-    } 
-  `;
+  static styles = [css`
+      sl-dialog {
+        --width: 600px;
+      }
+      sl-dialog sl-input {
+        margin-bottom: var(--sl-spacing-small);
+      } 
+    `,
+    buttons
+  ];
   #uploaderData = makeTileUploaderStores();
   #controller = new MultiStoreController(this, [this.#uploaderData.$uploadDone, this.#uploaderData.$uploadLoading, this.#uploaderData.$uploadError, $uiTileOverlayOpen]);
   handleOverlayClose (ev) {

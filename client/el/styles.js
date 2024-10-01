@@ -25,3 +25,9 @@ export const buttons = css`
     border-color: var(--deeper-bright);
   }
 `;
+
+export const errors = css`
+  .error {
+    color: var(--sl-color-danger-500);
+  }
+`;

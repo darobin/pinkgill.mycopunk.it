@@ -2,6 +2,8 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { MultiStoreController } from '@nanostores/lit';
 import { originForTile, urlForTile, makeTileStores } from '../store/tiles.js';
+import { isInstallable, makeInstaller } from '../store/installs.js';
+import { buttons, errors } from './styles.js';
 
 export class PinkgillTile extends LitElement {
   static properties = {
@@ -48,10 +50,23 @@ export class PinkgillTile extends LitElement {
         height: var(--dynamic-height, 500px);
         border: 0;
       }
+      div[slot="footer"] {
+        text-align: right;
+      }
     `,
+    buttons,
+    errors,
   ];
   #storeData = makeTileStores();
-  #controller = new MultiStoreController(this, [this.#storeData.$manifest, this.#storeData.$manifestLoading, this.#storeData.$manifestError]);
+  #installerData = makeInstaller();
+  #controller = new MultiStoreController(this, [
+    this.#storeData.$manifest, 
+    this.#storeData.$manifestLoading, 
+    this.#storeData.$manifestError, 
+    this.#installerData.$installDone,
+    this.#installerData.$installLoading,
+    this.#installerData.$installError,
+  ]);
   async connectedCallback () {
     super.connectedCallback();
     if (!this.tile) return;
@@ -70,12 +85,17 @@ export class PinkgillTile extends LitElement {
       }, ev.origin);
     }
   }
+  async handleInstall () {
+    if (!this.tile) return;
+    await this.#installerData.installTile(this.tile);
+  }
   render () {
     if (!this.tile) return nothing;
     // did.plc.izttpdp3l6vss5crelt5kcux.3l4e5yozvmk2j.tile.pinkgill.bast
     const url = urlForTile(this.tile);
     const loading = this.#storeData.$manifestLoading.get();
     let content = html`<pg-loading></pg-loading>`;
+    let footer = nothing;
     if (!loading) {
       let dynHeight;
       const manifest = this.#storeData.$manifest.get();
@@ -92,6 +112,14 @@ export class PinkgillTile extends LitElement {
         dynHeight = ownHeight;
       }
       content = html`<iframe src=${url} style=${dynHeight ? `--dynamic-height: ${dynHeight}px` : ''}></iframe>`;
+      if (isInstallable(this.tile)) {
+        const error = this.#installerData.$installError.get();
+        const loading = this.#installerData.$installLoading.get();
+        footer = html`<div slot="footer">
+          ${error ? html`<span class="error">${error}</span>` : nothing}
+          ${html`<sl-button class="action" @click=${this.handleInstall} ?disabled=${loading}>Install</sl-button>`}
+        </div>`;
+      }
     }
     return html`<sl-card>
       <div slot="header">
@@ -100,6 +128,7 @@ export class PinkgillTile extends LitElement {
         <time datetime=${this.tile.createdAt}>${this.tile.createdAt}</time>
       </div>
       ${content}
+      ${footer}
     </sl-card>`;
   }
 }
