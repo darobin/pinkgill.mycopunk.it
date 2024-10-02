@@ -46,11 +46,11 @@ export function makeInstaller () {
     }
     $installLoading.set(false);
   };
-  const installTile = async (tile) => {
-    await operateInstall(tile.uri, 'install');
+  const installTile = async (uri) => {
+    await operateInstall(uri, 'install');
   };
-  const uninstallTile = async (tile) => {
-    await operateInstall(tile.uri, 'uninstall');
+  const uninstallTile = async (uri) => {
+    await operateInstall(uri, 'uninstall');
   };
 
   return {

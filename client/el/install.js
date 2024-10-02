@@ -7,6 +7,7 @@ import { makeInstaller } from '../store/installs.js';
 export class PinkgillInstall extends LitElement {
   static properties = {
     tile: { attribute: false },
+    confirmUninstall: { type: Boolean, attribute: false, state: true },
   };
   static styles = [
     css`
@@ -41,16 +42,41 @@ export class PinkgillInstall extends LitElement {
     this.#installerData.$installLoading,
     this.#installerData.$installError,
   ]);
+  constructor () {
+    super();
+    this.confirmUninstall = false;
+  }
   async connectedCallback () {
     super.connectedCallback();
     if (!this.tile) return;
-    console.warn(`tile`, this.tile);
     await this.#storeData.loadManifest(this.tile.tile);
   }
   handleWishMenu (ev) {
-    console.warn(ev);
+    const value = ev.detail?.item?.value;
+    if (!value) return;
+    if (value === 'uninstall') {
+      this.confirmUninstall = true;
+      return;
+    }
+    if (/^\d+$/.test(value)) {
+      const wish = this.#storeData.$manifest.get()?.wishes?.[parseInt(value, 10)];
+      if (!wish) return;
+      // XXX grant wish!
+      console.warn(`wishing`, wish);
+    }
+  }
+  async handleConfirmUninstall (ev) {
+    ev.stopPropagation();
+    this.confirmUninstall = false;
+    if (!this.tile) return;
+    await this.#installerData.uninstallTile(this.tile.tile);
+  }
+  handleCancelUninstall (ev) {
+    ev.stopPropagation();
+    this.confirmUninstall = false;
   }
   render () {
+    console.warn(`rendering with confirm=${this.confirmUninstall}`);
     if (!this.tile) return nothing;
     // did.plc.izttpdp3l6vss5crelt5kcux.3l4e5yozvmk2j.tile.pinkgill.bast
     const loading = this.#storeData.$manifestLoading.get();
@@ -75,35 +101,19 @@ export class PinkgillInstall extends LitElement {
           })
         }
         <sl-menu-item value="uninstall">
-          Uninstall
+          ${
+            this.confirmUninstall
+              ? html`
+                  <sl-button size="small" variant="primary" @click=${this.handleConfirmUninstall}>Ok</sl-button>
+                  <sl-button size="small" variant="danger" @click=${this.handleCancelUninstall}>Cancel</sl-button>`
+              : 'Uninstall'
+              
+          }
           <sl-icon slot="suffix" name="x-lg"></sl-icon>
         </sl-menu-item>
       </sl-menu>
     </sl-details>`;
-    // XXX
-    // if no wish, generate one that's just view
-    // if wishes, summary/details with all wishes listed under (named or generic name)
-    // always list name
     return html`<div class="container">${content}</div>`;
-
-    // return until(
-    //   (async () => {
-    //     const url = await urlForTile(this.tile);
-    //     let footer = nothing;
-    //     if (isInstallable(this.tile)) {
-    //       const error = this.#installerData.$installError.get();
-    //       const loading = this.#installerData.$installLoading.get();
-    //       footer = html`<div slot="footer">
-    //         ${error ? html`<span class="error">${error}</span>` : nothing}
-    //         ${html`<sl-button class="action" @click=${this.handleInstall} ?disabled=${loading}>Install</sl-button>`}
-    //       </div>`;
-    //     }
-    //     return this.renderCardContainer(
-    //       html`<iframe src=${url} style=${dynHeight ? `--dynamic-height: ${dynHeight}px` : ''}></iframe>`,
-    //       footer
-    //     );
-    //   })()
-    // )
   }
 }
 

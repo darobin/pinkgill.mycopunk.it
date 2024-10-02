@@ -87,7 +87,7 @@ export class PinkgillTile extends LitElement {
   }
   async handleInstall () {
     if (!this.tile) return;
-    await this.#installerData.installTile(this.tile);
+    await this.#installerData.installTile(this.tile.uri);
   }
   renderCardContainer (content, footer) {
     return html`<sl-card>
