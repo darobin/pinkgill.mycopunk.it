@@ -34,12 +34,13 @@
 - [x] `window.wish.ready` as a promise that resolves when it is indeed ready (messaged up, got response)
 - [x] ~~install API + lexicon + ingester~~ + fetch + store
 - [x] fix tile URLs to hash instead
-- [ ] install / uninstall affordances + list
+- [x] install / uninstall affordances + list
   - [x] install button should disappear on update
-  - [ ] pg-install + styling
-  - [ ] style install button better, smaller, more discreet
+  - [x] pg-install + styling
+  - [x] style install button better, smaller, more discreet
 - [ ] an `instantiate` wish type (takes no `what`), shows with a (+) button
-  - [ ] popup with the tile, ready with no data
+  - [x] render instance tile in a mode that doesn't include the card
+  - [ ] popup with the tile, ready with no data but in the correct mode
   - [ ] popup has a Post affordance + API to talk to the tile on post (to get the data)
   - [ ] instance API + lexicon + ingester + fetch + render
   - [ ] rendering an instance is the tile + ready with data (not supposed to show editable)

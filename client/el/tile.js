@@ -9,6 +9,7 @@ import { buttons, errors } from './styles.js';
 export class PinkgillTile extends LitElement {
   static properties = {
     tile: { attribute: false },
+    wish: { attribute: false },
   };
   static styles = [
     css`
@@ -78,7 +79,7 @@ export class PinkgillTile extends LitElement {
   async connectedCallback () {
     super.connectedCallback();
     if (!this.tile) return;
-    await this.#storeData.loadManifest(this.tile.uri);
+    await this.#storeData.loadManifest(this.tile);
   }
   async handleMessage (ev) {
     if (ev.source !== this.getWindow()) return;
@@ -94,21 +95,23 @@ export class PinkgillTile extends LitElement {
   }
   async handleInstall () {
     if (!this.tile) return;
-    await this.#installerData.installTile(this.tile.uri);
+    await this.#installerData.installTile(this.tile);
   }
   renderCardContainer (content, footer) {
+    if (this.wish?.can === 'instantiate') return html`<div>${content}</div>`
+    const manifest = this.#storeData.$manifest.get();
     return html`<sl-card>
       <div slot="header">
-        <h3>${this.tile.name}</h3>
-        <span class="handle">@${this.tile.handle}</span>
-        <time datetime=${this.tile.createdAt}>${this.tile.createdAt}</time>
+        <h3>${manifest.name}</h3>
+        <span class="handle">@${manifest.handle}</span>
+        <time datetime=${manifest.createdAt}>${manifest.createdAt}</time>
       </div>
       ${content || nothing}
       ${footer || nothing}
     </sl-card>`;
   }
   getWindow () {
-    return this.shadowRoot.querySelector('iframe')?.contentWindow;
+    return this.shadowRoot.querySelector('pg-tile-loader')?.getWindow();
   }
   render () {
     if (!this.tile) return nothing;
@@ -142,7 +145,7 @@ export class PinkgillTile extends LitElement {
           </div>`;
         }
         return this.renderCardContainer(
-          html`<iframe src=${url} style=${dynHeight ? `--dynamic-height: ${dynHeight}px` : ''}></iframe>`,
+          html`<pg-tile-loader .parent=${this} .dynHeight=${dynHeight} .url=${url}></pg-tile-loader>`,
           footer
         );
       })()

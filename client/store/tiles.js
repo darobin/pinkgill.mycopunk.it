@@ -7,9 +7,20 @@ const tileHash = makeTileHasher(window.crypto);
 
 // We'll want something more sophisticated later
 const manifestCache = {};
+const tilesPerWindow = new Map();
 
-export async function urlForTile (tile) {
-  const { did, tid } = parseATURI(tile.uri);
+export function addActiveTile (tile, win) {
+  tilesPerWindow.set(win, tile);
+}
+export function removeActiveTile (win) {
+  tilesPerWindow.delete(win);
+}
+export function getMatchingActiveTile (win) {
+  return tilesPerWindow.get(win);
+}
+
+export async function urlForTile (uri) {
+  const { did, tid } = parseATURI(uri);
   // return `https://${did.replace(/:/g, '.')}.${tid}.tile.${window.location.hostname}/`;
   // return `https://${await tileHash(did, tid)}.tile.${window.location.hostname}/`;
   return `https://tile.${window.location.hostname}/${await tileHash(did, tid)}/`;
@@ -32,11 +43,9 @@ export function makeTileStores () {
       $manifestLoading.set(false);
       return;
     }
-    const res = await fetch(`/api/manifest?${new URLSearchParams({ url: uri })}`);
-    if (res.ok) {
-      const man = (await res.json())?.data || {};
+    const man = await getManifest(uri);
+    if (man) {
       $manifest.set(man);
-      manifestCache[uri] = man;
       $manifestError.set(false);
     }
     else {
@@ -82,6 +91,16 @@ export function makeTileUploaderStores () {
     $uploadError,
     uploadTile,
   };
+}
+
+export async function getManifest (uri) {
+  if (manifestCache[uri]) return manifestCache[uri];
+  const res = await fetch(`/api/manifest?${new URLSearchParams({ url: uri })}`);
+  if (res.ok) {
+    const man = (await res.json())?.data;
+    manifestCache[uri] = man;
+    return man || {};
+  }
 }
 
 export function getCachedManifest (uri) {

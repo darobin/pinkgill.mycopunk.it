@@ -3,6 +3,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { MultiStoreController } from '@nanostores/lit';
 import { makeTileStores } from '../store/tiles.js';
 import { makeInstaller } from '../store/installs.js';
+import { grantWish } from '../store/wishes.js';
 
 export class PinkgillInstall extends LitElement {
   static properties = {
@@ -51,7 +52,7 @@ export class PinkgillInstall extends LitElement {
     if (!this.tile) return;
     await this.#storeData.loadManifest(this.tile.tile);
   }
-  handleWishMenu (ev) {
+  async handleWishMenu (ev) {
     const value = ev.detail?.item?.value;
     if (!value) return;
     if (value === 'uninstall') {
@@ -61,7 +62,7 @@ export class PinkgillInstall extends LitElement {
     if (/^\d+$/.test(value)) {
       const wish = this.#storeData.$manifest.get()?.wishes?.[parseInt(value, 10)];
       if (!wish) return;
-      // XXX grant wish!
+      await grantWish(wish, this.tile.tile);
       console.warn(`wishing`, wish);
     }
   }

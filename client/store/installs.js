@@ -64,10 +64,10 @@ export function makeInstaller () {
 
 
 // Has a manifest with wishes and isn't already installed
-export function isInstallable (tile) {
-  const manifest = getCachedManifest(tile.uri);
+export function isInstallable (uri) {
+  const manifest = getCachedManifest(uri);
   if (!manifest?.wishes) return false;
-  return !$installs.get().find((ins) => ins.tile === tile.uri);
+  return !$installs.get().find((ins) => ins.tile === uri);
 }
 
 onMount($installs, async () => {

@@ -3,6 +3,7 @@ import { LitElement, html, css } from 'lit';
 import { withStores } from "@nanostores/lit";
 import { $computedRoute } from '../store/router.js';
 import { $uiTileOverlayOpen, openTileOverlay } from '../store/ui.js';
+import { getMatchingActiveTile } from '../store/tiles.js';
 import { buttons } from './styles.js';
 
 export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $uiTileOverlayOpen]) {
@@ -48,6 +49,23 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $uiTil
     `,
     buttons,
   ];
+  constructor () {
+    super();
+    this.handleMessageDispatching = this.handleMessageDispatching.bind(this);
+  }
+  connectedCallback () {
+    super.connectedCallback();
+    window.addEventListener('message', this.handleMessageDispatching);
+  }
+  disconnectedCallback () {
+    super.disconnectedCallback();
+    window.removeEventListener('message', this.handleMessageDispatching);
+  }
+  async handleMessageDispatching (ev) {
+    const tile = getMatchingActiveTile(ev.source);
+    if (!tile) return;
+    await tile.handleMessage(ev);
+  }
   render () {
     const route = $computedRoute.get();
     const overlayOpen = $uiTileOverlayOpen.get();
@@ -65,6 +83,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $uiTil
         <pg-timeline></pg-timeline>
       </div>
       <pg-create-tile-dialog></pg-create-tile-dialog>
+      <pg-wish-dialog></pg-wish-dialog>
     </div>`;
 
     return html`<pg-404></pg-404>`;
