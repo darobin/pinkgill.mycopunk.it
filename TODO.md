@@ -26,21 +26,23 @@
 - [ ] better URLs
 - [ ] Go through all `onMount` that add a listener on `sse` and make sure they clean up on unmount
 - [x] finish refactoring of create-tile so that it uses the store properly (create and error)
-- [ ] do the same for installs and get back to do 
+- [x] do the same for installs and get back to do 
 
 - [x] test `postMessage`
 - [x] library in `/.well-known/tiles/wishing`
 - [x] `window.wish.ready` as a promise that resolves when it is indeed ready (messaged up, got response)
 - [x] ~~install API + lexicon + ingester~~ + fetch + store
-- [ ] fix tile URLs to hash instead
+- [x] fix tile URLs to hash instead
 - [ ] install / uninstall affordances + list
-  - [ ] install button should disappear on update
+  - [x] install button should disappear on update
   - [ ] pg-install + styling
+  - [ ] style install button better, smaller, more discreet
 - [ ] an `instantiate` wish type (takes no `what`), shows with a (+) button
   - [ ] popup with the tile, ready with no data
   - [ ] popup has a Post affordance + API to talk to the tile on post (to get the data)
   - [ ] instance API + lexicon + ingester + fetch + render
   - [ ] rendering an instance is the tile + ready with data (not supposed to show editable)
+  - [ ] instantiate automatically creates the right wish structure in the manifest — it ONLY has instantiate and has a `what` matching the creator so we don't suggest install if installed
 - [ ] test by copying the manifest & cheating
 
 ```json

@@ -2,7 +2,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { until } from 'lit/directives/until.js';
 import { MultiStoreController } from '@nanostores/lit';
-import { originForTile, urlForTile, makeTileStores } from '../store/tiles.js';
+import { urlForTile, makeTileStores } from '../store/tiles.js';
 import { isInstallable, makeInstaller } from '../store/installs.js';
 import { buttons, errors } from './styles.js';
 
@@ -74,8 +74,7 @@ export class PinkgillTile extends LitElement {
     await this.#storeData.loadManifest(this.tile);
   }
   async handleMessage (ev) {
-    const url = await originForTile(this.tile);
-    if (ev.origin !== url) return;
+    if (ev.source !== this.getWindow()) return;
     const { data } = ev;
     if (data?.action === 'wish-receiving') {
       ev.source.postMessage({
@@ -100,6 +99,9 @@ export class PinkgillTile extends LitElement {
       ${content || nothing}
       ${footer || nothing}
     </sl-card>`;
+  }
+  getWindow () {
+    return this.shadowRoot.querySelector('iframe')?.contentWindow;
   }
   render () {
     if (!this.tile) return nothing;

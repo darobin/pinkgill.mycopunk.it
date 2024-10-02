@@ -12,7 +12,8 @@ const tileCache = {};
 export async function urlForTile (tile) {
   const { did, tid } = parseATURI(tile.uri);
   // return `https://${did.replace(/:/g, '.')}.${tid}.tile.${window.location.hostname}/`;
-  return `https://${await tileHash(did, tid)}.tile.${window.location.hostname}/`;
+  // return `https://${await tileHash(did, tid)}.tile.${window.location.hostname}/`;
+  return `https://tile.${window.location.hostname}/${await tileHash(did, tid)}/`;
 }
 
 export async function originForTile (tile) {
