@@ -71,7 +71,7 @@ export class PinkgillTile extends LitElement {
   async connectedCallback () {
     super.connectedCallback();
     if (!this.tile) return;
-    await this.#storeData.loadManifest(this.tile);
+    await this.#storeData.loadManifest(this.tile.uri);
   }
   async handleMessage (ev) {
     if (ev.source !== this.getWindow()) return;

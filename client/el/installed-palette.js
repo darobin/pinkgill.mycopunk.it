@@ -13,12 +13,15 @@ export class PinkgillInstalledPalette extends withStores(LitElement, [$installs,
       sl-card {
         width: 100%;
       }
+      sl-card::part(body) {
+        padding: 0;
+      }
       ul {
         padding: 0;
         margin: 0;
+        list-style-type: none;
       }
       li.no-results {
-        list-style-type: none;
         padding: 0;
         color: var(--sl-color-neutral-500);
       }

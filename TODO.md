@@ -27,6 +27,7 @@
 - [ ] Go through all `onMount` that add a listener on `sse` and make sure they clean up on unmount
 - [x] finish refactoring of create-tile so that it uses the store properly (create and error)
 - [x] do the same for installs and get back to do 
+- [ ] return to subdomain tiles, use Cloudflare DNS API (or similar) to make LE happy
 
 - [x] test `postMessage`
 - [x] library in `/.well-known/tiles/wishing`

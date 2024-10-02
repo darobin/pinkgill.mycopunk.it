@@ -7,7 +7,6 @@ const tileHash = makeTileHasher(window.crypto);
 
 // We'll want something more sophisticated later
 const manifestCache = {};
-const tileCache = {};
 
 export async function urlForTile (tile) {
   const { did, tid } = parseATURI(tile.uri);
@@ -25,12 +24,10 @@ export function makeTileStores () {
   const $manifestLoading = atom(true);
   const $manifestError = atom(false);
 
-  const loadManifest = async (tile) => {
-    tileCache[tile.uri] = tile;
+  const loadManifest = async (uri) => {
     $manifestLoading.set(true);
-    const { uri } = tile;
     if (manifestCache[uri]) {
-      $manifest.set(await res.json()?.data || {});
+      $manifest.set(manifestCache[uri]);
       $manifestError.set(false);
       $manifestLoading.set(false);
       return;
@@ -87,6 +84,6 @@ export function makeTileUploaderStores () {
   };
 }
 
-export function getCachedManifest (tile) {
-  return manifestCache[tile.uri];
+export function getCachedManifest (uri) {
+  return manifestCache[uri];
 }

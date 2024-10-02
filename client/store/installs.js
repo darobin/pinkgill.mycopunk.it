@@ -65,7 +65,7 @@ export function makeInstaller () {
 
 // Has a manifest with wishes and isn't already installed
 export function isInstallable (tile) {
-  const manifest = getCachedManifest(tile);
+  const manifest = getCachedManifest(tile.uri);
   if (!manifest?.wishes) return false;
   return !$installs.get().find((ins) => ins.tile === tile.uri);
 }

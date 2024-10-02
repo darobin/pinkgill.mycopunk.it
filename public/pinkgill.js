@@ -13,6 +13,7 @@ import '../client/el/tile.js';
 import '../client/el/login.js';
 import '../client/el/create-tile-dialog.js';
 import '../client/el/installed-palette.js';
+import '../client/el/install.js';
 
 (async function () {
   await loadIdentity();
