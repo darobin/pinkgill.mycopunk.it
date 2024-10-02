@@ -1,5 +1,6 @@
 
 import { LitElement, html, css, nothing } from 'lit';
+import { until } from 'lit/directives/until.js';
 import { MultiStoreController } from '@nanostores/lit';
 import { originForTile, urlForTile, makeTileStores } from '../store/tiles.js';
 import { isInstallable, makeInstaller } from '../store/installs.js';
@@ -72,8 +73,8 @@ export class PinkgillTile extends LitElement {
     if (!this.tile) return;
     await this.#storeData.loadManifest(this.tile);
   }
-  handleMessage (ev) {
-    const url = originForTile(this.tile);
+  async handleMessage (ev) {
+    const url = await originForTile(this.tile);
     if (ev.origin !== url) return;
     const { data } = ev;
     if (data?.action === 'wish-receiving') {
@@ -89,47 +90,54 @@ export class PinkgillTile extends LitElement {
     if (!this.tile) return;
     await this.#installerData.installTile(this.tile);
   }
-  render () {
-    if (!this.tile) return nothing;
-    // did.plc.izttpdp3l6vss5crelt5kcux.3l4e5yozvmk2j.tile.pinkgill.bast
-    const url = urlForTile(this.tile);
-    const loading = this.#storeData.$manifestLoading.get();
-    let content = html`<pg-loading></pg-loading>`;
-    let footer = nothing;
-    if (!loading) {
-      let dynHeight;
-      const manifest = this.#storeData.$manifest.get();
-      if (manifest?.sizing?.width && manifest?.sizing?.height) {
-        const { width, height } = manifest.sizing;
-        const ratio = height / width;
-        const bannerHeight = (document.querySelector('header')?.clientHeight + 16) || 98;
-        const maxHeight = window.visualViewport.height - bannerHeight;
-        const ownWidth = this.clientWidth;
-        let ownHeight = ratio * ownWidth;
-        console.warn(`ratio=${ratio}, w=${ownWidth}, h=${ownHeight}`);
-        if (ownHeight > maxHeight) ownHeight = maxHeight;
-        if (ownHeight < 100) ownHeight = 100;
-        dynHeight = ownHeight;
-      }
-      content = html`<iframe src=${url} style=${dynHeight ? `--dynamic-height: ${dynHeight}px` : ''}></iframe>`;
-      if (isInstallable(this.tile)) {
-        const error = this.#installerData.$installError.get();
-        const loading = this.#installerData.$installLoading.get();
-        footer = html`<div slot="footer">
-          ${error ? html`<span class="error">${error}</span>` : nothing}
-          ${html`<sl-button class="action" @click=${this.handleInstall} ?disabled=${loading}>Install</sl-button>`}
-        </div>`;
-      }
-    }
+  renderCardContainer (content, footer) {
     return html`<sl-card>
       <div slot="header">
         <h3>${this.tile.name}</h3>
         <span class="handle">@${this.tile.handle}</span>
         <time datetime=${this.tile.createdAt}>${this.tile.createdAt}</time>
       </div>
-      ${content}
-      ${footer}
+      ${content || nothing}
+      ${footer || nothing}
     </sl-card>`;
+  }
+  render () {
+    if (!this.tile) return nothing;
+    // did.plc.izttpdp3l6vss5crelt5kcux.3l4e5yozvmk2j.tile.pinkgill.bast
+    const loading = this.#storeData.$manifestLoading.get();
+    if (loading) return this.renderCardContainer(html`<pg-loading></pg-loading>`)
+    let dynHeight;
+    const manifest = this.#storeData.$manifest.get();
+    if (manifest?.sizing?.width && manifest?.sizing?.height) {
+      const { width, height } = manifest.sizing;
+      const ratio = height / width;
+      const bannerHeight = (document.querySelector('header')?.clientHeight + 16) || 98;
+      const maxHeight = window.visualViewport.height - bannerHeight;
+      const ownWidth = this.clientWidth;
+      let ownHeight = ratio * ownWidth;
+      console.warn(`ratio=${ratio}, w=${ownWidth}, h=${ownHeight}`);
+      if (ownHeight > maxHeight) ownHeight = maxHeight;
+      if (ownHeight < 100) ownHeight = 100;
+      dynHeight = ownHeight;
+    }
+    return until(
+      (async () => {
+        const url = await urlForTile(this.tile);
+        let footer = nothing;
+        if (isInstallable(this.tile)) {
+          const error = this.#installerData.$installError.get();
+          const loading = this.#installerData.$installLoading.get();
+          footer = html`<div slot="footer">
+            ${error ? html`<span class="error">${error}</span>` : nothing}
+            ${html`<sl-button class="action" @click=${this.handleInstall} ?disabled=${loading}>Install</sl-button>`}
+          </div>`;
+        }
+        return this.renderCardContainer(
+          html`<iframe src=${url} style=${dynHeight ? `--dynamic-height: ${dynHeight}px` : ''}></iframe>`,
+          footer
+        );
+      })()
+    )
   }
 }
 

@@ -34,6 +34,8 @@
 - [x] ~~install API + lexicon + ingester~~ + fetch + store
 - [ ] fix tile URLs to hash instead
 - [ ] install / uninstall affordances + list
+  - [ ] install button should disappear on update
+  - [ ] pg-install + styling
 - [ ] an `instantiate` wish type (takes no `what`), shows with a (+) button
   - [ ] popup with the tile, ready with no data
   - [ ] popup has a Post affordance + API to talk to the tile on post (to get the data)

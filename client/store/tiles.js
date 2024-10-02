@@ -1,17 +1,22 @@
 
 import { atom } from "nanostores";
+import makeTileHasher from "../../shared/tile-hash.js";
+import parseATURI from "../../shared/at-uri.js";
+
+const tileHash = makeTileHasher(window.crypto);
 
 // We'll want something more sophisticated later
 const manifestCache = {};
 const tileCache = {};
 
-export function urlForTile (tile) {
-  const [did, , tid] = tile.uri.replace(/^at:\/\//, '').split('/');
-  return `https://${did.replace(/:/g, '.')}.${tid}.tile.${window.location.hostname}/`;
+export async function urlForTile (tile) {
+  const { did, tid } = parseATURI(tile.uri);
+  // return `https://${did.replace(/:/g, '.')}.${tid}.tile.${window.location.hostname}/`;
+  return `https://${await tileHash(did, tid)}.tile.${window.location.hostname}/`;
 }
 
-export function originForTile (tile) {
-  return urlForTile(tile).replace(/\/$/, '');
+export async function originForTile (tile) {
+  return (await urlForTile(tile)).replace(/\/$/, '');
 }
 
 export function makeTileStores () {

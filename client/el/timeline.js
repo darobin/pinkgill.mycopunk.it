@@ -1,5 +1,6 @@
 
-import { LitElement, html, css, nothing } from 'lit';
+import { LitElement, html, css } from 'lit';
+import { until } from 'lit/directives/until.js';
 import { withStores } from "@nanostores/lit";
 import { $timeline, $timelineError, $timelineLoading } from '../store/timeline.js';
 import { urlForTile } from '../store/tiles.js';
@@ -22,6 +23,9 @@ export class PinkgillTimeline extends withStores(LitElement, [$timeline, $timeli
       .empty-timeline {
         color: var(--sl-color-neutral-500);
       }
+      pg-tile {
+        margin-bottom: var(--sl-spacing-medium);
+      }
     `,
     errors,
   ];
@@ -37,10 +41,10 @@ export class PinkgillTimeline extends withStores(LitElement, [$timeline, $timeli
     super.disconnectedCallback();
     window.removeEventListener('message', this.handleMessageDispatching);
   }
-  handleMessageDispatching (ev) {
+  async handleMessageDispatching (ev) {
     const tile = this.shadowRoot.querySelector(`pg-tile[data-tile-url="${ev.origin}/"]`);
     if (!tile) return;
-    tile.handleMessage(ev);
+    await tile.handleMessage(ev);
   }
   render () {
     const error = $timelineError.get();
@@ -48,13 +52,13 @@ export class PinkgillTimeline extends withStores(LitElement, [$timeline, $timeli
     if ($timelineLoading.get()) return html`<div class="loading"><pg-loading></pg-loading></div>`;
     const tiles = $timeline.get();
     if (!tiles?.length) return html`<span class="empty-timeline">Nothing to show.</span>`;
-    return tiles.map((tile, idx) => {
-      const div = idx ? html`<sl-divider></sl-divider>` : nothing;
-      return html`
-        ${div}
-        <pg-tile .tile=${tile} data-tile-url=${urlForTile(tile)}></pg-tile>
-      `;
-    });
+    return until(
+      Promise.all(tiles.map(tile => (async () => {
+        const url = await urlForTile(tile);
+        return html`<pg-tile .tile=${tile} data-tile-url=${url}></pg-tile>`;
+      })())),
+      html`<pg-loading></pg-loading>`
+    );
   }
 }
 

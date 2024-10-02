@@ -50,6 +50,7 @@
     "lit": "^3.2.0",
     "mime-types": "^2.1.35",
     "multer2": "^1.1.1",
+    "multiformats": "^13.3.0",
     "nanostores": "^0.11.3",
     "pino": "^9.4.0",
     "wasmagic": "^1.0.2",
