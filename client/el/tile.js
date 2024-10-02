@@ -3,7 +3,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { until } from 'lit/directives/until.js';
 import { MultiStoreController } from '@nanostores/lit';
 import { urlForTile, makeTileStores } from '../store/tiles.js';
-import { isInstallable, makeInstaller } from '../store/installs.js';
+import { isInstallable, makeInstaller, $installs } from '../store/installs.js';
 import { buttons, errors } from './styles.js';
 
 export class PinkgillTile extends LitElement {
@@ -67,6 +67,7 @@ export class PinkgillTile extends LitElement {
   #storeData = makeTileStores();
   #installerData = makeInstaller();
   #controller = new MultiStoreController(this, [
+    $installs,
     this.#storeData.$manifest, 
     this.#storeData.$manifestLoading, 
     this.#storeData.$manifestError, 
