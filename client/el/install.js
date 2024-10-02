@@ -76,7 +76,6 @@ export class PinkgillInstall extends LitElement {
     this.confirmUninstall = false;
   }
   render () {
-    console.warn(`rendering with confirm=${this.confirmUninstall}`);
     if (!this.tile) return nothing;
     // did.plc.izttpdp3l6vss5crelt5kcux.3l4e5yozvmk2j.tile.pinkgill.bast
     const loading = this.#storeData.$manifestLoading.get();

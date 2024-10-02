@@ -22,7 +22,8 @@ export class PinkgillInstalledPalette extends withStores(LitElement, [$installs,
         list-style-type: none;
       }
       li.no-results {
-        padding: 0;
+        list-style-type: none;
+        padding: var(--sl-spacing-medium);
         color: var(--sl-color-neutral-500);
       }
     `,

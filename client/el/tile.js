@@ -46,6 +46,12 @@ export class PinkgillTile extends LitElement {
       sl-card::part(body) {
         padding: 0;
       }
+      sl-card::part(footer) {
+        padding: var(--sl-spacing-x-small);
+      }
+      sl-icon-button {
+        font-size: 1.4rem;
+      }
       iframe {
         width: 100%;
         height: var(--dynamic-height, 500px);
@@ -131,7 +137,7 @@ export class PinkgillTile extends LitElement {
           const loading = this.#installerData.$installLoading.get();
           footer = html`<div slot="footer">
             ${error ? html`<span class="error">${error}</span>` : nothing}
-            ${html`<sl-button class="action" @click=${this.handleInstall} ?disabled=${loading}>Install</sl-button>`}
+            ${html`<sl-icon-button name="bookmark-plus" @click=${this.handleInstall} ?disabled=${loading} label="Install"></sl-icon-button>`}
           </div>`;
         }
         return this.renderCardContainer(
