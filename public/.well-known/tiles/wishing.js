@@ -1,8 +1,9 @@
 
 const validModes = new Set([
-  'bare',     // the tile just shows in the timeline, as initially uploaded
-  'create',   // the tile is used to create, in response to instantiate wish
-  'instance', // the tile is rendering an instance, comes with data
+  'bare',         // the tile just shows in the timeline, as initially uploaded
+  'create',       // the tile is used to create, which is to say it's creating something that isn't a tile (e.g. an image)
+  'instantiate',  // the tile is used to instantiate, which is to say it's creating data for a tile instance
+  'instance',     // the tile rendering an instance with data
 ]);
 
 class Wishing {

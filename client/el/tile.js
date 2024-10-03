@@ -85,10 +85,12 @@ export class PinkgillTile extends LitElement {
     if (ev.source !== this.getWindow()) return;
     const { data } = ev;
     if (data?.action === 'wish-receiving') {
+      let mode = 'bare';
+      if (this.wish?.can === 'instantiate') mode = 'instantiate';
       ev.source.postMessage({
         action: 'make-wish-ready',
         payload: {
-          mode: 'bare',
+          mode,
         },
       }, ev.origin);
     }

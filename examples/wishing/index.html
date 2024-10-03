@@ -4,8 +4,56 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>Wishing Tile, Wishing Tile…</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+    main {
+      height: 100%;
+      display: grid;
+      grid-template-rows: 1fr min-content;
+      grid-template-areas:
+        "palette"
+        "actions"
+      ;
+    }
+    .colours {
+      grid-area: "palette";
+      display: flex;
+    }
+    .colour-actions {
+      grid-area: "actions";
+      text-align: right;
+    }
+    .colour {
+      height: 100%;
+      position: relative;
+      flex-grow: 1;
+    }
+    .colour-edit {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: end;
+    }
+    .colour-edit input[type="button"] {
+      max-width: min-content;
+    }
+  </style>
 </head>
 <body>
+  <main></main>
   <script src=".well-known/tiles/wishing"></script>
   <script src="colour-wish.js"></script>
 </body>
