@@ -40,9 +40,10 @@
   - [x] style install button better, smaller, more discreet
 - [ ] an `instantiate` wish type (takes no `what`), shows with a (+) button
   - [x] render instance tile in a mode that doesn't include the card
-  - [ ] popup with the tile, ready with no data but in the correct mode
-  - [ ] popup has a Post affordance + API to talk to the tile on post (to get the data)
-  - [ ] instance API + lexicon + ingester + fetch + render
+  - [x] popup with the tile, ready with no data but in the correct mode
+  - [x] popup has a Post affordance + API to talk to the tile on post (to get the data)
+  - [ ] instance API + ~~lexicon~~ + ingester + fetch + render + ~~db~~
+  - [ ] include in timeline, with enough data loaded
   - [ ] rendering an instance is the tile + ready with data (not supposed to show editable)
   - [ ] instantiate automatically creates the right wish structure in the manifest — it ONLY has instantiate and has a `what` matching the creator so we don't suggest install if installed
 - [ ] test by copying the manifest & cheating

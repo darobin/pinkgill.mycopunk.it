@@ -1,0 +1,31 @@
+{
+  "lexicon": 1,
+  "id": "space.polypod.pinkgill.instance",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Record instance of a tile with data.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["data", "tile", "createdAt"],
+        "properties": {
+          "data": {
+            "type": "unknown",
+            "description": "The data for the tile."
+          },
+          "tile": {
+            "type": "string",
+            "format": "at-uri",
+            "description": "AT URL pointing to the tile."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Client-declared timestamp when the operation was carried out."
+          }
+        }
+      }
+    }
+  }
+}
