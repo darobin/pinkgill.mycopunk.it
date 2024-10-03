@@ -9,11 +9,13 @@ const validModes = new Set([
 class Wishing {
   #readyPromise = null;
   #parent = null;
+  #postHandler = null;
+  #cancelHandler = null;
   constructor () {}
   get ready () {
     if (this.#readyPromise) return this.#readyPromise;
     this.#readyPromise = new Promise((resolve, reject) => {
-      window.addEventListener('message', (ev) => {
+      window.addEventListener('message', async (ev) => {
         if (!ev.data?.action) return;
         const { action, payload } = ev.data;
         if (action === 'make-wish-ready') {
@@ -26,11 +28,25 @@ class Wishing {
           this.#parent = ev.source;
           return resolve({ mode: payload.mode });
         }
+        if (action === 'get-data') {
+          const data = this.#postHandler ? await this.#postHandler() : {};
+          window.parent?.postMessage({ action: 'got-data', data }, '*');
+        }
+        if (action === 'check-is-dirty') {
+          const isDirty = this.#cancelHandler ? await this.#cancelHandler() : false;
+          window.parent?.postMessage({ action: 'is-dirty', isDirty }, '*');
+        }
       });
       // We post to whoever because we don't know where we get embedded.
       window.parent?.postMessage({ action: 'wish-receiving' }, '*');
     });
     return this.#readyPromise;
+  }
+  registerPostHandler (handler) {
+    this.#postHandler = handler;
+  }
+  registerCancelHandler (handler) {
+    this.#cancelHandler = handler;
   }
 }
 

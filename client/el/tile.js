@@ -76,6 +76,7 @@ export class PinkgillTile extends LitElement {
     this.#installerData.$installLoading,
     this.#installerData.$installError,
   ]);
+  #dataResolver = null;
   async connectedCallback () {
     super.connectedCallback();
     if (!this.tile) return;
@@ -94,6 +95,19 @@ export class PinkgillTile extends LitElement {
         },
       }, ev.origin);
     }
+    else if (data?.action === 'got-data' && this.#dataResolver) {
+      this.#dataResolver(data.data);
+    }
+  }
+  postMessage (data) {
+    return this.shadowRoot.querySelector('pg-tile-loader')?.postMessage(data);
+  }
+  async getInstanceData () {
+    if (this.wish?.can !== 'instantiate') return;
+    const { promise, resolve } = Promise.withResolvers();
+    this.#dataResolver = resolve;
+    setTimeout(() => this.postMessage({ action: 'get-data' }), 0);
+    return await promise;
   }
   async handleInstall () {
     if (!this.tile) return;

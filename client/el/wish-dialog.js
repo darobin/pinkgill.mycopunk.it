@@ -15,12 +15,16 @@ class PinkgillWishDialog extends withStores(LitElement, [$activeWish]) {
     `,
     buttons
   ];
-  handleGrantWish () {
+  async handleGrantWish () {
     const { wish } = $activeWish.get();
     if (wish?.can == 'instantiate') {
+      const data = await this.shadowRoot.querySelector('pg-tile')?.getInstanceData();
+      if (!data) return; // XXX need to handle errors here
+      console.warn(`we have instance data`, data);
       // XXX
-      // - talk to the tile to get the data
       // - post it as an instance type
+      // - maybe we need to reset here too
+      stopWishing();
     }
   }
   render () {

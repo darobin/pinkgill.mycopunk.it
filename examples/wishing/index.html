@@ -23,12 +23,14 @@
       ;
     }
     .colours {
-      grid-area: "palette";
+      grid-area: palette;
       display: flex;
     }
     .colour-actions {
-      grid-area: "actions";
+      grid-area: actions;
       text-align: right;
+      padding: 0.5rem;
+      border-bottom: 1px solid #ddd;
     }
     .colour {
       height: 100%;
@@ -40,15 +42,34 @@
       bottom: 0;
       left: 0;
       right: 0;
-      height: 120px;
       background-color: #fff;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
       align-items: end;
+      padding: 0.5rem;
+      border-bottom: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+    }
+    .colour:last-of-type .colour-edit {
+      border-right: none;
     }
     .colour-edit input[type="button"] {
       max-width: min-content;
+    }
+    input[data-action="delete"] {
+      background: inherit;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    input[data-action="delete"]:hover {
+      background: #ddd;
+    }
+    input[data-action="delete"]:disabled, input[data-action="delete"]:hover:disabled {
+      background: inherit;
+      opacity: 0.5;
+      cursor: default;
     }
   </style>
 </head>

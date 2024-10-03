@@ -35,6 +35,11 @@ export class PinkgillTileLoader extends LitElement {
   getWindow () {
     return this.getIframe()?.contentWindow;
   }
+  postMessage (data) {
+    const win = this.getWindow();
+    if (!win) return;
+    win.postMessage(data, new URL(this.url).origin);
+  }
   render () {
     if (!this.url) return nothing;
     const style = {};

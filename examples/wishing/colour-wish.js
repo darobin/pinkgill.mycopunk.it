@@ -4,6 +4,9 @@
   const c = new Colourful(readyState.mode, readyState.data);
   c.render();
   
+  window.wish.registerPostHandler(() => c.data);
+  window.wish.registerCancelHandler(() => c.dirty);
+
   // DEBUG
   const but = document.createElement('button');
   but.textContent = 'Reload';
@@ -16,7 +19,7 @@
 
 
 class Colourful {
-  #colours = [];
+  #colours = ['#000000'];
   #mode;
   static #maxLength = 6;
   constructor (mode, data) {
@@ -25,6 +28,12 @@ class Colourful {
   }
   static validateColours (c) {
     return c && Array.isArray(c) && c.length > 0 && c.length <= this.#maxLength && !c.find(col => !/^#[a-f0-9]{6}$/.test(col));
+  }
+  get data () {
+    return this.#colours;
+  }
+  get dirty () {
+    return this.#colours.length > 1 || this.#colours[0] !== '#000000';
   }
   renderConfusion (readyState) {
     const main = document.querySelector('main');
@@ -50,7 +59,7 @@ class Colourful {
     const main = document.querySelector('main');
     main.textContent = null;
     if (this.#mode === 'bare') {
-      el('p', {}, ['Colourful is a great way to create and share colour palettes. Install it and take it for a spin!'], [], main);
+      el('p', { style: 'padding: 1rem'}, ['Colourful is a great way to create and share colour palettes. Install it and take it for a spin!'], main);
       return;
     }
     if (this.#mode !== 'instance' && this.#mode !== 'instantiate') {
@@ -59,21 +68,14 @@ class Colourful {
       return;
     }
     const editMode = (this.#mode === 'instantiate');
-    const c = this.#colours;
-    if (!c.length) c.push('#000000');
     const colDiv = el('div', { class: 'colours' }, [], main);
-    c.forEach((col, idx) => el(
+    this.#colours.forEach((col, idx) => el(
       'div',
       {
         class: 'colour', 
         style: `background-color: ${col}`, 
         'data-idx': idx, 
         '@input': (ev) => {
-          const input = ev.target;
-          if (input.type !== 'color') return;
-          ev.currentTarget.style.backgroundColor = input.value;
-        },
-        '@change': (ev) => {
           const input = ev.target;
           const div = ev.currentTarget;
           if (input.type !== 'color') return;
@@ -88,7 +90,7 @@ class Colourful {
         },
       },
       editMode
-        ? [colourEdit(col, c.length > 1)]
+        ? [colourEdit(col, this.#colours.length > 1)]
         : []
       ,
       colDiv
@@ -98,7 +100,7 @@ class Colourful {
         'div',
         { class: 'colour-actions' },
         [
-          el('input', { type: 'button', value: '➕', disabled: c.length < Colourful.#maxLength ? undefined : 'disabled', '@click': () => this.addColour() }),
+          el('input', { type: 'button', value: '➕ Add Colour', disabled: this.#colours.length < Colourful.#maxLength ? undefined : 'disabled', '@click': () => this.addColour() }),
         ],
         main
       );
@@ -135,7 +137,7 @@ function colourEdit (c, canDelete) {
     { class: 'colour-edit' },
     [
       el('input', { type: 'color', value: c }),
-      el('input', { type: 'button', value: '❌', disabled: canDelete ? undefined : 'disabled', 'data-action': 'delete' }),
+      el('input', { type: 'button', value: '✖️', disabled: canDelete ? undefined : 'disabled', 'data-action': 'delete' }),
     ]
   );
 }
