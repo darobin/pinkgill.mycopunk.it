@@ -38,6 +38,7 @@
   - [x] install button should disappear on update
   - [x] pg-install + styling
   - [x] style install button better, smaller, more discreet
+  - [ ] Uninstall should just be delete
 - [ ] an `instantiate` wish type (takes no `what`), shows with a (+) button
   - [x] render instance tile in a mode that doesn't include the card
   - [x] popup with the tile, ready with no data but in the correct mode
