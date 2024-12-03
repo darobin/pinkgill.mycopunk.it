@@ -30,6 +30,7 @@ export async function originForTile (tile) {
   return (await urlForTile(tile)).replace(/\/$/, '');
 }
 
+// XXX these could use some refactoring love to unify and expose them more cleanly to elements
 export function makeTileStores () {
   const $manifest = atom({});
   const $manifestLoading = atom(true);
@@ -90,6 +91,38 @@ export function makeTileUploaderStores () {
     $uploadLoading,
     $uploadError,
     uploadTile,
+  };
+}
+
+export function makeInstantiationStores () {
+  const $instanceDone = atom(false);
+  const $instanceLoading = atom(true);
+  const $instanceError = atom(false);
+
+  const createInstance = async (body) => {
+    $instanceLoading.set(true);
+    // XXX
+    // Something somewhere posted this as string [Object object] instead of the real thing
+    const res = await fetch('/api/instance', {
+      method: 'post',
+      body,
+    });
+
+    $instanceDone.set(true);
+    if (res.ok) {
+      $instanceError.set(false);
+    }
+    else {
+      $instanceError.set((await res.json())?.error || 'Unknown error');
+    }
+    $instanceLoading.set(false);
+  };
+
+  return {
+    $instanceDone,
+    $instanceLoading,
+    $instanceError,
+    createInstance,
   };
 }
 

@@ -39,7 +39,7 @@
   - [x] install button should disappear on update
   - [x] pg-install + styling
   - [x] style install button better, smaller, more discreet
-  - [x] ⚠️ Uninstall should just be delete
+  - [x] Uninstall should just be delete
 - [ ] ⚠️ an `instantiate` wish type (takes no `what`), shows with a (+) button
   - [x] render instance tile in a mode that doesn't include the card
   - [x] popup with the tile, ready with no data but in the correct mode
@@ -50,11 +50,6 @@
   - [ ] instantiate automatically creates the right wish structure in the manifest — it ONLY has instantiate and has a `what` matching the creator so we don't suggest install if installed
 - [ ] test by copying the manifest & cheating
 - [ ] remove leading @ in login
-
-
-34d26816296a604f99b7808dcdaffaa057cfcd8c
-fc5584bfdbaf8d9ed7807eb96b59fd45a0e69176
-24c6bd11dd0e519cadcde01ea684f87f118a3862
 
 ```json
 {
