@@ -50,6 +50,7 @@
   - [ ] instantiate automatically creates the right wish structure in the manifest — it ONLY has instantiate and has a `what` matching the creator so we don't suggest install if installed
 - [ ] test by copying the manifest & cheating
 - [ ] remove leading @ in login
+- [ ] UI https://alexanderobenauer.com/
 
 ```json
 {

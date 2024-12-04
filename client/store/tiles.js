@@ -2,6 +2,7 @@
 import { atom } from "nanostores";
 import makeTileHasher from "../../shared/tile-hash.js";
 import parseATURI from "../../shared/at-uri.js";
+import bodify from "../lib/bodify.js";
 
 const tileHash = makeTileHasher(window.crypto);
 
@@ -71,10 +72,7 @@ export function makeTileUploaderStores () {
 
   const uploadTile = async (body) => {
     $uploadLoading.set(true);
-    const res = await fetch('/api/tile', {
-      method: 'post',
-      body,
-    });
+    const res = await fetch('/api/tile', bodify(body, { method: 'post' }));
 
     $uploadDone.set(true);
     if (res.ok) {
@@ -101,12 +99,7 @@ export function makeInstantiationStores () {
 
   const createInstance = async (body) => {
     $instanceLoading.set(true);
-    // XXX
-    // Something somewhere posted this as string [Object object] instead of the real thing
-    const res = await fetch('/api/instance', {
-      method: 'post',
-      body,
-    });
+    const res = await fetch('/api/instance', bodify(body, { method: 'post' }));
 
     $instanceDone.set(true);
     if (res.ok) {
