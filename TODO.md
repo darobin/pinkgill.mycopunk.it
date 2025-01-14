@@ -13,22 +13,18 @@
 - [x] tiles need an aspect ratio
 - [x] switch to Jetstream
   - [ ] Test Jetstream
-- [ ] ⚠️ obtain blobs when you don't have them, on indexing: agent.com.atproto.sync.getBlob({ cid, did })
 - [ ] add support for manifests that can fill in the name
 - [x] add installation support (a new record type)
 - [ ] add wish handling, including posting back
 - [ ] need a way to support feeds and the such
-- [ ] ⚠️ tiles need way of rendering inert (with a template and tile data)
 - [ ] need to check viewport resizing tile aspect support
 - [x] refactor root to split components out
 - [ ] several different palettes for installed wishes of different kinds
 - [ ] paginate with endless scroll
 - [ ] better URLs
-- [ ] ⚠️ invitations
 - [ ] Go through all `onMount` that add a listener on `sse` and make sure they clean up on unmount
 - [x] finish refactoring of create-tile so that it uses the store properly (create and error)
 - [x] do the same for installs and get back to do
-- [ ] ⚠️ return to subdomain tiles, use certbot (or use Cloudflare DNS API (or similar) to make LE happy)
 
 - [x] test `postMessage`
 - [x] library in `/.well-known/tiles/wishing`
@@ -40,17 +36,27 @@
   - [x] pg-install + styling
   - [x] style install button better, smaller, more discreet
   - [x] Uninstall should just be delete
+- [ ] ⚠️ delete tile
+- [ ] ⚠️ CLI
+- [ ] ⚠️ render name differently: use person name on post but title must also appear (for install)
+- [x] 🧪 obtain blobs when you don't have them, on indexing: agent.com.atproto.sync.getBlob({ cid, did })
+- [ ] ⚠️ tiles need way of rendering inert (with a template and tile data)
+- [ ] ⚠️ invitations (can't let this be open access yet)
+- [ ] ⚠️ return to subdomain tiles, use certbot (or use Cloudflare DNS API (or similar) to make LE happy)
+  - [ ] ⚠️ maybe CBORify the manifest to get a unique CID
 - [ ] ⚠️ an `instantiate` wish type (takes no `what`), shows with a (+) button
   - [x] render instance tile in a mode that doesn't include the card
   - [x] popup with the tile, ready with no data but in the correct mode
   - [x] popup has a Post affordance + API to talk to the tile on post (to get the data)
-  - [ ] instance API + ~~lexicon~~ + ingester + fetch + render + ~~db~~
+  - [ ] instance API + ~~lexicon + ingester + fetch~~ + render + ~~db~~
   - [ ] include in timeline, with enough data loaded
   - [ ] rendering an instance is the tile + ready with data (not supposed to show editable)
   - [ ] instantiate automatically creates the right wish structure in the manifest — it ONLY has instantiate and has a `what` matching the creator so we don't suggest install if installed
 - [ ] test by copying the manifest & cheating
 - [ ] remove leading @ in login
 - [ ] UI https://alexanderobenauer.com/
+- [ ] https://notes.andymatuschak.org/About_these_notes
+- [ ] https://en.wikipedia.org/wiki/Promise_theory
 
 ```json
 {
