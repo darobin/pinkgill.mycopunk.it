@@ -1,7 +1,7 @@
 
 import { LitElement, html, css, nothing } from 'lit';
 import { until } from 'lit/directives/until.js';
-import { MultiStoreController } from '@nanostores/lit';
+// import { MultiStoreController } from '@nanostores/lit';
 import { format } from 'timeago.js';
 import { urlForTile } from '../store/tiles.js';
 // import { isInstallable, makeInstaller, $installs } from '../store/installs.js';
@@ -41,24 +41,23 @@ export class PinkgillTile extends LitElement {
         margin-left: 12px;
       }
       .meta {
-        padding:calc(1rem + 5px) 0 4px 0;
+        padding: 0 0 4px 0;
         letter-spacing: 0;
         font-size: 15px;
         line-height: 20px;
         font-variant: no-contextual;
       }
-      .meta a:nth-child(1) {
+      .name {
         text-decoration: none;
         font-weight: 600;
         color: inherit;
       }
-      .meta a:nth-child(2) {
+      .handle {
         text-decoration: none;
-        color: var(--slight-shade);
+        color: var(--sl-color-neutral-500);
       }
-      .meta a:nth-child(3) {
-        text-decoration: none;
-        color: var(--slight-shade);
+      time {
+        color: var(--sl-color-neutral-500);
       }
       .meta a:hover {
         text-decoration: underline;
@@ -70,44 +69,16 @@ export class PinkgillTile extends LitElement {
       section:first-of-type .avatar {
         padding: 0;
       }
-      section:first-of-type .meta {
-        padding-top: 5px;
-      }
       section:last-of-type .avatar {
         background: none;
       }
-      div[slot="header"] {
-        display: grid;
-        grid-template-areas:
-          "a b"
-          "c b"
-        ;
-      }
       h3 {
-        grid-area: a;
         font-family: var(--header-fam);
-        font-size: 1rem;
         margin: 0;
-      }
-      .handle {
-        grid-area: b;
-        font-weight: bold;
-        line-height: 1;
-        text-align: right;
-      }
-      time {
-        grid-area: c;
-        font-size: 0.8rem;
-        color: var(--sl-color-neutral-500);
-      }
-      sl-card {
-        width: 100%;
-      }
-      sl-card::part(body) {
-        padding: 0;
-      }
-      sl-card::part(footer) {
-        padding: var(--sl-spacing-x-small);
+        padding-top: 0.5rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       sl-icon-button {
         font-size: 1.4rem;
@@ -117,7 +88,7 @@ export class PinkgillTile extends LitElement {
         height: var(--dynamic-height, 500px);
         border: 0;
       }
-      div[slot="footer"] {
+      .footer {
         text-align: right;
       }
     `,
@@ -174,44 +145,32 @@ export class PinkgillTile extends LitElement {
   }
   renderContainer (content, footer) {
     console.warn(this.tile, this.wish);
-    // Not sure why this branch
+    // XXX Not sure why this branch
     if (this.wish?.can === 'instantiate') return html`<div>${content}</div>`
-    // using .get is wrong
-    // const manifest = this.tile?.manifest;
+    const manifest = this.tile?.manifest;
     const profile = this.tile?.profile;
     return html`<section>
     <div class="avatar">
       <a href=${`/user/${profile?.handle}`}><img src=${profile?.avatar} alt=${profile?.displayName || profile?.handle}></a>
     </div>
     <div class="post">
+      <h3>${manifest.name}</h3>
       <div class="meta">
-        <a href=${`/user/${profile?.handle}`}>${profile?.displayName || profile?.handle}</a>
-        <a href=${`/user/${profile?.handle}`}>@${profile?.handle}</a>
+        <a href=${`/user/${profile?.handle}`} class="name">${profile?.displayName || profile?.handle}</a>
+        <a href=${`/user/${profile?.handle}`} class="handle">@${profile?.handle}</a>
         ·
         <time datetime=${this.tile?.createdAt}>${format(this.tile?.createdAt)}</time></a>
       </div>
       <div class="content">${content || nothing}</div>
       ${footer ? html`<div class="footer">${footer}</div>` : nothing}
-
     </div>
   </section>`;
-    // const manifest = this.#storeData.$manifest.get();
-    // return html`<sl-card>
-    //   <div slot="header">
-    //     <h3>${manifest.name}</h3>
-    //     <span class="handle">@${manifest.handle}</span>
-    //     <time datetime=${manifest.createdAt}>${manifest.createdAt}</time>
-    //   </div>
-    //   ${content || nothing}
-    //   ${footer || nothing}
-    // </sl-card>`;
   }
   getWindow () {
     return this.shadowRoot.querySelector('pg-tile-loader')?.getWindow();
   }
   render () {
     if (!this.tile) return nothing;
-    // did.plc.izttpdp3l6vss5crelt5kcux.3l4e5yozvmk2j.tile.pinkgill.bast
     let dynHeight;
     const manifest = this.tile?.manifest;
     if (manifest?.sizing?.width && manifest?.sizing?.height) {
@@ -224,12 +183,13 @@ export class PinkgillTile extends LitElement {
       console.warn(`ratio=${ratio}, w=${ownWidth}, h=${ownHeight}`);
       if (ownHeight > maxHeight) ownHeight = maxHeight;
       if (ownHeight < 100) ownHeight = 100;
-      dynHeight = ownHeight;
+      dynHeight = Math.ceil(ownHeight);
     }
     return until(
       (async () => {
         const url = await urlForTile(this.tile);
         let footer = nothing;
+        // XXX need to reconnect installation
         // if (isInstallable(this.tile)) {
         //   const error = this.#installerData.$installError.get();
         //   const loading = this.#installerData.$installLoading.get();
@@ -248,36 +208,3 @@ export class PinkgillTile extends LitElement {
 }
 
 customElements.define('pg-tile', PinkgillTile);
-
-// {
-//   "uri": "at://did:plc:izttpdp3l6vss5crelt5kcux/space.polypod.pinkgill.tile/3l4e5yozvmk2j",
-//   "authorDid": "did:plc:izttpdp3l6vss5crelt5kcux",
-//   "name": "First Tile",
-//   "resources": [
-//     {
-//       "src": {
-//         "$type": "blob",
-//         "ref": {
-//           "$link": "bafkreibozdtixnridlvzbgkg2hg2m53nytsa5hatuiwvrqruydvvy52whu"
-//         },
-//         "mimeType": "application/octet-stream",
-//         "size": 686
-//       },
-//       "path": "/index.html"
-//     },
-//     {
-//       "src": {
-//         "$type": "blob",
-//         "ref": {
-//           "$link": "bafkreietyojvzptchejkoz5ir7kwwjn5joquzoyf7m5nnzhuk2v7ju63uy"
-//         },
-//         "mimeType": "image/jpeg",
-//         "size": 139313
-//       },
-//       "path": "/img/noodle.jpg"
-//     }
-//   ],
-//   "createdAt": "2024-09-17T13:51:42.862Z",
-//   "indexedAt": "2024-09-17T13:57:17.752Z",
-//   "handle": "robin.berjon.com"
-// }

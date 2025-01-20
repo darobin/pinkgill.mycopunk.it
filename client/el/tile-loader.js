@@ -16,6 +16,7 @@ export class PinkgillTileLoader extends LitElement {
         width: 100%;
       }
       iframe {
+        display: block;
         width: 100%;
         height: var(--dynamic-height, 500px);
         border: 0;
