@@ -52,6 +52,7 @@
   - [ ] include in timeline, with enough data loaded
   - [ ] rendering an instance is the tile + ready with data (not supposed to show editable)
   - [ ] instantiate automatically creates the right wish structure in the manifest — it ONLY has instantiate and has a `what` matching the creator so we don't suggest install if installed
+  - [ ] if tile has an icon, show it right under the account icon on the left
 - [ ] test by copying the manifest & cheating
 - [ ] remove leading @ in login
 - [ ] UI https://alexanderobenauer.com/
