@@ -2,8 +2,9 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { until } from 'lit/directives/until.js';
 import { MultiStoreController } from '@nanostores/lit';
-import { urlForTile, makeTileStores } from '../store/tiles.js';
-import { isInstallable, makeInstaller, $installs } from '../store/installs.js';
+import { format } from 'timeago.js';
+import { urlForTile } from '../store/tiles.js';
+// import { isInstallable, makeInstaller, $installs } from '../store/installs.js';
 import { buttons, errors } from './styles.js';
 
 export class PinkgillTile extends LitElement {
@@ -16,6 +17,64 @@ export class PinkgillTile extends LitElement {
       :host {
         display: block;
         width: 100%;
+      }
+      section {
+        display: flex;
+      }
+      .avatar {
+        padding: 1rem 0;
+        width: 42px;
+        min-width: 42px;
+        background: linear-gradient(to right, #fff, #fff 19px, #cad2da 20px, #cad2da 21px, #fff 22px);
+      }
+      .avatar img {
+        width: 100%;
+        border-radius: 50%;
+      }
+      .avatar a {
+        display: inline-flex;
+        border-bottom: #fff solid 5px;
+        border-top: #fff solid 5px;
+      }
+      .post {
+        flex-grow: 1;
+        margin-left: 12px;
+      }
+      .meta {
+        padding:calc(1rem + 5px) 0 4px 0;
+        letter-spacing: 0;
+        font-size: 15px;
+        line-height: 20px;
+        font-variant: no-contextual;
+      }
+      .meta a:nth-child(1) {
+        text-decoration: none;
+        font-weight: 600;
+        color: inherit;
+      }
+      .meta a:nth-child(2) {
+        text-decoration: none;
+        color: var(--slight-shade);
+      }
+      .meta a:nth-child(3) {
+        text-decoration: none;
+        color: var(--slight-shade);
+      }
+      .meta a:hover {
+        text-decoration: underline;
+      }
+      .content {
+        box-sizing: border-box;
+        border: 1px solid var(--sl-color-gray-300);
+      }
+      section:first-of-type .avatar {
+        padding: 0;
+      }
+      section:first-of-type .meta {
+        padding-top: 5px;
+      }
+      section:last-of-type .avatar {
+        background: none;
       }
       div[slot="header"] {
         display: grid;
@@ -65,22 +124,21 @@ export class PinkgillTile extends LitElement {
     buttons,
     errors,
   ];
-  #storeData = makeTileStores();
-  #installerData = makeInstaller();
-  #controller = new MultiStoreController(this, [
-    $installs,
-    this.#storeData.$manifest, 
-    this.#storeData.$manifestLoading, 
-    this.#storeData.$manifestError, 
-    this.#installerData.$installDone,
-    this.#installerData.$installLoading,
-    this.#installerData.$installError,
-  ]);
+  // #installerData = makeInstaller();
+  // #controller = new MultiStoreController(this, [
+  //   $installs,
+  //   this.#storeData.$manifest,
+  //   this.#storeData.$manifestLoading,
+  //   this.#storeData.$manifestError,
+  //   this.#installerData.$installDone,
+  //   this.#installerData.$installLoading,
+  //   this.#installerData.$installError,
+  // ]);
   #dataResolver = null;
   async connectedCallback () {
     super.connectedCallback();
     if (!this.tile) return;
-    await this.#storeData.loadManifest(this.tile);
+    // await this.#storeData.loadManifest(this.tile);
   }
   async handleMessage (ev) {
     if (ev.source !== this.getWindow()) return;
@@ -111,20 +169,42 @@ export class PinkgillTile extends LitElement {
   }
   async handleInstall () {
     if (!this.tile) return;
-    await this.#installerData.installTile(this.tile);
+    alert('Installation has been disconnected');
+    // await this.#installerData.installTile(this.tile);
   }
-  renderCardContainer (content, footer) {
+  renderContainer (content, footer) {
+    console.warn(this.tile, this.wish);
+    // Not sure why this branch
     if (this.wish?.can === 'instantiate') return html`<div>${content}</div>`
-    const manifest = this.#storeData.$manifest.get();
-    return html`<sl-card>
-      <div slot="header">
-        <h3>${manifest.name}</h3>
-        <span class="handle">@${manifest.handle}</span>
-        <time datetime=${manifest.createdAt}>${manifest.createdAt}</time>
+    // using .get is wrong
+    // const manifest = this.tile?.manifest;
+    const profile = this.tile?.profile;
+    return html`<section>
+    <div class="avatar">
+      <a href=${`/user/${profile?.handle}`}><img src=${profile?.avatar} alt=${profile?.displayName || profile?.handle}></a>
+    </div>
+    <div class="post">
+      <div class="meta">
+        <a href=${`/user/${profile?.handle}`}>${profile?.displayName || profile?.handle}</a>
+        <a href=${`/user/${profile?.handle}`}>@${profile?.handle}</a>
+        ·
+        <time datetime=${this.tile?.createdAt}>${format(this.tile?.createdAt)}</time></a>
       </div>
-      ${content || nothing}
-      ${footer || nothing}
-    </sl-card>`;
+      <div class="content">${content || nothing}</div>
+      ${footer ? html`<div class="footer">${footer}</div>` : nothing}
+
+    </div>
+  </section>`;
+    // const manifest = this.#storeData.$manifest.get();
+    // return html`<sl-card>
+    //   <div slot="header">
+    //     <h3>${manifest.name}</h3>
+    //     <span class="handle">@${manifest.handle}</span>
+    //     <time datetime=${manifest.createdAt}>${manifest.createdAt}</time>
+    //   </div>
+    //   ${content || nothing}
+    //   ${footer || nothing}
+    // </sl-card>`;
   }
   getWindow () {
     return this.shadowRoot.querySelector('pg-tile-loader')?.getWindow();
@@ -132,10 +212,8 @@ export class PinkgillTile extends LitElement {
   render () {
     if (!this.tile) return nothing;
     // did.plc.izttpdp3l6vss5crelt5kcux.3l4e5yozvmk2j.tile.pinkgill.bast
-    const loading = this.#storeData.$manifestLoading.get();
-    if (loading) return this.renderCardContainer(html`<pg-loading></pg-loading>`)
     let dynHeight;
-    const manifest = this.#storeData.$manifest.get();
+    const manifest = this.tile?.manifest;
     if (manifest?.sizing?.width && manifest?.sizing?.height) {
       const { width, height } = manifest.sizing;
       const ratio = height / width;
@@ -152,15 +230,15 @@ export class PinkgillTile extends LitElement {
       (async () => {
         const url = await urlForTile(this.tile);
         let footer = nothing;
-        if (isInstallable(this.tile)) {
-          const error = this.#installerData.$installError.get();
-          const loading = this.#installerData.$installLoading.get();
-          footer = html`<div slot="footer">
-            ${error ? html`<span class="error">${error}</span>` : nothing}
-            ${html`<sl-icon-button name="bookmark-plus" @click=${this.handleInstall} ?disabled=${loading} label="Install"></sl-icon-button>`}
-          </div>`;
-        }
-        return this.renderCardContainer(
+        // if (isInstallable(this.tile)) {
+        //   const error = this.#installerData.$installError.get();
+        //   const loading = this.#installerData.$installLoading.get();
+        //   footer = html`<div slot="footer">
+        //     ${error ? html`<span class="error">${error}</span>` : nothing}
+        //     ${html`<sl-icon-button name="bookmark-plus" @click=${this.handleInstall} ?disabled=${loading} label="Install"></sl-icon-button>`}
+        //   </div>`;
+        // }
+        return this.renderContainer(
           html`<pg-tile-loader .parent=${this} .dynHeight=${dynHeight} .url=${url}></pg-tile-loader>`,
           footer
         );

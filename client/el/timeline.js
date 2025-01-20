@@ -1,10 +1,11 @@
 
 import { LitElement, html, css } from 'lit';
-import { withStores } from "@nanostores/lit";
-import { $timeline, $timelineError, $timelineLoading } from '../store/timeline.js';
+import { StoreController } from "@nanostores/lit";
+import { $timeline } from '../store/timeline.js';
 import { errors } from './styles.js';
 
-export class PinkgillTimeline extends withStores(LitElement, [$timeline, $timelineError, $timelineLoading]) {
+export class PinkgillTimeline extends LitElement {
+  #timeline = new StoreController(this, $timeline);
   static styles = [
     css`
       :host {
@@ -28,12 +29,11 @@ export class PinkgillTimeline extends withStores(LitElement, [$timeline, $timeli
     errors,
   ];
   render () {
-    const error = $timelineError.get();
+    const { error, loading, data } = this.#timeline.value;
     if (error) return html`<div class="error">${error}</div>`;
-    if ($timelineLoading.get()) return html`<div class="loading"><pg-loading></pg-loading></div>`;
-    const tiles = $timeline.get();
-    if (!tiles?.length) return html`<span class="empty-timeline">Nothing to show.</span>`;
-    return tiles.map(tile => html`<pg-tile .tile=${tile.uri}></pg-tile>`);
+    if (loading) return html`<div class="loading"><pg-loading></pg-loading></div>`;
+    if (!data?.length) return html`<span class="empty-timeline">Nothing to show.</span>`;
+    return data.map(tile => html`<pg-tile .tile=${tile}></pg-tile>`);
   }
 }
 

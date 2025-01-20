@@ -1,29 +1,37 @@
 
-import { atom, onMount } from "nanostores";
+import { map, onMount } from "nanostores";
+import { $computedRoute } from "./router.js";
 import sse from "../lib/sse.js";
 
-export const $timeline = atom([]);
-export const $timelineLoading = atom(true);
-export const $timelineError = atom(false);
+const defaultTimeline = {
+  loading: true,
+  error: false,
+  data: [],
+};
+export const $timeline = map(defaultTimeline);
+
+$computedRoute.subscribe(async ({ route }) => {
+  if (route !== 'home') return;
+  await refreshTimeline();
+});
 
 export async function refreshTimeline () {
-  $timelineLoading.set(true);
+  $timeline.setKey('loading', true);
   const res = await fetch(`/api/timeline`);
   const data = await res.json();
   if (res.status !== 200) {
     const { error } = data;
-    $timelineError.set(error || 'Unknown error');
-    $timeline.set([]);
+    $timeline.setKey('error', error || 'Unknown error');
+    $timeline.setKey('data', []);
   }
   else {
-    $timelineError.set(false);
-    $timeline.set(data.data);
+    $timeline.setKey('error', false);
+    $timeline.setKey('data', data.data);
   }
-  $timelineLoading.set(false);
+  $timeline.setKey('loading', false);
 }
 
 onMount($timeline, async () => {
-  await refreshTimeline();
   sse.addEventListener('new-tile', async () => {
     await refreshTimeline();
   });

@@ -67,7 +67,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $uiTil
     await tile.handleMessage(ev);
   }
   render () {
-    const route = $computedRoute.get();
+    const route = $computedRoute.get()?.route;
     const overlayOpen = $uiTileOverlayOpen.get();
     if (route === 'loading') return html`<div class="loading"><pg-loading></pg-loading></div>`;
     if (route === 'login') return html`<div class="login"><pg-login></pg-login></div>`;

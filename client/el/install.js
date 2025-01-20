@@ -1,7 +1,7 @@
 
 import { LitElement, html, css, nothing } from 'lit';
 import { MultiStoreController } from '@nanostores/lit';
-import { makeTileStores } from '../store/tiles.js';
+// import { makeTileStores } from '../store/tiles.js';
 import { makeInstaller } from '../store/installs.js';
 import { grantWish } from '../store/wishes.js';
 
@@ -33,12 +33,12 @@ export class PinkgillInstall extends LitElement {
       }
     `,
   ];
-  #storeData = makeTileStores();
+  // #storeData = makeTileStores();
   #installerData = makeInstaller();
   #controller = new MultiStoreController(this, [
-    this.#storeData.$manifest, 
-    this.#storeData.$manifestLoading, 
-    this.#storeData.$manifestError, 
+    // this.#storeData.$manifest,
+    // this.#storeData.$manifestLoading,
+    // this.#storeData.$manifestError,
     this.#installerData.$installDone,
     this.#installerData.$installLoading,
     this.#installerData.$installError,
@@ -50,7 +50,7 @@ export class PinkgillInstall extends LitElement {
   async connectedCallback () {
     super.connectedCallback();
     if (!this.tile) return;
-    await this.#storeData.loadManifest(this.tile.tile);
+    // await this.#storeData.loadManifest(this.tile.tile);
   }
   async handleWishMenu (ev) {
     const value = ev.detail?.item?.value;
@@ -60,7 +60,7 @@ export class PinkgillInstall extends LitElement {
       return;
     }
     if (/^\d+$/.test(value)) {
-      const wish = this.#storeData.$manifest.get()?.wishes?.[parseInt(value, 10)];
+      // const wish = this.#storeData.$manifest.get()?.wishes?.[parseInt(value, 10)];
       if (!wish) return;
       await grantWish(wish, this.tile.tile);
       console.warn(`wishing`, wish);
@@ -79,10 +79,13 @@ export class PinkgillInstall extends LitElement {
   render () {
     if (!this.tile) return nothing;
     // did.plc.izttpdp3l6vss5crelt5kcux.3l4e5yozvmk2j.tile.pinkgill.bast
-    const loading = this.#storeData.$manifestLoading.get();
+    // const loading = this.#storeData.$manifestLoading.get();
+    const loading = false;
     let content = nothing;
     if (loading) content = html`<pg-loading></pg-loading>`;
-    const manifest = this.#storeData.$manifest.get();
+    // const manifest = this.#storeData.$manifest.get();
+    // XXX disconnected
+    const manifest = {};
     if (!manifest?.wishes) return nothing;
     content = html`<sl-details summary=${manifest.name}>
       <sl-menu @sl-select=${this.handleWishMenu}>
@@ -107,7 +110,7 @@ export class PinkgillInstall extends LitElement {
                   <sl-button size="small" variant="primary" @click=${this.handleConfirmUninstall}>Ok</sl-button>
                   <sl-button size="small" variant="danger" @click=${this.handleCancelUninstall}>Cancel</sl-button>`
               : 'Uninstall'
-              
+
           }
           <sl-icon slot="suffix" name="x-lg"></sl-icon>
         </sl-menu-item>
