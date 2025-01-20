@@ -1,41 +1,19 @@
 
 ## Issues
 
-- [x] upload form needs to reset on success
-- [x] upload form sometimes disappears even though an error is coming in
-- [x] data is wrong
-- [x] add wildcards to polity2 server too
-- [x] need to render tiles
-- [x] need to serve tiles
-- [x] need to detect correct media type
-- [x] optimistic indexing
-- [x] event source to signal stream refresh
-- [x] tiles need an aspect ratio
 - [x] switch to Jetstream
   - [ ] Test Jetstream
 - [ ] add support for manifests that can fill in the name
-- [x] add installation support (a new record type)
 - [ ] add wish handling, including posting back
 - [ ] need a way to support feeds and the such
 - [ ] need to check viewport resizing tile aspect support
-- [x] refactor root to split components out
 - [ ] several different palettes for installed wishes of different kinds
 - [ ] paginate with endless scroll
 - [ ] better URLs
 - [ ] Go through all `onMount` that add a listener on `sse` and make sure they clean up on unmount
-- [x] finish refactoring of create-tile so that it uses the store properly (create and error)
-- [x] do the same for installs and get back to do
+- [ ] add proper routing, including viewing user and single post
+- [ ] add route-based store data instead of requesting it more manually
 
-- [x] test `postMessage`
-- [x] library in `/.well-known/tiles/wishing`
-- [x] `window.wish.ready` as a promise that resolves when it is indeed ready (messaged up, got response)
-- [x] ~~install API + lexicon + ingester~~ + fetch + store
-- [x] fix tile URLs to hash instead
-- [x] install / uninstall affordances + list
-  - [x] install button should disappear on update
-  - [x] pg-install + styling
-  - [x] style install button better, smaller, more discreet
-  - [x] Uninstall should just be delete
 - [ ] ⚠️ delete tile
 - [ ] ⚠️ CLI
 - [ ] ⚠️ render name differently: use person name on post but title must also appear (for install)
@@ -54,7 +32,7 @@
   - [ ] instantiate automatically creates the right wish structure in the manifest — it ONLY has instantiate and has a `what` matching the creator so we don't suggest install if installed
   - [ ] if tile has an icon, show it right under the account icon on the left
 - [ ] test by copying the manifest & cheating
-- [ ] remove leading @ in login
+- [x] remove leading @ in login
 - [ ] UI https://alexanderobenauer.com/
 - [ ] https://notes.andymatuschak.org/About_these_notes
 - [ ] https://en.wikipedia.org/wiki/Promise_theory
