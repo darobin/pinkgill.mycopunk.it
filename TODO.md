@@ -13,10 +13,13 @@
 - [ ] Go through all `onMount` that add a listener on `sse` and make sure they clean up on unmount
 - [ ] add proper routing, including viewing user and single post
 - [ ] add route-based store data instead of requesting it more manually
+- [ ] UI https://alexanderobenauer.com/
+- [ ] https://notes.andymatuschak.org/About_these_notes
+- [ ] https://en.wikipedia.org/wiki/Promise_theory
 
-- [ ] ⚠️ delete tile
+- [x] delete tile
 - [ ] ⚠️ CLI
-- [ ] ⚠️ render name differently: use person name on post but title must also appear (for install)
+- [x] render name differently: use person name on post but title must also appear (for install)
 - [x] 🧪 obtain blobs when you don't have them, on indexing: agent.com.atproto.sync.getBlob({ cid, did })
 - [ ] ⚠️ tiles need way of rendering inert (with a template and tile data)
 - [x] invitations (can't let this be open access yet)
@@ -31,11 +34,24 @@
   - [ ] rendering an instance is the tile + ready with data (not supposed to show editable)
   - [ ] instantiate automatically creates the right wish structure in the manifest — it ONLY has instantiate and has a `what` matching the creator so we don't suggest install if installed
   - [ ] if tile has an icon, show it right under the account icon on the left
+  - [ ] instance should expose option to have different name
 - [ ] test by copying the manifest & cheating
 - [x] remove leading @ in login
-- [ ] UI https://alexanderobenauer.com/
-- [ ] https://notes.andymatuschak.org/About_these_notes
-- [ ] https://en.wikipedia.org/wiki/Promise_theory
+- [ ] refactor DB to be OO and to return failure/success consistently
+- [ ] refactor server to manage record creation, etc. with less code repetition
+- [ ] remove all firehose code
+- [ ] make deletion work nicely
+  - [ ] timeline refresh shouldn't lose position (in general)
+  - [ ] deleted tile should have loading
+  - [ ] refactor how individual tiles get stores from timeline
+  - [ ] confirm deletion
+
+REFACTOR
+- update install store
+- fix inclusion of install data
+- update wish flow (with URL?)
+- tile footer render
+- return to install problem
 
 - [ ] ATChain:
     - [ ] Put WASM "contracts" (defined self-certifying input & output ports + self-certifying WASM) on AT

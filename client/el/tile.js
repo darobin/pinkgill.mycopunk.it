@@ -3,7 +3,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { until } from 'lit/directives/until.js';
 import { StoreController } from '@nanostores/lit';
 import { format } from 'timeago.js';
-import { urlForTile } from '../store/tiles.js';
+import { urlForTile, deleteTile } from '../store/tiles.js';
 // import { isInstallable, makeInstaller, $installs } from '../store/installs.js';
 import { $identity } from '../store/identity.js';
 import { buttons, errors } from './styles.js';
@@ -164,12 +164,8 @@ export class PinkgillTile extends LitElement {
   }
   async handleContextual (evt) {
     const item = evt?.detail?.item?.value;
-    if (item === 'delete') {
-      // XXX
-      // note that we don't delete anything, we just mark as deleted
-      // otherwise, you could uninstall an original tile and kill all its instances
-      alert('Delete!');
-    }
+    if (!this.tile) return;
+    if (item === 'delete') return await deleteTile(this.tile);
   }
   renderContainer (content, footer) {
     console.warn(this.tile, this.wish);

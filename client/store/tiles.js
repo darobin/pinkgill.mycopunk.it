@@ -58,6 +58,12 @@ export function makeTileUploaderStores () {
   };
 }
 
+export async function deleteTile (tile) {
+  const { uri } = tile;
+  const res = await fetch(`/api/tile?${new URLSearchParams({ url: uri })}`, { method: 'delete' });
+  return res.ok;
+}
+
 export function makeInstantiationStores () {
   const $instanceDone = atom(false);
   const $instanceLoading = atom(true);

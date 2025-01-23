@@ -35,4 +35,7 @@ onMount($timeline, async () => {
   sse.addEventListener('new-tile', async () => {
     await refreshTimeline();
   });
+  sse.addEventListener('deletion-change', async () => {
+    await refreshTimeline();
+  });
 });
