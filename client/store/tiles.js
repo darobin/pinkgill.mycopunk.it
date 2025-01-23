@@ -6,7 +6,7 @@ import bodify from "../lib/bodify.js";
 
 const tileHash = makeTileHasher(window.crypto);
 
-// We'll want something more sophisticated later
+// We'll want something more sophisticated later.
 const manifestCache = {};
 const tilesPerWindow = new Map();
 
@@ -29,33 +29,6 @@ export async function urlForTile (uriOrTile) {
 
 export async function originForTile (tile) {
   return (await urlForTile(tile)).replace(/\/$/, '');
-}
-
-export function makeTileUploaderStores () {
-  const $uploadDone = atom(false);
-  const $uploadLoading = atom(true);
-  const $uploadError = atom(false);
-
-  const uploadTile = async (body) => {
-    $uploadLoading.set(true);
-    const res = await fetch('/api/tile', bodify(body, { method: 'post' }));
-
-    $uploadDone.set(true);
-    if (res.ok) {
-      $uploadError.set(false);
-    }
-    else {
-      $uploadError.set((await res.json())?.error || 'Unknown error');
-    }
-    $uploadLoading.set(false);
-  };
-
-  return {
-    $uploadDone,
-    $uploadLoading,
-    $uploadError,
-    uploadTile,
-  };
 }
 
 export async function deleteTile (tile) {

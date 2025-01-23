@@ -117,19 +117,11 @@ export class PinkgillTile extends LitElement {
   // #installerData = makeInstaller();
   // #controller = new MultiStoreController(this, [
   //   $installs,
-  //   this.#storeData.$manifest,
-  //   this.#storeData.$manifestLoading,
-  //   this.#storeData.$manifestError,
   //   this.#installerData.$installDone,
   //   this.#installerData.$installLoading,
   //   this.#installerData.$installError,
   // ]);
   #dataResolver = null;
-  async connectedCallback () {
-    super.connectedCallback();
-    if (!this.tile) return;
-    // await this.#storeData.loadManifest(this.tile);
-  }
   async handleMessage (ev) {
     if (ev.source !== this.getWindow()) return;
     const { data } = ev;

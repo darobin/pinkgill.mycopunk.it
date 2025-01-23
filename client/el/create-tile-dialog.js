@@ -1,9 +1,9 @@
 
 import { LitElement, html, css } from 'lit';
-import { MultiStoreController } from "@nanostores/lit";
+import { StoreController } from "@nanostores/lit";
 import { refreshTimeline } from '../store/timeline.js';
 import { $uiTileOverlayOpen, closeTileOverlay } from '../store/ui.js';
-import { makeTileUploaderStores } from '../store/tiles.js';
+import { $tileUploader, uploadTile, resetTileUploader } from '../store/tiles-uploader.js';
 import { buttons } from './styles.js';
 
 class PinkgillCreateTileDialog extends LitElement {
@@ -13,12 +13,12 @@ class PinkgillCreateTileDialog extends LitElement {
       }
       sl-dialog sl-input {
         margin-bottom: var(--sl-spacing-small);
-      } 
+      }
     `,
     buttons
   ];
-  #uploaderData = makeTileUploaderStores();
-  #controller = new MultiStoreController(this, [this.#uploaderData.$uploadDone, this.#uploaderData.$uploadLoading, this.#uploaderData.$uploadError, $uiTileOverlayOpen]);
+  #uiTileOverlay = new StoreController(this, $uiTileOverlayOpen);
+  #tileUploader = new StoreController(this, $tileUploader);
   handleOverlayClose (ev) {
     if (ev.detail.source === 'overlay') ev.preventDefault();
   }
@@ -26,17 +26,18 @@ class PinkgillCreateTileDialog extends LitElement {
     const form = ev.target;
     ev.preventDefault();
     const body = new FormData(form);
-    await this.#uploaderData.uploadTile(body);
-    if (this.#uploaderData.$uploadDone.get() && !this.#uploaderData.$uploadError.get()) {
+    await uploadTile(body);
+    if (this.#tileUploader.value.done && !this.#tileUploader.value.error) {
       closeTileOverlay();
       form.reset();
       form.querySelector('pg-upload')?.reset();
       await refreshTimeline();
+      resetTileUploader();
     }
   }
   render () {
-    const overlayOpen = $uiTileOverlayOpen.get();
-    const err = this.#uploaderData.$uploadError.get();
+    const overlayOpen = this.#uiTileOverlay.value;
+    const err = this.#tileUploader.value.error;
     return html`<sl-dialog label="Create tile" @sl-request-close=${this.handleOverlayClose} ?open=${overlayOpen} @sl-after-hide=${closeTileOverlay}>
       <form @submit=${this.handleCreateTile} id="tile-maker">
         <sl-alert variant="danger" ?open=${!!err} closable>
