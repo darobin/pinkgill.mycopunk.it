@@ -17,10 +17,7 @@ $computedRoute.subscribe(async ({ route, params }) => {
 
 const tileHash = makeTileHasher(window.crypto);
 
-// We'll want something more sophisticated later.
-const manifestCache = {};
 const tilesPerWindow = new Map();
-
 export function addActiveTile (tile, win) {
   tilesPerWindow.set(win, tile);
 }
@@ -69,18 +66,4 @@ export function makeInstantiationStores () {
     $instanceError,
     createInstance,
   };
-}
-
-export async function getManifest (uri) {
-  if (manifestCache[uri]) return manifestCache[uri];
-  const res = await fetch(`/api/manifest?${new URLSearchParams({ url: uri })}`);
-  if (res.ok) {
-    const man = (await res.json())?.data;
-    manifestCache[uri] = man;
-    return man || {};
-  }
-}
-
-export function getCachedManifest (uri) {
-  return manifestCache[uri];
 }

@@ -1,13 +1,11 @@
 
 import { atom } from "nanostores";
-import { getManifest } from "./tiles.js";
 
 export const $activeWish = atom({});
 
-export async function grantWish (wish, tileURI) {
-  const manifest = await getManifest(tileURI);
-  console.warn(`granting`, wish, tileURI, manifest);
-  $activeWish.set({ wish, tileURI, manifest });
+export async function grantWish (wish, tile) {
+  console.warn(`granting`, wish, tile);
+  $activeWish.set({ wish, tile });
 }
 
 export function stopWishing () {

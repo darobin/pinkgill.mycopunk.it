@@ -20,11 +20,12 @@ class PinkgillWishDialog extends LitElement {
   #instantiationData = makeInstantiationStores();
   #controller = new MultiStoreController(this, [this.#instantiationData.$instanceDone, this.#instantiationData.$instanceLoading, this.#instantiationData.$instanceError, $activeWish]);
   async handleGrantWish () {
-    const { wish, tileURI, manifest } = $activeWish.get();
+    const { wish, tile } = $activeWish.get();
     if (wish?.can == 'instantiate') {
       const data = await this.shadowRoot.querySelector('pg-tile')?.getInstanceData();
       if (!data) return; // XXX need to handle errors here
       console.warn(`we have instance data`, data);
+      // XXX FIX THIS
       // XXX we just use the name from the manifest (all tiles need names), maybe this can be editable or optional
       await this.#instantiationData.createInstance({ data, tile: tileURI, name: manifest.name });
       if (this.#instantiationData.$instanceDone.get() && !this.#instantiationData.$instanceError.get()) {
@@ -34,7 +35,7 @@ class PinkgillWishDialog extends LitElement {
     }
   }
   render () {
-    const { wish, tileURI, manifest } = $activeWish.get();
+    const { wish, tile } = $activeWish.get();
     // we only know the one type for now
     if (wish?.can !== 'instantiate') return nothing;
     const err = this.#instantiationData.$instanceError.get();

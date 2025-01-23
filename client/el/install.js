@@ -54,11 +54,9 @@ export class PinkgillInstall extends LitElement {
       return;
     }
     if (/^\d+$/.test(value)) {
-      // XXX can we get the tile, get the manifest in it, and just grantWish with that?
-      // If so, we can then delete getManifest()
-      // const wish = this.#storeData.$manifest.get()?.wishes?.[parseInt(value, 10)];
+      const wish = this.tile?.manifest?.wishes?.[parseInt(value, 10)];
       if (!wish) return;
-      await grantWish(wish, this.tile.tile);
+      await grantWish(wish, this.tile);
       console.warn(`wishing`, wish);
     }
   }
