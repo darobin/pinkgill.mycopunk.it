@@ -46,7 +46,7 @@ export class PinkgillTileLoader extends LitElement {
     if (!this.url) return nothing;
     const style = {};
     if (this.dynHeight) style['--dynamic-height'] = `${this.dynHeight}px`;
-    return html`<iframe src=${this.url} style=${styleMap(style)}></iframe>`;
+    return html`<iframe src=${this.url} style=${styleMap(style)} loading="lazy"></iframe>`;
   }
 }
 
