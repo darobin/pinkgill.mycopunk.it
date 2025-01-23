@@ -1,7 +1,6 @@
 
 import { LitElement, html, css, nothing } from 'lit';
 import { MultiStoreController } from '@nanostores/lit';
-// import { makeTileStores } from '../store/tiles.js';
 import { makeInstaller } from '../store/installs.js';
 import { grantWish } from '../store/wishes.js';
 
@@ -33,12 +32,8 @@ export class PinkgillInstall extends LitElement {
       }
     `,
   ];
-  // #storeData = makeTileStores();
   #installerData = makeInstaller();
   #controller = new MultiStoreController(this, [
-    // this.#storeData.$manifest,
-    // this.#storeData.$manifestLoading,
-    // this.#storeData.$manifestError,
     this.#installerData.$installDone,
     this.#installerData.$installLoading,
     this.#installerData.$installError,
@@ -50,7 +45,6 @@ export class PinkgillInstall extends LitElement {
   async connectedCallback () {
     super.connectedCallback();
     if (!this.tile) return;
-    // await this.#storeData.loadManifest(this.tile.tile);
   }
   async handleWishMenu (ev) {
     const value = ev.detail?.item?.value;
@@ -60,6 +54,8 @@ export class PinkgillInstall extends LitElement {
       return;
     }
     if (/^\d+$/.test(value)) {
+      // XXX can we get the tile, get the manifest in it, and just grantWish with that?
+      // If so, we can then delete getManifest()
       // const wish = this.#storeData.$manifest.get()?.wishes?.[parseInt(value, 10)];
       if (!wish) return;
       await grantWish(wish, this.tile.tile);

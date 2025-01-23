@@ -6,6 +6,7 @@ import { format } from 'timeago.js';
 import { urlForTile, deleteTile } from '../store/tiles.js';
 // import { isInstallable, makeInstaller, $installs } from '../store/installs.js';
 import { $identity } from '../store/identity.js';
+import { goto } from '../store/router.js';
 import { buttons, errors } from './styles.js';
 
 export class PinkgillTile extends LitElement {
@@ -48,6 +49,7 @@ export class PinkgillTile extends LitElement {
           "a b"
           "c b"
         ;
+        cursor: pointer;
       }
       h3 {
         grid-area: a;
@@ -159,6 +161,10 @@ export class PinkgillTile extends LitElement {
     if (!this.tile) return;
     if (item === 'delete') return await deleteTile(this.tile);
   }
+  async handleTileClick () {
+    if (!this.tile) return;
+    goto('tile', { hash: this.tile.hash });
+  }
   renderContainer (content, footer) {
     console.warn(this.tile, this.wish);
     // XXX Not sure why this branch
@@ -180,13 +186,13 @@ export class PinkgillTile extends LitElement {
       <a href=${`/user/${profile?.handle}`}><img src=${profile?.avatar} alt=${profile?.displayName || profile?.handle}></a>
     </div>
     <div class="post">
-      <div class="header">
+      <div class="header" @click=${this.handleTileClick}>
         <h3>${manifest.name}</h3>
         <div class="meta">
           <a href=${`/user/${profile?.handle}`} class="name">${profile?.displayName || profile?.handle}</a>
           <a href=${`/user/${profile?.handle}`} class="handle">@${profile?.handle}</a>
           ·
-          <time datetime=${this.tile?.createdAt}>${format(this.tile?.createdAt)}</time></a>
+          <time datetime=${this.tile?.createdAt}><a href=${`/tile/${this.tile?.hash}`}>${format(this.tile?.createdAt)}</a></time>
         </div>
         <div class="menu">${menu}</div>
       </div>

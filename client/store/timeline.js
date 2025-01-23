@@ -2,6 +2,7 @@
 import { map, onMount } from "nanostores";
 import { $computedRoute } from "./router.js";
 import sse from "../lib/sse.js";
+import apiToStore from "../lib/api-store.js";
 
 const defaultTimeline = {
   loading: true,
@@ -16,19 +17,7 @@ $computedRoute.subscribe(async ({ route }) => {
 });
 
 export async function refreshTimeline () {
-  $timeline.setKey('loading', true);
-  const res = await fetch(`/api/timeline`);
-  const data = await res.json();
-  if (res.status !== 200) {
-    const { error } = data;
-    $timeline.setKey('error', error || 'Unknown error');
-    $timeline.setKey('data', []);
-  }
-  else {
-    $timeline.setKey('error', false);
-    $timeline.setKey('data', data.data);
-  }
-  $timeline.setKey('loading', false);
+  await apiToStore($timeline, `/api/timeline`);
 }
 
 onMount($timeline, async () => {

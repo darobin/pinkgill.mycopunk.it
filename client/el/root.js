@@ -43,7 +43,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $uiTil
       .sidebar sl-button {
         width: 100%;
       }
-      .timeline {
+      .primary {
         flex-grow: 1;
       }
     `,
@@ -71,7 +71,7 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $uiTil
     const overlayOpen = $uiTileOverlayOpen.get();
     if (route === 'loading') return html`<div class="loading"><pg-loading></pg-loading></div>`;
     if (route === 'login') return html`<div class="login"><pg-login></pg-login></div>`;
-    if (route === 'home') return html`<div class="home">
+    if (route === 'home' || route === 'tile') return html`<div class="home">
       <div class="sidebar">
         <pg-installed-palette></pg-installed-palette>
         <sl-button @click=${openTileOverlay} class="action" ?disabled=${overlayOpen}>
@@ -79,8 +79,13 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $uiTil
           Create tile
         </sl-button>
       </div>
-      <div class="timeline">
-        <pg-timeline></pg-timeline>
+      <div class="primary">
+        ${
+          {
+            home: html`<pg-timeline></pg-timeline>`,
+            tile: html`<pg-tile-viewer></pg-tile-viewer>`,
+          }[route]
+        }
       </div>
       <pg-create-tile-dialog></pg-create-tile-dialog>
       <pg-wish-dialog></pg-wish-dialog>

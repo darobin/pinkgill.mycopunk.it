@@ -1,8 +1,19 @@
 
-import { atom } from "nanostores";
+import { atom, map } from "nanostores";
+import { $computedRoute } from "./router.js";
+import apiToStore from "../lib/api-store.js";
 import makeTileHasher from "../../shared/tile-hash.js";
 import parseATURI from "../../shared/at-uri.js";
 import bodify from "../lib/bodify.js";
+
+const defaultTile = { loading: true };
+export const $curTile = map(defaultTile);
+
+$computedRoute.subscribe(async ({ route, params }) => {
+  if (route !== 'tile' || !params.hash) return;
+  $curTile.setKey('loading', true);
+  await apiToStore($curTile, `/api/tile/${params.hash}`);
+});
 
 const tileHash = makeTileHasher(window.crypto);
 
@@ -25,10 +36,6 @@ export async function urlForTile (uriOrTile) {
   // return `https://${did.replace(/:/g, '.')}.${tid}.tile.${window.location.hostname}/`;
   // return `https://${await tileHash(did, tid)}.tile.${window.location.hostname}/`;
   return `https://tile.${window.location.hostname}/${await tileHash(did, tid)}/`;
-}
-
-export async function originForTile (tile) {
-  return (await urlForTile(tile)).replace(/\/$/, '');
 }
 
 export async function deleteTile (tile) {
