@@ -1,10 +1,11 @@
 
 import { LitElement, html, css } from 'lit';
-import { withStores } from "@nanostores/lit";
-import { $installs, $installsError, $installsLoading } from '../store/installs.js';
+import { StoreController } from "@nanostores/lit";
+import { $installs } from '../store/installs.js';
 import { header2, buttons } from './styles.js';
 
-export class PinkgillInstalledPalette extends withStores(LitElement, [$installs, $installsError, $installsLoading]) {
+export class PinkgillInstalledPalette extends LitElement {
+  #installs = new StoreController(this, $installs);
   static styles = [
     css`
       :host {
@@ -32,9 +33,10 @@ export class PinkgillInstalledPalette extends withStores(LitElement, [$installs,
   ];
   render () {
     let content = html`<li class="no-results">No installed tiles.</li>`;
-    if ($installsLoading.get()) content = html`<pg-loading></pg-loading>`;
-    else if ($installsError.get()) content = html`<span class="error">${$installsError.get()}</span>`;
-    else if ($installs.get().length) content = html`<ul>${$installs.get().map(it => html`<li><pg-install .tile=${it}></pg-install></li>`)}</ul>`;
+    const { loading, error, data } = this.#installs.value;
+    if (loading) content = html`<pg-loading></pg-loading>`;
+    else if (error) content = html`<span class="error">${error}</span>`;
+    else if (data?.length) content = html`<ul>${data.map(it => html`<li><pg-install .tile=${it}></pg-install></li>`)}</ul>`;
     return html`<sl-card>
       <h2 slot="header">installed tiles</h2>
       ${content}

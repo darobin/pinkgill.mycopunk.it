@@ -11,14 +11,14 @@ const defaultTimeline = {
 };
 export const $timeline = map(defaultTimeline);
 
+export async function refreshTimeline () {
+  await apiToStore($timeline, `/api/timeline`);
+}
+
 $computedRoute.subscribe(async ({ route }) => {
   if (route !== 'home') return;
   await refreshTimeline();
 });
-
-export async function refreshTimeline () {
-  await apiToStore($timeline, `/api/timeline`);
-}
 
 onMount($timeline, async () => {
   sse.addEventListener('new-tile', async () => {

@@ -4,7 +4,7 @@ import { until } from 'lit/directives/until.js';
 import { StoreController } from '@nanostores/lit';
 import { format } from 'timeago.js';
 import { urlForTile, deleteTile } from '../store/tiles.js';
-// import { isInstallable, makeInstaller, $installs } from '../store/installs.js';
+import { isInstallable, $installs } from '../store/installs.js';
 import { $identity } from '../store/identity.js';
 import { goto } from '../store/router.js';
 import { buttons, errors } from './styles.js';
@@ -225,14 +225,14 @@ export class PinkgillTile extends LitElement {
         const url = await urlForTile(this.tile);
         let footer = nothing;
         // XXX need to reconnect installation
-        // if (isInstallable(this.tile)) {
+        if (isInstallable(this.tile)) {
         //   const error = this.#installerData.$installError.get();
         //   const loading = this.#installerData.$installLoading.get();
         //   footer = html`<div slot="footer">
         //     ${error ? html`<span class="error">${error}</span>` : nothing}
         //     ${html`<sl-icon-button name="bookmark-plus" @click=${this.handleInstall} ?disabled=${loading} label="Install"></sl-icon-button>`}
         //   </div>`;
-        // }
+        }
         return this.renderContainer(
           html`<pg-tile-loader .parent=${this} .dynHeight=${dynHeight} .url=${url}></pg-tile-loader>`,
           footer

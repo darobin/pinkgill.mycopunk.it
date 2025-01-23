@@ -1,27 +1,23 @@
 
-import { atom, onMount } from "nanostores";
+import { atom, map, onMount } from "nanostores";
 import sse from "../lib/sse.js";
-import { getCachedManifest } from "./tiles.js";
+import apiToStore from "../lib/api-store.js";
 
-export const $installs = atom([]);
-export const $installsLoading = atom(true);
-export const $installsError = atom(false);
+const defaultInstalls = {
+  loading: true,
+  error: false,
+  data: [],
+};
+export const $installs = map(defaultInstalls);
 
-export async function refreshInstalls () {
-  $installsLoading.set(true);
-  const res = await fetch(`/api/installed`);
-  const data = await res.json();
-  if (res.status !== 200) {
-    const { error } = data;
-    $installsError.set(error || 'Unknown error');
-    $installs.set([]);
-  }
-  else {
-    $installsError.set(false);
-    $installs.set(data.data);
-  }
-  $installsLoading.set(false);
+export async function refreshTimeline () {
+  await apiToStore($installs, `/api/installed`);
 }
+
+// XXX
+// Here we want a makeInstallableStore that just returns a default store.
+// Separately, installTile takes the tile and that store, and updates the
+// store. Done.
 
 export function makeInstaller () {
   const $installDone = atom(false);
@@ -64,10 +60,9 @@ export function makeInstaller () {
 
 
 // Has a manifest with wishes and isn't already installed
-export function isInstallable (uri) {
-  const manifest = getCachedManifest(uri);
-  if (!manifest?.wishes) return false;
-  return !$installs.get().find((ins) => ins.tile === uri);
+export function isInstallable (tile) {
+  if (!tile?.manifest?.wishes) return false;
+  return !$installs.get().find((ins) => ins.tile === tile.uri);
 }
 
 onMount($installs, async () => {
