@@ -21,24 +21,23 @@
 class Colourful {
   #colours = ['#000000'];
   #mode;
+  #name;
   static #maxLength = 6;
   constructor (mode, data) {
     if (Colourful.validateColours(data?.colours)) this.#colours = data.colours;
+    this.#name = data?.name;
     this.#mode = mode;
   }
   static validateColours (c) {
     return c && Array.isArray(c) && c.length > 0 && c.length <= this.#maxLength && !c.find(col => !/^#[a-f0-9]{6}$/.test(col));
   }
   get data () {
-    return { colours: this.#colours };
+    const data = { colours: this.#colours };
+    if (this.#name) data.name = this.#name;
+    return data;
   }
   get dirty () {
-    return this.#colours.length > 1 || this.#colours[0] !== '#000000';
-  }
-  renderConfusion (readyState) {
-    const main = document.querySelector('main');
-    el('p', {}, ['Whoa, I have no idea what is going on here.'], main);
-    el('pre', {}, [JSON.stringify(readyState, null, 2)], main);
+    return this.#colours.length > 1 || this.#colours[0] !== '#000000' || this.#name;
   }
   setColour (idx, val) {
     if (idx >= this.#colours.length) return;
@@ -54,6 +53,9 @@ class Colourful {
     if (this.#colours.length >= Colourful.#maxLength) return;
     this.#colours.push('#000000');
     this.render();
+  }
+  updateName (evt) {
+    this.#name = evt.target.value;
   }
   render () {
     const main = document.querySelector('main');
@@ -100,6 +102,7 @@ class Colourful {
         'div',
         { class: 'colour-actions' },
         [
+          el('input', { type: 'text', placeholder: 'Scheme Name', value: this.#name, '@input': (evt) => this.updateName(evt) }),
           el('input', { type: 'button', value: '➕ Add Colour', disabled: this.#colours.length < Colourful.#maxLength ? undefined : 'disabled', '@click': () => this.addColour() }),
         ],
         main

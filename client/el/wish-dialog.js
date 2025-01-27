@@ -17,6 +17,7 @@ class PinkgillWishDialog extends LitElement {
     `,
     buttons
   ];
+  // XXX this is wrong
   #instantiationData = makeInstantiationStores();
   #controller = new MultiStoreController(this, [this.#instantiationData.$instanceDone, this.#instantiationData.$instanceLoading, this.#instantiationData.$instanceError, $activeWish]);
   async handleGrantWish () {
@@ -27,7 +28,7 @@ class PinkgillWishDialog extends LitElement {
       console.warn(`we have instance data`, data);
       // XXX FIX THIS
       // XXX we just use the name from the manifest (all tiles need names), maybe this can be editable or optional
-      await this.#instantiationData.createInstance({ data, tile: tileURI, name: manifest.name });
+      await this.#instantiationData.createInstance({ data, tile: tile.uri, name: tile.manifest.name });
       if (this.#instantiationData.$instanceDone.get() && !this.#instantiationData.$instanceError.get()) {
         stopWishing();
         await refreshTimeline();
@@ -40,8 +41,8 @@ class PinkgillWishDialog extends LitElement {
     if (wish?.can !== 'instantiate') return nothing;
     const err = this.#instantiationData.$instanceError.get();
     const label = "Post";
-    return html`<sl-dialog label=${manifest.name} ?open=${!!wish} @sl-after-hide=${stopWishing}>
-      <pg-tile .tile=${tileURI} .wish=${wish}></pg-tile>
+    return html`<sl-dialog label=${tile.manifest.name} ?open=${!!wish} @sl-after-hide=${stopWishing}>
+      <pg-tile .tile=${tile.uri} .wish=${wish}></pg-tile>
       <sl-alert variant="danger" ?open=${!!err}>
         <sl-icon slot="icon" name="exclamation-triangle"></sl-icon>
         <strong>${err}</strong><br>
