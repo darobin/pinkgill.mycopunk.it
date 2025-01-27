@@ -1,10 +1,12 @@
 
 import { LitElement, html, css, nothing } from 'lit';
-import { MultiStoreController } from '@nanostores/lit';
-import { makeInstaller } from '../store/installs.js';
+import { StoreController } from '@nanostores/lit';
+import { makeInstallStore, uninstallTile } from '../store/installs.js';
 import { grantWish } from '../store/wishes.js';
 
 export class PinkgillInstall extends LitElement {
+  #installStore = makeInstallStore();
+  #install = new StoreController(this, this.#installStore);
   static properties = {
     tile: { attribute: false },
     confirmUninstall: { type: Boolean, attribute: false, state: true },
@@ -32,19 +34,9 @@ export class PinkgillInstall extends LitElement {
       }
     `,
   ];
-  #installerData = makeInstaller();
-  #controller = new MultiStoreController(this, [
-    this.#installerData.$installDone,
-    this.#installerData.$installLoading,
-    this.#installerData.$installError,
-  ]);
   constructor () {
     super();
     this.confirmUninstall = false;
-  }
-  async connectedCallback () {
-    super.connectedCallback();
-    if (!this.tile) return;
   }
   async handleWishMenu (ev) {
     const value = ev.detail?.item?.value;
@@ -64,7 +56,7 @@ export class PinkgillInstall extends LitElement {
     ev.stopPropagation();
     this.confirmUninstall = false;
     if (!this.tile) return;
-    await this.#installerData.uninstallTile(this.tile.tile);
+    await uninstallTile(this.#installStore, this.tile);
   }
   handleCancelUninstall (ev) {
     ev.stopPropagation();
@@ -77,14 +69,11 @@ export class PinkgillInstall extends LitElement {
     const loading = false;
     let content = nothing;
     if (loading) content = html`<pg-loading></pg-loading>`;
-    // const manifest = this.#storeData.$manifest.get();
-    // XXX disconnected
-    const manifest = {};
-    if (!manifest?.wishes) return nothing;
-    content = html`<sl-details summary=${manifest.name}>
+    if (!this.tile.manifest?.wishes) return nothing;
+    content = html`<sl-details summary=${this.tile.manifest.name}>
       <sl-menu @sl-select=${this.handleWishMenu}>
         ${
-          manifest.wishes.map((w, idx) => {
+          this.tile.manifest.wishes.map((w, idx) => {
             let label = "Wish";
             let icon = "magic";
             if (w.can === 'instantiate') {

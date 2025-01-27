@@ -4,13 +4,15 @@ import { until } from 'lit/directives/until.js';
 import { StoreController } from '@nanostores/lit';
 import { format } from 'timeago.js';
 import { urlForTile, deleteTile } from '../store/tiles.js';
-import { isInstallable, $installs } from '../store/installs.js';
+import { isInstallable, makeInstallStore, installTile } from '../store/installs.js';
 import { $identity } from '../store/identity.js';
 import { goto } from '../store/router.js';
 import { buttons, errors } from './styles.js';
 
 export class PinkgillTile extends LitElement {
   #identity = new StoreController(this, $identity);
+  #installStore = makeInstallStore();
+  #install = new StoreController(this, this.#installStore);
   static properties = {
     tile: { attribute: false },
     wish: { attribute: false },
@@ -116,13 +118,6 @@ export class PinkgillTile extends LitElement {
     buttons,
     errors,
   ];
-  // #installerData = makeInstaller();
-  // #controller = new MultiStoreController(this, [
-  //   $installs,
-  //   this.#installerData.$installDone,
-  //   this.#installerData.$installLoading,
-  //   this.#installerData.$installError,
-  // ]);
   #dataResolver = null;
   async handleMessage (ev) {
     if (ev.source !== this.getWindow()) return;
@@ -153,8 +148,7 @@ export class PinkgillTile extends LitElement {
   }
   async handleInstall () {
     if (!this.tile) return;
-    alert('Installation has been disconnected');
-    // await this.#installerData.installTile(this.tile);
+    installTile(this.#installStore, this.tile);
   }
   async handleContextual (evt) {
     const item = evt?.detail?.item?.value;
@@ -224,14 +218,13 @@ export class PinkgillTile extends LitElement {
       (async () => {
         const url = await urlForTile(this.tile);
         let footer = nothing;
-        // XXX need to reconnect installation
         if (isInstallable(this.tile)) {
-        //   const error = this.#installerData.$installError.get();
-        //   const loading = this.#installerData.$installLoading.get();
-        //   footer = html`<div slot="footer">
-        //     ${error ? html`<span class="error">${error}</span>` : nothing}
-        //     ${html`<sl-icon-button name="bookmark-plus" @click=${this.handleInstall} ?disabled=${loading} label="Install"></sl-icon-button>`}
-        //   </div>`;
+          const error = this.#install.value?.error;
+          const loading = this.#install.value?.loading;
+          footer = html`<div slot="footer">
+            ${error ? html`<span class="error">${error}</span>` : nothing}
+            ${html`<sl-icon-button name="bookmark-plus" @click=${this.handleInstall} ?disabled=${loading} label="Install"></sl-icon-button>`}
+          </div>`;
         }
         return this.renderContainer(
           html`<pg-tile-loader .parent=${this} .dynHeight=${dynHeight} .url=${url}></pg-tile-loader>`,

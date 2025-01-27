@@ -35,11 +35,13 @@
   - [ ] instantiate automatically creates the right wish structure in the manifest — it ONLY has instantiate and has a `what` matching the creator so we don't suggest install if installed
   - [ ] if tile has an icon, show it right under the account icon on the left
   - [ ] instance should expose option to have different name
+  - [ ] installing a tile doesn't remove its install button
 - [ ] test by copying the manifest & cheating
+- [ ] shell shouldn't scroll with content
 - [x] remove leading @ in login
 - [ ] refactor DB to be OO and to return failure/success consistently
 - [ ] refactor server to manage record creation, etc. with less code repetition
-- [ ] remove all firehose code
+- [ ] remove all old firehose code
 - [ ] make deletion work nicely
   - [ ] timeline refresh shouldn't lose position (in general)
   - [ ] deleted tile should have loading

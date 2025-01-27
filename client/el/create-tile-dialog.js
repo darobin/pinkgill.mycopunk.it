@@ -3,7 +3,7 @@ import { LitElement, html, css } from 'lit';
 import { StoreController } from "@nanostores/lit";
 import { refreshTimeline } from '../store/timeline.js';
 import { $uiTileOverlayOpen, closeTileOverlay } from '../store/ui.js';
-import { $tileUploader, uploadTile, resetTileUploader } from '../store/tiles-uploader.js';
+import { $tileUploader, uploadTile, resetTileUploader } from '../store/tile-uploader.js';
 import { buttons } from './styles.js';
 
 class PinkgillCreateTileDialog extends LitElement {
