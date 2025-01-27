@@ -3,7 +3,7 @@
   const readyState = await window.wish.ready;
   const c = new Colourful(readyState.mode, readyState.data);
   c.render();
-  
+
   window.wish.registerPostHandler(() => c.data);
   window.wish.registerCancelHandler(() => c.dirty);
 
@@ -30,7 +30,7 @@ class Colourful {
     return c && Array.isArray(c) && c.length > 0 && c.length <= this.#maxLength && !c.find(col => !/^#[a-f0-9]{6}$/.test(col));
   }
   get data () {
-    return this.#colours;
+    return { colours: this.#colours };
   }
   get dirty () {
     return this.#colours.length > 1 || this.#colours[0] !== '#000000';
@@ -72,9 +72,9 @@ class Colourful {
     this.#colours.forEach((col, idx) => el(
       'div',
       {
-        class: 'colour', 
-        style: `background-color: ${col}`, 
-        'data-idx': idx, 
+        class: 'colour',
+        style: `background-color: ${col}`,
+        'data-idx': idx,
         '@input': (ev) => {
           const input = ev.target;
           const div = ev.currentTarget;

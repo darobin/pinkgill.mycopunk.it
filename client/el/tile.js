@@ -84,8 +84,9 @@ export class PinkgillTile extends LitElement {
         text-decoration: none;
         color: var(--sl-color-neutral-500);
       }
-      time {
+      time, time a {
         color: var(--sl-color-neutral-500);
+        text-decoration: none;
       }
       .meta a:hover {
         text-decoration: underline;
@@ -123,12 +124,13 @@ export class PinkgillTile extends LitElement {
     if (ev.source !== this.getWindow()) return;
     const { data } = ev;
     if (data?.action === 'wish-receiving') {
-      let mode = 'bare';
+      let mode = this.tile?.type || 'bare';
       if (this.wish?.can === 'instantiate') mode = 'instantiate';
       ev.source.postMessage({
         action: 'make-wish-ready',
         payload: {
           mode,
+          data: this.tile.data,
         },
       }, ev.origin);
     }
@@ -155,8 +157,9 @@ export class PinkgillTile extends LitElement {
     if (!this.tile) return;
     if (item === 'delete') return await deleteTile(this.tile);
   }
-  async handleTileClick () {
+  async handleTileClick (evt) {
     if (!this.tile) return;
+    if (evt.target.closest('.menu')) return;
     goto('tile', { hash: this.tile.hash });
   }
   renderContainer (content, footer) {
@@ -216,7 +219,8 @@ export class PinkgillTile extends LitElement {
     }
     return until(
       (async () => {
-        const url = await urlForTile(this.tile);
+        const loadedTile = (this.tile.type === 'instance') ? this.tile.instanceRef : this.tile;
+        const url = await urlForTile(loadedTile);
         let footer = nothing;
         if (isInstallable(this.tile)) {
           const error = this.#install.value?.error;

@@ -18,6 +18,7 @@ class Wishing {
       window.addEventListener('message', async (ev) => {
         if (!ev.data?.action) return;
         const { action, payload } = ev.data;
+        console.warn(`WISH: ${action} in ${payload?.mode} mode, with colours ${JSON.stringify(payload?.data)}`);
         if (action === 'make-wish-ready') {
           if (!payload || !validModes.has(payload.mode)) return reject(new Error(`Invalid mode: ${payload.mode || '<unspecified>'}`));
           if (payload.mode === 'instance') {
