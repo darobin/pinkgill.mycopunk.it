@@ -35,8 +35,8 @@
   - [ ] instantiate automatically creates the right wish structure in the manifest — it ONLY has instantiate and has a `what` matching the creator so we don't suggest install if installed
   - [ ] if tile has an icon, show it right under the account icon on the left
   - [ ] instance should expose option to have different name
-  - [ ] installing a tile doesn't remove its install button
-  - [ ] put tile reload in the bar below
+  - [x] installing a tile doesn't remove its install button
+  - [x] put tile reload in the bar below
 - [ ] shell shouldn't scroll with content
 - [x] real router not hash, including Caddy
 - [ ] prevent alerts and other bad stuff with sandboxes

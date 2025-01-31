@@ -175,7 +175,6 @@ export class PinkgillTile extends LitElement {
     return this.getLoader()?.reload();
   }
   renderContainer (content, footer) {
-    console.warn(this.tile, this.wish);
     // XXX Not sure why this branch
     if (this.wish?.can === 'instantiate') return html`<div>${content}</div>`
     const manifest = this.tile?.manifest;

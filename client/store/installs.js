@@ -49,7 +49,7 @@ export function isInstallable (tile) {
   return !!tile?.manifest?.wishes;
 }
 export function isInstalled (tile) {
-  return !$installs.get()?.data?.find((ins) => ins.tile === tile.uri);
+  return $installs.get()?.data?.find((ins) => ins.uri === tile.uri);
 }
 
 onMount($installs, () => {
