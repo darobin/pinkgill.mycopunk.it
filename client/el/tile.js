@@ -8,6 +8,7 @@ import { isInstallable, makeInstallStore, installTile } from '../store/installs.
 import { $identity } from '../store/identity.js';
 import { goto } from '../store/router.js';
 import { buttons, errors } from './styles.js';
+import { walk } from 'multiformats/traversal';
 
 export class PinkgillTile extends LitElement {
   #identity = new StoreController(this, $identity);
@@ -222,7 +223,9 @@ export class PinkgillTile extends LitElement {
         const loadedTile = (this.tile.type === 'instance') ? this.tile.instanceRef : this.tile;
         const url = await urlForTile(loadedTile);
         let footer = nothing;
+        console.warn(`${this.tile.name} is installable: ${isInstallable(this.tile)}`);
         if (isInstallable(this.tile)) {
+          console.warn(`Value`, this.#install.value);
           const error = this.#install.value?.error;
           const loading = this.#install.value?.loading;
           footer = html`<div slot="footer">
