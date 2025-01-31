@@ -18,6 +18,7 @@
 
 - [x] delete tile
 - [ ] ⚠️ CLI
+- [ ] test that Jetstream listening actually works
 - [x] render name differently: use person name on post but title must also appear (for install)
 - [x] 🧪 obtain blobs when you don't have them, on indexing: agent.com.atproto.sync.getBlob({ cid, did })
 - [ ] ⚠️ tiles need way of rendering inert (with a template and tile data)

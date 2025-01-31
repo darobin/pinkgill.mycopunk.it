@@ -8,7 +8,7 @@ import { HOST, PORT, DB_PATH, UPLOAD_PATH, BLOB_PATH } from './lib/config.js';
 import { pino } from 'pino'
 
 import createRouter from './lib/router.js';
-import { createDB, migrateToLatest, dbEvents } from './lib/db.js';
+import { PinkgillDatabase, createDB, migrateToLatest, dbEvents } from './lib/db.js';
 import { createJetStreamIngester } from './lib/ingester.js';
 import { createClient } from './lib/auth-client.js';
 import { createBidirectionalResolver, createIdResolver } from './lib/id-resolver.js';
@@ -27,13 +27,14 @@ export class Server {
     );
     const db = createDB(DB_PATH);
     await migrateToLatest(db);
+    const dbWrapper = new PinkgillDatabase(db);
 
     // Create the atproto utilities
     const oauthClient = await createClient(db);
     const baseIdResolver = createIdResolver();
     const resolver = createBidirectionalResolver(baseIdResolver);
     // const ingester = await createIngester(db, baseIdResolver);
-    const ingester = await createJetStreamIngester(db);
+    const ingester = await createJetStreamIngester(dbWrapper);
     const ctx = {
       db,
       dbEvents,

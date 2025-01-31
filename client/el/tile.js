@@ -8,7 +8,6 @@ import { isInstallable, makeInstallStore, installTile } from '../store/installs.
 import { $identity } from '../store/identity.js';
 import { goto } from '../store/router.js';
 import { buttons, errors } from './styles.js';
-import { walk } from 'multiformats/traversal';
 
 export class PinkgillTile extends LitElement {
   #identity = new StoreController(this, $identity);

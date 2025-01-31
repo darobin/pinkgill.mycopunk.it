@@ -10,6 +10,7 @@
     "start": "node server.js",
     "watch": "concurrently --handle-input npm:watch-css npm:watch-js npm:watch-server",
     "watch-server": "node --watch server.js | pino-pretty",
+    "debug-firehose": "node --watch scratch/test-firehose | pino-pretty",
     "watch-js": "./build.js --watch",
     "build-js": "./build.js",
     "watch-css": "NODE_ENV=production cssn --watch public/pinkgill.css public/pinkgill.min.css",
