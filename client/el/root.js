@@ -34,7 +34,10 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $uiTil
         height: 100%;
       }
       .sidebar {
+        display: flex;
+        flex-direction: column;
         width: 220px;
+        overflow-y: auto;
       }
       .sidebar sl-card, .sidebar pg-installed-palette {
         width: 100%;
@@ -45,6 +48,22 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $uiTil
       }
       .primary {
         flex-grow: 1;
+        overflow-y: auto;
+      }
+      footer {
+        padding: var(--sl-spacing-small) 0;
+        flex-grow: 1;
+        align-content: end;
+        font-size: 0.8rem;
+      }
+      a {
+        color: var(--electric-dark);
+        text-decoration-thickness: 1px;
+        text-decoration-color: var(--electric-bright);
+        transition: text-decoration-thickness .2s;
+      }
+      a:hover {
+        text-decoration-thickness: 3px;
       }
     `,
     buttons,
@@ -78,6 +97,14 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $uiTil
           <sl-icon slot="prefix" name="pencil-square"></sl-icon>
           Create tile
         </sl-button>
+        <footer>
+          made by <a href="https://berjon.com/" rel="external">Robin Berjon</a>
+          (<a href="https://robin.berjon.com/" rel="external">@robin.berjon.com</a>).
+          •
+          <a href="/docs/" rel="external">docs</a>
+          •
+          <a href="https://github.com/darobin/pinkgill.mycopunk.it/" rel="external">code</a>
+        </footer>
       </div>
       <div class="primary">
         ${

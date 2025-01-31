@@ -18,8 +18,8 @@
 }
 
 :root {
-  --header-fam: "Josefin Sans"; 
-  --body-fam: "Mulish"; 
+  --header-fam: "Josefin Sans";
+  --body-fam: "Mulish";
   --max-body-width: 960px;
 
   --electric-bright: #5dd6f5;
@@ -42,7 +42,6 @@ main {
   grid-template-areas:
     "header"
     "body"
-    "footer"
   ;
   height: 100%;
 }
@@ -63,13 +62,10 @@ h1 {
 main header img {
   margin-right: -6px;
 }
-pod-root, main > section {
+pg-root, main > section {
   grid-area: body;
-}
-footer {
-  grid-area: footer;
-  text-align: right;
-  padding: var(--sl-spacing-small) 0;
+  /* 82px is the empiral height of the header, likely wrong */
+  max-height: calc(100vh - (82px + var(--sl-spacing-large)));
 }
 a {
   color: var(--electric-dark);
