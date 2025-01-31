@@ -37,7 +37,6 @@
   - [ ] instance should expose option to have different name
   - [ ] installing a tile doesn't remove its install button
   - [ ] put tile reload in the bar below
-- [ ] test by copying the manifest & cheating
 - [ ] shell shouldn't scroll with content
 - [x] remove leading @ in login
 - [ ] refactor DB to be OO and to return failure/success consistently
