@@ -1,7 +1,7 @@
 
 import { computed } from "nanostores";
+import { createRouter, openPage } from "@nanostores/router";
 import { $isLoggedIn, $loginLoading } from "./identity.js";
-import { createRouter, openPage } from "../lib/router.js";
 
 export const $router = createRouter(
   {

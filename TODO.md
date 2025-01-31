@@ -4,15 +4,14 @@
 - [x] switch to Jetstream
   - [ ] Test Jetstream
 - [ ] add support for manifests that can fill in the name
-- [ ] add wish handling, including posting back
 - [ ] need a way to support feeds and the such
 - [ ] need to check viewport resizing tile aspect support
 - [ ] several different palettes for installed wishes of different kinds
 - [ ] paginate with endless scroll
 - [ ] better URLs
 - [ ] Go through all `onMount` that add a listener on `sse` and make sure they clean up on unmount
-- [ ] add proper routing, including viewing user and single post
-- [ ] add route-based store data instead of requesting it more manually
+- [x] add proper routing, including viewing user and single post
+- [x] add route-based store data instead of requesting it more manually
 - [ ] UI https://alexanderobenauer.com/
 - [ ] https://notes.andymatuschak.org/About_these_notes
 - [ ] https://en.wikipedia.org/wiki/Promise_theory
@@ -38,6 +37,8 @@
   - [ ] installing a tile doesn't remove its install button
   - [ ] put tile reload in the bar below
 - [ ] shell shouldn't scroll with content
+- [ ] real router not hash, including Caddy
+- [ ] prevent alerts and other bad stuff with sandboxes
 - [x] remove leading @ in login
 - [ ] refactor DB to be OO and to return failure/success consistently
 - [ ] refactor server to manage record creation, etc. with less code repetition
