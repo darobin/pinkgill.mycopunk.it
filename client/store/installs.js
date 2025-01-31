@@ -17,6 +17,11 @@ export async function refreshInstalls () {
 // This is for the install status of a single tile
 const defaultInstall = { loading: false, error: false, done: false, data: null };
 export function makeInstallStore () {
+  // XXX
+  // This isn't enough. Need to:
+  // - set initial value based on what's in $installs
+  // - listen to changes there
+  // - unlisten when done
   return map(defaultInstall);
 }
 export async function operateInstall ($store, tile, operation) {
@@ -41,7 +46,9 @@ export async function uninstallTile ($store, tile) {
 
 // Has a manifest with wishes and isn't already installed
 export function isInstallable (tile) {
-  if (!tile?.manifest?.wishes) return false;
+  return !!tile?.manifest?.wishes;
+}
+export function isInstalled (tile) {
   return !$installs.get()?.data?.find((ins) => ins.tile === tile.uri);
 }
 

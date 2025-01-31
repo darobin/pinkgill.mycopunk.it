@@ -4,13 +4,14 @@ import { until } from 'lit/directives/until.js';
 import { StoreController } from '@nanostores/lit';
 import { format } from 'timeago.js';
 import { urlForTile, deleteTile } from '../store/tiles.js';
-import { isInstallable, makeInstallStore, installTile } from '../store/installs.js';
+import { $installs, isInstalled, isInstallable, makeInstallStore, installTile } from '../store/installs.js';
 import { $identity } from '../store/identity.js';
 import { goto } from '../store/router.js';
 import { buttons, errors } from './styles.js';
 
 export class PinkgillTile extends LitElement {
   #identity = new StoreController(this, $identity);
+  #installedTiles = new StoreController(this, $installs);
   #installStore = makeInstallStore();
   #install = new StoreController(this, this.#installStore);
   static properties = {
@@ -114,6 +115,10 @@ export class PinkgillTile extends LitElement {
       }
       .footer {
         text-align: right;
+        padding-top: var(--sl-spacing-x-small);
+      }
+      .footer sl-button::part(base) {
+        color: var(--sl-color-neutral-500);
       }
     `,
     buttons,
@@ -138,8 +143,11 @@ export class PinkgillTile extends LitElement {
       this.#dataResolver(data.data);
     }
   }
+  getLoader () {
+    return this.shadowRoot.querySelector('pg-tile-loader');
+  }
   postMessage (data) {
-    return this.shadowRoot.querySelector('pg-tile-loader')?.postMessage(data);
+    return this.getLoader()?.postMessage(data);
   }
   async getInstanceData () {
     if (this.wish?.can !== 'instantiate') return;
@@ -161,6 +169,10 @@ export class PinkgillTile extends LitElement {
     if (!this.tile) return;
     if (evt.target.closest('.menu')) return;
     goto('tile', { hash: this.tile.hash });
+  }
+  async handleReload () {
+    if (!this.tile) return;
+    return this.getLoader()?.reload();
   }
   renderContainer (content, footer) {
     console.warn(this.tile, this.wish);
@@ -221,17 +233,24 @@ export class PinkgillTile extends LitElement {
       (async () => {
         const loadedTile = (this.tile.type === 'instance') ? this.tile.instanceRef : this.tile;
         const url = await urlForTile(loadedTile);
-        let footer = nothing;
-        console.warn(`${this.tile.name} is installable: ${isInstallable(this.tile)}`);
-        if (isInstallable(this.tile)) {
-          console.warn(`Value`, this.#install.value);
-          const error = this.#install.value?.error;
-          const loading = this.#install.value?.loading;
-          footer = html`<div slot="footer">
-            ${error ? html`<span class="error">${error}</span>` : nothing}
-            ${html`<sl-icon-button name="bookmark-plus" @click=${this.handleInstall} ?disabled=${loading} label="Install"></sl-icon-button>`}
-          </div>`;
-        }
+        const installable = isInstallable(this.tile);
+        const { error: installError, loading: installLoading } = this.#install.value || {};
+        const installed = installable && isInstalled(this.tile);
+        const footer = html`<div>
+          ${installError ? html`<span class="error">${installError}</span>` : nothing}
+          <sl-button @click=${this.handleReload} size="small">
+            <sl-icon slot="prefix" name="arrow-clockwise"></sl-icon>
+            Reload
+          </sl-button>
+          ${
+            installable
+            ? html`<sl-button @click=${this.handleInstall} ?disabled=${installLoading || installed} size="small">
+              <sl-icon slot="prefix" name="bookmark-plus"></sl-icon>
+              Install
+            </sl-button>`
+            : nothing
+          }
+        </div>`;
         return this.renderContainer(
           html`<pg-tile-loader .parent=${this} .dynHeight=${dynHeight} .url=${url}></pg-tile-loader>`,
           footer
