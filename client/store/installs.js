@@ -1,5 +1,5 @@
 
-import { atom, map, onMount } from "nanostores";
+import { map, onMount } from "nanostores";
 import sse from "../lib/sse.js";
 import apiToStore from "../lib/api-store.js";
 
@@ -45,9 +45,10 @@ export function isInstallable (tile) {
   return !$installs.get()?.data?.find((ins) => ins.tile === tile.uri);
 }
 
-onMount($installs, async () => {
-  await refreshInstalls();
-  sse.addEventListener('install-change', async () => {
-    await refreshInstalls();
-  });
+onMount($installs, () => {
+  refreshInstalls();
+  sse.addEventListener('install-change', refreshInstalls);
+  return () => {
+    sse.removeEventListener('install-change', refreshInstalls);
+  };
 });

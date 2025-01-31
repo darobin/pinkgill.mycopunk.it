@@ -20,11 +20,11 @@ $computedRoute.subscribe(async ({ route }) => {
   await refreshTimeline();
 });
 
-onMount($timeline, async () => {
-  sse.addEventListener('new-tile', async () => {
-    await refreshTimeline();
-  });
-  sse.addEventListener('deletion-change', async () => {
-    await refreshTimeline();
-  });
+onMount($timeline, () => {
+  sse.addEventListener('new-tile', refreshTimeline);
+  sse.addEventListener('deletion-change', refreshTimeline);
+  return () => {
+    sse.removeEventListener('new-tile', refreshTimeline);
+    sse.removeEventListener('deletion-change', refreshTimeline);
+  };
 });

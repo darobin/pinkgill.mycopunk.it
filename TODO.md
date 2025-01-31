@@ -8,8 +8,8 @@
 - [ ] need to check viewport resizing tile aspect support
 - [ ] several different palettes for installed wishes of different kinds
 - [ ] paginate with endless scroll
-- [ ] better URLs
-- [ ] Go through all `onMount` that add a listener on `sse` and make sure they clean up on unmount
+- [x] better URLs
+- [x] Go through all `onMount` that add a listener on `sse` and make sure they clean up on unmount
 - [x] add proper routing, including viewing user and single post
 - [x] add route-based store data instead of requesting it more manually
 - [ ] UI https://alexanderobenauer.com/
@@ -37,7 +37,7 @@
   - [ ] installing a tile doesn't remove its install button
   - [ ] put tile reload in the bar below
 - [ ] shell shouldn't scroll with content
-- [ ] real router not hash, including Caddy
+- [x] real router not hash, including Caddy
 - [ ] prevent alerts and other bad stuff with sandboxes
 - [x] remove leading @ in login
 - [ ] refactor DB to be OO and to return failure/success consistently
