@@ -17,6 +17,17 @@
 - [ ] https://notes.andymatuschak.org/About_these_notes
 - [ ] https://en.wikipedia.org/wiki/Promise_theory
 
+PRIORITY
+- [ ] CLI/API access to make uploading lots of tiles easy
+- [ ] experiment with "app store" like route
+- [ ] convert the WebXDC sources to tiles
+- [ ] convert the demo with image picker & editor
+- [ ] icons
+- [ ] alt name support
+- [ ] feeds: "free form" plus per-type
+- [ ] backend clean up of put-data
+- [ ] TLS
+
 - [x] delete tile
 - [ ] ⚠️ CLI
 - [x] render name differently: use person name on post but title must also appear (for install)
@@ -38,14 +49,17 @@
   - [x] installing a tile doesn't remove its install button
   - [x] put tile reload in the bar below
 - [ ] shell shouldn't scroll with content
+- [ ] tiles that call tiles
 - [x] real router not hash, including Caddy
 - [ ] prevent alerts and other bad stuff with sandboxes
 - [x] remove leading @ in login
 - [ ] refactor DB to be OO and to return failure/success consistently
 - [ ] refactor server to manage record creation, etc. with less code repetition
 - [ ] remove all old firehose code
+- [ ] timeline refresh shouldn't lose position or reload existing tiles (in general)
+- [ ] have a tab to show tile store, basically
+- [ ] when you install an instantiatable tile, you get a new feed for it
 - [ ] make deletion work nicely
-  - [ ] timeline refresh shouldn't lose position (in general)
   - [ ] deleted tile should have loading
   - [ ] refactor how individual tiles get stores from timeline
   - [ ] confirm deletion
