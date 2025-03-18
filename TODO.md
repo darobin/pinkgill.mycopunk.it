@@ -1,4 +1,38 @@
 
+## pkII
+- [ ] look at integration with XRPC library, shift API calls there
+  - [ ] space.polypod.getCurrentProfile() — profile if logged in, 401 otherwise
+  - [ ] space.polypod.login()
+  - [ ] space.polypod.logout()
+  - [ ] space.polypod.getActorTiles()
+  - [ ] space.polypod.getInstalledTiles()
+  - [ ] space.polypod.searchTiles()
+  - [ ] space.polypod.uploadTile() — if it's an update, just include a prev field with the CID
+  - [ ] space.polypod.getActorProfile()
+  - [ ] space.polypod.getTile()
+  - [ ] space.polypod.installTile()
+  - [ ] space.polypod.uninstallTile()
+  - [ ] space.polypod.deleteTile()
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+
+
+
 ## Issues
 
 - [x] switch to Jetstream
