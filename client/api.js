@@ -1,9 +1,18 @@
 
 class PolypodAPI {
   constructor () {}
-  async query (what) {
+  async query (what, params) {
     try {
-      const r = await fetch(`/xrpc/space.polypod.${what}`);
+      let q = '';
+      if (params) {
+        const u = new URLSearchParams();
+        Object.entries(params).forEach(([k, v]) => {
+          if (Array.isArray(v)) v.forEach(val => u.append(k, val));
+          else u.append(k, v);
+        });
+        q = `?${u.toString()}`;
+      }
+      const r = await fetch(`/xrpc/space.polypod.${what}${q}`);
       if (!r.ok) return { ok: false, error: r.statusText, status: r.status };
       return { ok: true, status: r.status, data: await r.json() };
     }
@@ -17,9 +26,11 @@ class PolypodAPI {
   async getCurrentProfile () {
     return this.query('getCurrentProfile');
   }
+  async getActorProfile (actor) {
+    return this.query('getActorProfile', { actor });
+  }
 }
 
-// - [ ] space.polypod.getActorProfile()
 // - [ ] space.polypod.getActorTiles()
 // - [ ] space.polypod.getInstalledTiles()
 // - [ ] space.polypod.searchTiles()

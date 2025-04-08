@@ -1,7 +1,7 @@
 
 import { LitElement, html, css, nothing } from 'lit';
 import { StoreController } from "@nanostores/lit";
-import { profile } from '../store.js';
+import { profile, goto } from '../store.js';
 
 export class PinkgillAvatar extends LitElement {
   #profile = new StoreController(this, profile.store);
@@ -32,19 +32,31 @@ export class PinkgillAvatar extends LitElement {
       }
     `
   ];
+  handleSelect (evt) {
+    console.warn(`handle select ${evt?.detail?.item?.value}`);
+    const item = evt?.detail?.item?.value;
+    if (item === 'profile') return goto('profile', { handle: this.#profile.value.data.handle });
+    if (item === 'logout') window.location = '/logout';
+  }
   render () {
     const p = this.#profile.value;
     if (!p || !p.available) return nothing;
     const { loading, error, data } = p;
     if (loading) return html`<div class="avatar"><pg-loading></pg-loading></div>`;
     if (error) return html`<div class="avatar"><sl-button href="/login">login</sl-button></div>`;
-    return html`<div class="avatar">
-      <sl-avatar image=${data.avatar} label=${data.displayName || data.handle}></sl-avatar>
-      <div class="names">
-        <div class="displayName">${data.displayName || data.handle}</div>
-        <div class="handle">${data.handle}</div>
+    return html`<sl-dropdown placement="bottom-end">
+      <div slot="trigger" class="avatar">
+        <sl-avatar image=${data.avatar} label=${data.displayName || data.handle}></sl-avatar>
+        <div class="names">
+          <div class="displayName">${data.displayName || data.handle}</div>
+          <div class="handle">${data.handle}</div>
+        </div>
       </div>
-    </div>`;
+      <sl-menu @sl-select=${this.handleSelect}>
+        <sl-menu-item value="profile">Profile</sl-menu-item>
+        <sl-menu-item value="logout">Logout</sl-menu-item>
+      </sl-menu>
+    </sl-dropdown>`;
   }
 }
 
