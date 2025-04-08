@@ -1,13 +1,16 @@
 
 import { LitElement, html, css, nothing } from 'lit';
-import { withStores } from "@nanostores/lit";
-import { $identity } from '../store/identity.js';
+import { StoreController } from "@nanostores/lit";
+import { profile } from '../store.js';
 
-export class PinkgillAvatar extends withStores(LitElement, [$identity]) {
+export class PinkgillAvatar extends LitElement {
+  #profile = new StoreController(this, profile.store);
   static styles = [
     css`
       :host {
         display: block;
+        min-width: 48px;
+        min-height: 48px;
       }
       .avatar {
         display: flex;
@@ -30,14 +33,16 @@ export class PinkgillAvatar extends withStores(LitElement, [$identity]) {
     `
   ];
   render () {
-    const identity = $identity.get();
-    if (!identity) return nothing;
-    const img = `https://cdn.bsky.app/img/avatar/plain/${identity.did}/${identity.avatar?.ref?.$link}@jpeg`;
+    const p = this.#profile.value;
+    if (!p || !p.available) return nothing;
+    const { loading, error, data } = p;
+    if (loading) return html`<div class="avatar"><pg-loading></pg-loading></div>`;
+    if (error) return html`<div class="avatar"><sl-button href="/login">login</sl-button></div>`;
     return html`<div class="avatar">
-      <sl-avatar image=${img} label=${identity.displayName}></sl-avatar>
+      <sl-avatar image=${data.avatar} label=${data.displayName || data.handle}></sl-avatar>
       <div class="names">
-        <div class="displayName">${identity.displayName}</div>
-        <div class="handle">${identity.handle}</div>
+        <div class="displayName">${data.displayName || data.handle}</div>
+        <div class="handle">${data.handle}</div>
       </div>
     </div>`;
   }

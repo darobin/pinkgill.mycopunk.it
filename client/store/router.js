@@ -1,4 +1,6 @@
 
+// XXX scheduled for deletion
+
 import { computed } from "nanostores";
 import { createRouter, openPage } from "@nanostores/router";
 import { $isLoggedIn, $loginLoading } from "./identity.js";

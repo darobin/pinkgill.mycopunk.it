@@ -1,4 +1,6 @@
 
+// XXX scheduled for deletion
+
 import { atom } from "nanostores";
 
 export const $isLoggedIn = atom(false);

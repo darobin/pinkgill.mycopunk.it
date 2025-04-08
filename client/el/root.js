@@ -1,12 +1,13 @@
 
 import { LitElement, html, css } from 'lit';
-import { withStores } from "@nanostores/lit";
-import { $computedRoute } from '../store/router.js';
-import { $uiTileOverlayOpen, openTileOverlay } from '../store/ui.js';
+import { StoreController } from "@nanostores/lit";
+import { profile, $router } from '../store.js';
 import { getMatchingActiveTile } from '../store/tiles.js';
 import { buttons } from './styles.js';
 
-export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $uiTileOverlayOpen]) {
+export class PinkgillRoot extends LitElement {
+  #profile = new StoreController(this, profile.store);
+  #router = new StoreController(this, $router);
   static styles = [
     css`
       :host {
@@ -86,37 +87,44 @@ export class PinkgillRoot extends withStores(LitElement, [$computedRoute, $uiTil
     await tile.handleMessage(ev);
   }
   render () {
-    const route = $computedRoute.get()?.route;
-    const overlayOpen = $uiTileOverlayOpen.get();
-    if (route === 'loading') return html`<div class="loading"><pg-loading></pg-loading></div>`;
+    const route = this.#router.value.route;
+    const loading = this.#profile.value.loading;
+    if (loading) return html`<div class="loading"><pg-loading></pg-loading></div>`;
     if (route === 'login') return html`<div class="login"><pg-login></pg-login></div>`;
-    if (route === 'home' || route === 'tile') return html`<div class="home">
-      <div class="sidebar">
-        <pg-installed-palette></pg-installed-palette>
-        <sl-button @click=${openTileOverlay} class="action" ?disabled=${overlayOpen}>
-          <sl-icon slot="prefix" name="pencil-square"></sl-icon>
-          Create tile
-        </sl-button>
-        <footer>
-          made by <a href="https://berjon.com/" rel="external">Robin Berjon</a>
-          (<a href="https://robin.berjon.com/" rel="external">@robin.berjon.com</a>).
-          •
-          <a href="/docs/" rel="external">docs</a>
-          •
-          <a href="https://github.com/darobin/pinkgill.mycopunk.it/" rel="external">code</a>
-        </footer>
-      </div>
-      <div class="primary">
-        ${
-          {
-            home: html`<pg-timeline></pg-timeline>`,
-            tile: html`<pg-tile-viewer></pg-tile-viewer>`,
-          }[route]
-        }
-      </div>
-      <pg-create-tile-dialog></pg-create-tile-dialog>
-      <pg-wish-dialog></pg-wish-dialog>
-    </div>`;
+
+    // new: '/new',
+    // edit: '/profile/:handle/tile/:cid/edit',
+    // tile: '/profile/:handle/tile/:cid',
+    // profile: '/profile/:handle',
+
+
+    // if (route === 'home' || route === 'tile') return html`<div class="home">
+    //   <div class="sidebar">
+    //     <pg-installed-palette></pg-installed-palette>
+    //     <sl-button @click=${openTileOverlay} class="action" ?disabled=${overlayOpen}>
+    //       <sl-icon slot="prefix" name="pencil-square"></sl-icon>
+    //       Create tile
+    //     </sl-button>
+    //     <footer>
+    //       made by <a href="https://berjon.com/" rel="external">Robin Berjon</a>
+    //       (<a href="https://robin.berjon.com/" rel="external">@robin.berjon.com</a>).
+    //       •
+    //       <a href="/docs/" rel="external">docs</a>
+    //       •
+    //       <a href="https://github.com/darobin/pinkgill.mycopunk.it/" rel="external">code</a>
+    //     </footer>
+    //   </div>
+    //   <div class="primary">
+    //     ${
+    //       {
+    //         home: html`<pg-timeline></pg-timeline>`,
+    //         tile: html`<pg-tile-viewer></pg-tile-viewer>`,
+    //       }[route]
+    //     }
+    //   </div>
+    //   <pg-create-tile-dialog></pg-create-tile-dialog>
+    //   <pg-wish-dialog></pg-wish-dialog>
+    // </div>`;
 
     return html`<pg-404></pg-404>`;
   }

@@ -21,6 +21,10 @@
 - [ ] Rebuild UI atop store
 - [ ] can: render, what: lexicon — a way for a tile to be used to render a specific lexicon
 
+- [ ] the login element should not get its error from the search params, they should be in a store
+
+
+
 
 ## Issues
 
