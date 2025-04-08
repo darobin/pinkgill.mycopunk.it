@@ -2,35 +2,24 @@
 ## pkII
 - [ ] look at integration with XRPC library, shift API calls there
   - [ ] space.polypod.getCurrentProfile() — profile if logged in, 401 otherwise
-  - [ ] space.polypod.login()
-  - [ ] space.polypod.logout()
+  - [ ] space.polypod.getActorProfile()
   - [ ] space.polypod.getActorTiles()
   - [ ] space.polypod.getInstalledTiles()
   - [ ] space.polypod.searchTiles()
   - [ ] space.polypod.uploadTile() — if it's an update, just include a prev field with the CID
-  - [ ] space.polypod.getActorProfile()
   - [ ] space.polypod.getTile()
+  - [ ] space.polypod.deleteTile()
   - [ ] space.polypod.installTile()
   - [ ] space.polypod.uninstallTile()
-  - [ ] space.polypod.deleteTile()
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-- [ ]
-
+  - [ ] space.polypod.createInstance()
+  - [ ] space.polypod.deleteInstance()
+- [ ] Connect these to XRPC
+- [ ] Connect XRPC to the router
+- [ ] Restart DB from scratch
+- [ ] Make a client for all
+- [ ] Create a store that handles the full state, including logged in and routing
+- [ ] Rebuild UI atop store
+- [ ] can: render, what: lexicon — a way for a tile to be used to render a specific lexicon
 
 
 ## Issues

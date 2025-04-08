@@ -42,6 +42,7 @@
     "@atproto/oauth-client-node": "^0.1.0",
     "@atproto/sync": "^0.1.1",
     "@atproto/syntax": "^0.3.0",
+    "@atproto/xrpc-server": "^0.7.15",
     "@nanostores/lit": "^0.2.2",
     "@nanostores/router": "^0.16.1",
     "better-sqlite3": "^11.3.0",

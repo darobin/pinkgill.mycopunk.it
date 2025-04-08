@@ -2,7 +2,7 @@
 import events from 'node:events';
 import process from 'node:process';
 import { mkdir } from 'node:fs/promises';
-import { basename } from 'node:path';
+import { dirname } from 'node:path';
 import express from 'express';
 import { HOST, PORT, DB_PATH, UPLOAD_PATH, BLOB_PATH } from './lib/config.js';
 import { pino } from 'pino'
@@ -23,7 +23,7 @@ export class Server {
   static async create () {
     const logger = pino({ name: 'pinkgill start' });
     await Promise.all(
-      [basename(DB_PATH), UPLOAD_PATH, BLOB_PATH].map(pth => mkdir(pth, { recursive: true }))
+      [dirname(DB_PATH), UPLOAD_PATH, BLOB_PATH].map(pth => mkdir(pth, { recursive: true }))
     );
     const db = createDB(DB_PATH);
     await migrateToLatest(db);
