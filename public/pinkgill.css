@@ -21,6 +21,7 @@
   --header-fam: "Josefin Sans";
   --body-fam: "Mulish";
   --max-body-width: 960px;
+  --min-nav-height: 48px;
 
   --electric-bright: #5dd6f5;
   --electric-dark: #517ef5;

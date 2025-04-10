@@ -2,6 +2,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { StoreController } from "@nanostores/lit";
 import { profile, goto } from '../store.js';
+import navigationalClickHandler from '../lib/nav-click.js';
 
 export class PinkgillAvatar extends LitElement {
   #profile = new StoreController(this, profile.store);
@@ -9,13 +10,14 @@ export class PinkgillAvatar extends LitElement {
     css`
       :host {
         display: block;
-        min-width: 48px;
-        min-height: 48px;
+        min-width: var(--min-nav-height);
+        min-height: var(--min-nav-height);
       }
       .avatar {
         display: flex;
         gap: var(--sl-spacing-x-small);
-        align-items: end;
+        align-items: center;
+        min-height: var(--min-nav-height);
       }
       .names {
         display: flex;
@@ -30,6 +32,9 @@ export class PinkgillAvatar extends LitElement {
       .handle {
         margin-top: -4px;
       }
+      [slot="trigger"] {
+        cursor: pointer;
+      }
     `
   ];
   handleSelect (evt) {
@@ -43,7 +48,7 @@ export class PinkgillAvatar extends LitElement {
     if (!p || !p.available) return nothing;
     const { loading, error, data } = p;
     if (loading) return html`<div class="avatar"><pg-loading></pg-loading></div>`;
-    if (error) return html`<div class="avatar"><sl-button href="/login">login</sl-button></div>`;
+    if (error) return html`<div class="avatar"><sl-button href="/login" @click=${navigationalClickHandler} data-route="login">login</sl-button></div>`;
     return html`<sl-dropdown placement="bottom-end">
       <div slot="trigger" class="avatar">
         <sl-avatar image=${data.avatar} label=${data.displayName || data.handle}></sl-avatar>

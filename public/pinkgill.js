@@ -4,6 +4,7 @@ import { loadProfile } from '../client/store.js';
 import '@shoelace-style/shoelace';
 
 import '../client/el/404.js';
+import '../client/el/nav.js';
 import '../client/el/avatar.js';
 // import '../client/el/create-tile-dialog.js'; // XXX needs update
 // import '../client/el/install.js'; // XXX needs update
