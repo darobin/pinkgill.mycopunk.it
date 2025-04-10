@@ -44,13 +44,10 @@ class Resource {
 
 // This is the store.
 // It's driven from route+logged in state, and then everything else is resources.
+// We don't use a computed route.
+// We listen to the router+profile and use that to make the other calls that
+// control the other routers.
 // Search is driven from query params (wherever it appears).
-
-// ~~ Profile resource
-export const profile = new Resource('getCurrentProfile', { available: true });
-export async function loadProfile () {
-  await profile.load();
-}
 
 // ~~ Router
 export const $router = createRouter(
@@ -58,7 +55,7 @@ export const $router = createRouter(
     home: '/',
     login: '/login',
     new: '/new',
-    edit: '/profile/:handle/tile/:cid/edit',
+    edit: '/edit/:cid',
     tile: '/profile/:handle/tile/:cid',
     profile: '/profile/:handle',
   },
@@ -70,7 +67,23 @@ export function goto (route, params) {
   openPage($router, route, params);
 }
 
-// XXX
-// - we don't use a computed route
-// - we listen to the router+profile and use that to make the other calls that
-//   control the other routers
+// ~~ Profile resource
+export const profile = new Resource('getCurrentProfile', { available: true });
+export async function loadProfile () {
+  await profile.load();
+}
+
+// ~~ Actor profile resource (for the profile page)
+export const actorProfile = new Resource('getActorProfile');
+
+// Ok, let's drive these resources from the route
+const profileSet = new Set(['profile', 'tile']);
+$router.subscribe(async (val, old) => {
+  const { route, params } = val;
+  const { route: oldRoute, params: oldParams = {} } = old || {};
+  // handle actor profile
+  if (profileSet.has(route)) {
+    const actor = params.handle;
+    if (!profileSet.has(oldRoute) || actor !== oldParams.actor) await actorProfile.load({ actor });
+  }
+});

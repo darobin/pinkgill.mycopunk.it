@@ -91,6 +91,7 @@ export class PinkgillRoot extends LitElement {
     const loading = this.#profile.value.loading;
     if (loading) return html`<div class="loading"><pg-loading></pg-loading></div>`;
     if (route === 'login') return html`<div class="login"><pg-login></pg-login></div>`;
+    if (route === 'profile' || route === 'tile') return html`<pg-profile></pg-profile>`;
 
     // new: '/new',
     // edit: '/profile/:handle/tile/:cid/edit',

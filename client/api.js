@@ -26,8 +26,8 @@ class PolypodAPI {
   async getCurrentProfile () {
     return this.query('getCurrentProfile');
   }
-  async getActorProfile (actor) {
-    return this.query('getActorProfile', { actor });
+  async getActorProfile (prm) {
+    return this.query('getActorProfile', prm);
   }
 }
 

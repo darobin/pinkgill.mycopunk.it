@@ -9,8 +9,9 @@ import '../client/el/avatar.js';
 // import '../client/el/install.js'; // XXX needs update
 // import '../client/el/installed-palette.js'; // XXX needs update
 import '../client/el/loading.js';
-import '../client/el/login.js'; // XXX needs update
-import '../client/el/root.js'; // XXX needs update
+import '../client/el/login.js';
+import '../client/el/root.js';
+import '../client/el/profile.js';
 // import '../client/el/tile-loader.js'; // XXX needs update
 // import '../client/el/tile-viewer.js'; // XXX needs update
 // import '../client/el/tile.js'; // XXX needs update

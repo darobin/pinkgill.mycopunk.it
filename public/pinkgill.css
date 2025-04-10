@@ -39,6 +39,7 @@ main {
   margin: 0 auto;
   display: grid;
   grid-template-rows: min-content 1fr min-content;
+  grid-template-columns: 100%;
   grid-template-areas:
     "header"
     "body"
@@ -49,6 +50,7 @@ main header {
   display: flex;
   align-items: center;
   grid-area: header;
+  max-width: 100%;
 }
 h1 {
   font-family: var(--header-fam);
