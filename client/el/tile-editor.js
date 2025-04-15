@@ -388,6 +388,28 @@ customElements.define('pg-cid-uploader', class extends LitElement {
       input[type="file"] {
         display: none;
       }
+      .cid {
+        display: flex;
+        border: 1px solid var(--sl-color-neutral-300);
+        border-radius: var(--sl-border-radius-small);
+        background: white;
+        /* padding: var(--sl-spacing-x-small); */
+        height: calc(var(--sl-input-height-medium) - var(--sl-input-border-width) * 2);
+      }
+      .cid > span {
+        /* font-size: var(--sl-font-size-small); */
+        flex-grow: 1;
+        padding: var(--sl-spacing-x-small);
+      }
+      .ok {
+        color: var(--sl-color-success-500);
+      }
+      .cid sl-icon-button {
+        padding: var(--sl-spacing-small);
+      }
+      .cid sl-icon-button::part(base) {
+        padding: 0 var(--sl-spacing-x-small);
+      }
       .error {
         display: flex;
         border: 1px solid var(--sl-color-danger-600);
@@ -405,10 +427,6 @@ customElements.define('pg-cid-uploader', class extends LitElement {
       }
     `,
   ];
-  // constructor () {
-  //   super();
-  //   this.error = 'There is a problem with the upload but I cannot tell you what it is, lol.';
-  // }
   hover () {
     this.hovering = true;
   }
@@ -437,6 +455,7 @@ customElements.define('pg-cid-uploader', class extends LitElement {
     // XXX
     // - this is where the CID and everything processing happens
     // - also wire the file input on change/input
+    this.value = { $link: 'bafkreifn5yxi7nkftsn46b6x26grda57ict7md2xuvfbsgkiahe2e7vnq4' };
   }
   // value is either null or { $link: cid }
   handleSourceUpdate (ev) {
@@ -446,11 +465,18 @@ customElements.define('pg-cid-uploader', class extends LitElement {
     // let value = inp.value;
     // if (name === 'can' && value === '') value = null;
     // this.value = { ...this.value, [name]: value };
-    const iev = new InputEvent('input');
-    this.dispatchEvent(iev);
+    this.dispatchInput();
+  }
+  handleClearCID () {
+    this.value = null;
+    this.dispatchInput();
   }
   handleClearError () {
     this.error = null;
+  }
+  dispatchInput () {
+    const iev = new InputEvent('input');
+    this.dispatchEvent(iev);
   }
   render () {
     let forValue = nothing;
@@ -474,6 +500,15 @@ customElements.define('pg-cid-uploader', class extends LitElement {
           <span>Drop file or click</span>
         </div>
         <input type="file" name="file" id="file">
+      `;
+    }
+    else {
+      const cid = this.value.$link.replace(/^(\w{8}).*(\w{16})$/, '$1…$2');
+      body = html`
+        <div class="cid">
+          <span>${cid} <span class="ok">✔︎</span></span>
+          <sl-icon-button name="trash-fill" label="Remove content" @click=${this.handleClearCID}></sl-icon-button>
+        </div>
       `;
     }
     // - src as drop/pick:
