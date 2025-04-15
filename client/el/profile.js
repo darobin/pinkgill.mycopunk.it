@@ -69,6 +69,5 @@ export class PinkgillProfile extends LitElement {
     </div>`;
   }
 }
-// <!-- <img src=${banner} class="banner"> -->
 
 customElements.define('pg-profile', PinkgillProfile);

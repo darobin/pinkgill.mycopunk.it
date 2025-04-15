@@ -33,7 +33,7 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: var(--body-fam);
-  height: 100%;
+  min-height: 100%;
 }
 main {
   max-width: var(--max-body-width);
@@ -44,13 +44,18 @@ main {
   grid-template-areas:
     "header"
     "body"
+    "footer"
   ;
-  height: 100%;
+  min-height: 100%;
 }
 main header {
   display: flex;
   align-items: center;
   grid-area: header;
+  max-width: 100%;
+}
+main footer {
+  grid-area: footer;
   max-width: 100%;
 }
 h1 {
@@ -68,7 +73,7 @@ main header img {
 pg-root, main > section {
   grid-area: body;
   /* 82px is the empiral height of the header, likely wrong */
-  max-height: calc(100vh - (82px + var(--sl-spacing-large)));
+  /* max-height: calc(100vh - (82px + var(--sl-spacing-large))); */
 }
 a {
   color: var(--electric-dark);

@@ -92,41 +92,7 @@ export class PinkgillRoot extends LitElement {
     if (loading) return html`<div class="loading"><pg-loading></pg-loading></div>`;
     if (route === 'login') return html`<div class="login"><pg-login></pg-login></div>`;
     if (route === 'profile' || route === 'tile') return html`<pg-profile></pg-profile>`;
-
-    // new: '/new',
-    // edit: '/profile/:handle/tile/:cid/edit',
-    // tile: '/profile/:handle/tile/:cid',
-    // profile: '/profile/:handle',
-
-
-    // if (route === 'home' || route === 'tile') return html`<div class="home">
-    //   <div class="sidebar">
-    //     <pg-installed-palette></pg-installed-palette>
-    //     <sl-button @click=${openTileOverlay} class="action" ?disabled=${overlayOpen}>
-    //       <sl-icon slot="prefix" name="pencil-square"></sl-icon>
-    //       Create tile
-    //     </sl-button>
-    //     <footer>
-    //       made by <a href="https://berjon.com/" rel="external">Robin Berjon</a>
-    //       (<a href="https://robin.berjon.com/" rel="external">@robin.berjon.com</a>).
-    //       •
-    //       <a href="/docs/" rel="external">docs</a>
-    //       •
-    //       <a href="https://github.com/darobin/pinkgill.mycopunk.it/" rel="external">code</a>
-    //     </footer>
-    //   </div>
-    //   <div class="primary">
-    //     ${
-    //       {
-    //         home: html`<pg-timeline></pg-timeline>`,
-    //         tile: html`<pg-tile-viewer></pg-tile-viewer>`,
-    //       }[route]
-    //     }
-    //   </div>
-    //   <pg-create-tile-dialog></pg-create-tile-dialog>
-    //   <pg-wish-dialog></pg-wish-dialog>
-    // </div>`;
-
+    if (route === 'new' || route === 'edit') return html`<pg-tile-editor></pg-tile-editor>`;
     return html`<pg-404></pg-404>`;
   }
 }

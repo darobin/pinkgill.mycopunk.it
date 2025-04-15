@@ -1,8 +1,6 @@
 
 ## pkII
 - [ ] look at integration with XRPC library, shift API calls there
-  - [ ] space.polypod.getCurrentProfile() — profile if logged in, 401 otherwise
-  - [ ] space.polypod.getActorProfile()
   - [ ] space.polypod.getActorTiles()
   - [ ] space.polypod.getInstalledTiles()
   - [ ] space.polypod.searchTiles()
@@ -22,6 +20,7 @@
 - [ ] can: render, what: lexicon — a way for a tile to be used to render a specific lexicon
 
 - [ ] the login element should not get its error from the search params, they should be in a store
+- [ ] https://github.com/storacha/bluesky-backup-webapp
 
 
 
