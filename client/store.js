@@ -94,6 +94,23 @@ export const currentTile = new Resource({
 export function updateCurrentTile (key, value) {
   currentTile.store.setKey(`data.${key}`, value);
 }
+export function addResourceToCurrentTile () {
+  const s = currentTile.store.get();
+  const cur = s.data?.resources || {};
+  let name = '/new';
+  if (cur[name]) {
+    let idx = 1;
+    while (cur[`${name}-${idx}`]) idx++;
+    name = `${name}-${idx}`;
+  }
+  currentTile.store.setKey(`data.resources`, {...cur, [name]: { src: null, mediaType: null } });
+}
+export function removeResourceFromCurrentTile (key) {
+  const s = currentTile.store.get();
+  const cur = s.data?.resources || {};
+  delete cur[key];
+  currentTile.store.setKey(`data.resources`, {...cur});
+}
 export function addWishToCurrentTile () {
   const s = currentTile.store.get();
   const cur = s.data?.wishes || [];

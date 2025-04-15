@@ -1,19 +1,32 @@
 
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, nothing } from 'lit';
+import { classMap } from 'lit/directives/class-map.js';
 import { StoreController } from "@nanostores/lit";
-import { currentTile, $router, updateCurrentTile, addWishToCurrentTile, removeWishfromCurrentTile } from '../store.js';
+import {
+  currentTile,
+  $router,
+  updateCurrentTile,
+  addResourceToCurrentTile,
+  removeResourceFromCurrentTile,
+  addWishToCurrentTile,
+  removeWishfromCurrentTile
+} from '../store.js';
 
 const tileFormStyles = css`
   :host {
     display: block;
   }
-  sl-input, sl-textarea, sl-select, fieldset {
+  sl-input, sl-textarea, sl-select, fieldset, .input-line {
     margin-bottom: 1rem;
   }
   sl-input[type="color"]::part(form-control-input) {
     width: fit-content;
   }
-  sl-input::part(form-control-label), sl-textarea::part(form-control-label), sl-select::part(form-control-label) {
+  .input-line label,
+  sl-input::part(form-control-label),
+  sl-textarea::part(form-control-label),
+  sl-select::part(form-control-label) {
+    display: block;
     font-weight: bold;
   }
   fieldset {
@@ -38,16 +51,19 @@ export class PinkgillTileEditor extends LitElement {
   static styles = [
     tileFormStyles,
     css`
-      .wish-line {
+      .wish-line,
+      .resource-line {
         display: flex;
         background: var(--sl-color-neutral-100);
         padding: var(--sl-spacing-medium);
         margin-bottom: var(--sl-spacing-medium);
       }
-      .wish-line pg-wish-editor {
+      .wish-line pg-wish-editor,
+      .resource-line pg-resource-editor {
         flex-grow: 1;
       }
-      .wish-line sl-icon-button {
+      .wish-line sl-icon-button,
+      .resource-line sl-icon-button {
         font-size: 1.6rem;
         margin: -0.5rem -0.5rem 0.5rem 0.5rem;
       }
@@ -75,6 +91,12 @@ export class PinkgillTileEditor extends LitElement {
       value = inp.checked ? { width, height } : null;
     }
     updateCurrentTile(name, value);
+  }
+  handleAddResource () {
+    addResourceToCurrentTile();
+  }
+  handleRemoveResource (ev) {
+    removeResourceFromCurrentTile(ev.target.dataset.name);
   }
   handleAddWish () {
     addWishToCurrentTile();
@@ -120,14 +142,16 @@ export class PinkgillTileEditor extends LitElement {
         resize="auto"
         @sl-input=${this.handleFormUpdate}
       ></sl-textarea>
-      <sl-input
-        type="color"
-        name="background_color"
-        value=${background_color}
-        label="Background Colour"
-        helpText="Pick a colour to show when listing your tile."
-        @sl-input=${this.handleFormUpdate}
-      ></sl-input>
+      <div class="input-line">
+        <label for="background_color">Background Colour</label>
+        <sl-color-picker
+          type="color"
+          name="background_color"
+          value=${background_color}
+          label="Pick colour"
+          @sl-input=${this.handleFormUpdate}
+        ></sl-color-picker>
+      </div>
       <!-- note that we can use multiple below, when that becomes desirable -->
       <sl-select
         name="icons"
@@ -180,6 +204,16 @@ export class PinkgillTileEditor extends LitElement {
         - minimum one
         - plus to add, minus to remove
         -->
+        ${Object.keys(resources || {}).sort().map(k => html`<div class="resource-line">
+          <pg-resource-editor name=${`resources.${k}`} .value=${{...resources[k], name: k }} @sl-input=${this.handleFormUpdate}></pg-resource-editor>
+          <sl-icon-button name="x-square" label="Remove resource" data-name=${k} @click=${this.handleRemoveResource}></sl-icon-button>
+        </div>`)}
+        <div class="action">
+          <sl-button @click=${this.handleAddResource}>
+            <sl-icon slot="prefix" name="plus-square"></sl-icon>
+            Add Resource
+          </sl-button>
+        </div>
       </fieldset>
       <fieldset>
         <legend>Wishes</legend>
@@ -193,11 +227,6 @@ export class PinkgillTileEditor extends LitElement {
             Add Wish
           </sl-button>
         </div>
-        <!--
-        - can dropdown (all the supported verbs)
-        - rest depends on what can has been picked
-        - plus to add, minus to remove
-        -->
       </fieldset>
 
       <hr>
@@ -215,18 +244,6 @@ function filterImages (res) {
     .map(([k]) => k)
   ;
 }
-
-// required: ['name', 'resources'],
-// wishes: { list many, different types
-//   type: 'array',
-//   items: {
-//     type: 'ref',
-//     ref: 'space.polypod.manifest#wish',
-//   },
-// },
-// resources: { autopopulate from drop, but can also add one, drop updates
-//   type: 'unknown',
-// },
 
 const canVerbs = ['instantiate'];
 customElements.define('pg-wish-editor', class extends LitElement {
@@ -255,6 +272,222 @@ customElements.define('pg-wish-editor', class extends LitElement {
         clearable
         @sl-input=${this.handleWishUpdate}
       >${canVerbs.map(k => html`<sl-option value=${k}>${k}</sl-option>`)}</sl-select>
+    </div>`;
+  }
+});
+
+customElements.define('pg-resource-editor', class extends LitElement {
+  static properties = {
+    name: { type: String },
+    value: { attribute: false, state: true },
+  };
+  static styles = [
+    tileFormStyles,
+    css`
+      .resource {
+        display: flex;
+        gap: var(--sl-spacing-medium);
+      }
+    `,
+  ];
+  // value is { name: path, src, mediaType }
+  handleResourceUpdate (ev) {
+    // const inp = ev.target;
+    // if (!this.value) this.value = {};
+    // let name = inp.name;
+    // let value = inp.value;
+    // if (name === 'can' && value === '') value = null;
+    // this.value = { ...this.value, [name]: value };
+    const iev = new InputEvent('input');
+    this.dispatchEvent(iev);
+  }
+  render () {
+    // - name as path
+    // - mediaType as text
+    // - src as drop/pick:
+    //    - spinner
+    //    - generate CID
+    //    - check hasBlob()
+    //    - if present, go straight to checkmark
+    //    - start upload progress
+    //    - upload blob
+    //    - checkmark (show CID too) + trigger update here
+    return html`<div class="resource">
+      <sl-input
+        type="text"
+        name="name"
+        value=${this.value.name}
+        label="Path"
+        helpText="Pick a unique path, starting with /."
+        required
+        pattern="^/.*"
+        maxlength="1024"
+        autocomplete="off"
+        @sl-input=${this.handleResourceUpdate}
+      ></sl-input>
+      <sl-input
+        type="text"
+        name="mediaType"
+        value=${this.value.mediaType}
+        label="Media type"
+        helpText="The MIME type."
+        pattern="^[\w-]+\/[\w-]+$"
+        maxlength="300"
+        autocomplete="off"
+        @sl-input=${this.handleResourceUpdate}
+      ></sl-input>
+      <pg-cid-uploader
+        name="src"
+        .value=${this.value.src}
+        label="Content"
+        @sl-input=${this.handleResourceUpdate}
+      ></pg-cid-uploader>
+    </div>`;
+  }
+});
+
+customElements.define('pg-cid-uploader', class extends LitElement {
+  static properties = {
+    value: { attribute: false, state: true },
+    hovering: { type: Boolean, state: true },
+    error: { attribute: false, state: true },
+  };
+  static styles = [
+    tileFormStyles,
+    css`
+      :host {
+        width: 100%;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: var(--sl-spacing-3x-small);
+      }
+      .drop {
+        background-color: var(--sl-color-primary-100);
+        color: var(--sl-color-primary-600);
+        border-radius: var(--sl-spacing-x-small);
+        border: 1px solid var(--sl-color-primary-600);
+        padding: 0 var(--sl-spacing-x-large);
+        height: var(--sl-input-height-medium);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .drop.dropping {
+        background-color: var(--sl-color-primary-600);
+        color: white;
+      }
+      .drop > span {
+        user-select: none;
+        pointer-events: none;
+      }
+      input[type="file"] {
+        display: none;
+      }
+      .error {
+        display: flex;
+        border: 1px solid var(--sl-color-danger-600);
+        border-radius: var(--sl-border-radius-small);
+        color: var(--sl-color-danger-600);
+        background: var(--sl-color-danger-300);
+        padding: var(--sl-spacing-medium);
+      }
+      .error > div {
+        flex-grow: 1;
+      }
+      .error sl-icon-button {
+        margin: -0.5rem -0.5rem 0.5rem 0.5rem;
+        color: var(--sl-color-danger-600);
+      }
+    `,
+  ];
+  // constructor () {
+  //   super();
+  //   this.error = 'There is a problem with the upload but I cannot tell you what it is, lol.';
+  // }
+  hover () {
+    this.hovering = true;
+  }
+  unhover () {
+    this.hovering = false;
+  }
+  handleDragOver (ev) {
+    ev.preventDefault();
+  }
+  handleDragEnter () {
+    this.hover();
+  }
+  handleDragLeave () {
+    this.unhover();
+  }
+  handleClick () {
+    this.shadowRoot.getElementById('file').click();
+  }
+  async handleDrop (ev) {
+    ev.preventDefault();
+    this.unhover();
+    if (ev.dataTransfer.items.length > 1 || ev.dataTransfer.items[0].kind !== 'file') {
+      this.error = 'You can only drop one file on a resource.'
+      return;
+    }
+    // XXX
+    // - this is where the CID and everything processing happens
+    // - also wire the file input on change/input
+  }
+  // value is either null or { $link: cid }
+  handleSourceUpdate (ev) {
+    // const inp = ev.target;
+    // if (!this.value) this.value = {};
+    // let name = inp.name;
+    // let value = inp.value;
+    // if (name === 'can' && value === '') value = null;
+    // this.value = { ...this.value, [name]: value };
+    const iev = new InputEvent('input');
+    this.dispatchEvent(iev);
+  }
+  handleClearError () {
+    this.error = null;
+  }
+  render () {
+    let forValue = nothing;
+    let body;
+    if (this.error) {
+      body = html`<div class="error">
+        <div><strong>Error</strong>: ${this.error}</div>
+        <sl-icon-button name="x-circle-fill" label="Clear error" @click=${this.handleClearError}></sl-icon-button>
+      </div>`
+    }
+    else if (!this.value?.$link) {
+      forValue = 'file';
+      body = html`
+        <div class=${classMap({ drop: true, dropping: this.hovering })}
+          @dragover=${this.handleDragOver}
+          @dragenter=${this.handleDragEnter}
+          @dragleave=${this.handleDragLeave}
+          @drop=${this.handleDrop}
+          @click=${this.handleClick}
+        >
+          <span>Drop file or click</span>
+        </div>
+        <input type="file" name="file" id="file">
+      `;
+    }
+    // - src as drop/pick:
+    //    - spinner
+    //    - generate CID
+    //    - check hasBlob()
+    //    - if present, go straight to checkmark
+    //    - start upload progress
+    //    - upload blob
+    //    - checkmark (show CID too) + trigger update here
+
+    return html`<div class="cid-uploader">
+       <label for=${forValue}>Content</label>
+       ${body}
     </div>`;
   }
 });
