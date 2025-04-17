@@ -49,10 +49,15 @@ export class Server {
     const app = express();
     app.set('trust proxy', true);
     const router = await createRouter(ctx);
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
+    // app.use(express.raw({ limit: '50mb' }));
+    // app.use(express.json());
+    // app.use(express.urlencoded({ extended: true }));
     app.use(router);
-    app.use((req, res) => res.status(404).json({ ok: false, error: 'Not found' }));
+    app.use((err, req, res, next) => {
+      logger.error(err);
+      res.status(500).json({ error: 'Internal Server Error', message: err.message })
+    });
+    app.use((req, res) => res.status(404).json({ error: 'NotFound', message: 'Not found' }));
     const server = app.listen(PORT);
     await events.once(server, 'listening');
     logger.info(`Pinkgill running at http://${HOST}/.`);

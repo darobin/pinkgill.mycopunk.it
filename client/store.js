@@ -76,6 +76,9 @@ export async function loadProfile () {
 export const actorProfile = new Resource({ load: 'getActorProfile' });
 
 // ~~ Current tile for creation, editing, form…
+// IMPORTANT NOTE:
+// The `resources` field is a map, but maps are really painful to deal with
+// in forms, with a virtual DOM, etc. So we map it to an array both ways.
 export const currentTile = new Resource({
   load: 'getTile',
   save: 'uploadTile',
@@ -87,7 +90,7 @@ export const currentTile = new Resource({
     icons: [],
     sizing: null,
     wishes: [],
-    resources: {},
+    resources: [],
     prev: null,
   }},
 });
@@ -96,20 +99,14 @@ export function updateCurrentTile (key, value) {
 }
 export function addResourceToCurrentTile () {
   const s = currentTile.store.get();
-  const cur = s.data?.resources || {};
-  let name = '/new';
-  if (cur[name]) {
-    let idx = 1;
-    while (cur[`${name}-${idx}`]) idx++;
-    name = `${name}-${idx}`;
-  }
-  currentTile.store.setKey(`data.resources`, {...cur, [name]: { src: null, mediaType: null } });
+  const cur = s.data?.resources || [];
+  currentTile.store.setKey(`data.resources`, [...cur, { path: '/new', src: null, mediaType: null } ]);
 }
-export function removeResourceFromCurrentTile (key) {
+export function removeResourceFromCurrentTile (idx) {
   const s = currentTile.store.get();
-  const cur = s.data?.resources || {};
-  delete cur[key];
-  currentTile.store.setKey(`data.resources`, {...cur});
+  const cur = [...(s.data?.resources || [])];
+  cur.splice(idx, 1);
+  currentTile.store.setKey(`data.resources`, cur);
 }
 export function addWishToCurrentTile () {
   const s = currentTile.store.get();

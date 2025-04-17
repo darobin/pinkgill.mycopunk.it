@@ -4,7 +4,7 @@ class PolypodAPI {
   async query (what, params) {
     try {
       const r = await fetch(`/xrpc/space.polypod.${what}${this.queryString(params)}`);
-      if (!r.ok) return { ok: false, error: r.statusText, status: r.status };
+      if (!r.ok) return extractError(r);
       return { ok: true, status: r.status, data: await r.json() };
     }
     catch (err) {
@@ -12,22 +12,30 @@ class PolypodAPI {
     }
   }
   async procedure (what, params, body) {
+    const binaryDataTypes = [Blob, File, ArrayBuffer];
+    const binaryDataTypeNames = ['Blob', 'File', 'ArrayBuffer'].map(n => `[object ${n}]`);
     try {
       const headers = {};
-      if (body instanceof Blob || Object.prototype.toString.call(body) === '[object Blob]') {
+      console.warn(`BLOBTYPE`, body, `str=${body}`,
+        body instanceof Blob, Object.prototype.toString.call(body) === '[object Blob]',
+        body instanceof File, Object.prototype.toString.call(body) === '[object File]',
+        body instanceof ArrayBuffer, Object.prototype.toString.call(body) === '[object ArrayBuffer]'
+      );
+      // if (body instanceof Blob || Object.prototype.toString.call(body) === '[object Blob]') {
+      if (binaryDataTypes.find(t => body instanceof t) || binaryDataTypeNames.find(n => Object.prototype.toString.call(body) === n)) {
         headers['content-type'] = 'application/object-stream';
       }
       else if (typeof body === 'object') {
         headers['content-type'] = 'application/json';
         body = JSON.stringify(body);
-        if (!r.ok) return { ok: false, error: r.statusText, status: r.status };
-        return { ok: true, status: r.status, data: await r.json() };
       }
       const r = await fetch(`/xrpc/space.polypod.${what}${this.queryString(params)}`, {
         method: 'post',
         headers,
         body,
       });
+      if (!r.ok) return extractError(r);
+      return { ok: true, status: r.status, data: await r.json() };
     }
     catch (err) {
       return { ok: false, error: err.message, status: 417 };
@@ -54,12 +62,30 @@ class PolypodAPI {
   async hasBlob (prm) {
     return this.query('hasBlob', prm);
   }
+  async uploadBlob (prm, body) {
+    return this.procedure('uploadBlob', prm, body);
+  }
+}
+
+async function extractError (r) {
+  const ret = { ok: false, status: r.status };
+  try {
+    const data = await r.json();
+    if (data.message) {
+      ret.error = data.message;
+      return ret;
+    }
+  }
+  catch (err) {
+    // noop
+  }
+  ret.error = r.statusText || `Unknown error ${r.status}`;
+  return ret;
 }
 
 // - [ ] space.polypod.getActorTiles()
 // - [ ] space.polypod.getInstalledTiles()
 // - [ ] space.polypod.searchTiles()
-// - [ ] space.polypod.uploadBlob()
 // - [ ] space.polypod.getBlob()
 // - [ ] space.polypod.uploadTile() — if it's an update, just include a prev field with the CID
 // - [ ] space.polypod.getTile()

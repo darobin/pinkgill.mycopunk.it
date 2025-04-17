@@ -3,6 +3,7 @@ import { LitElement, html, css, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { StoreController } from "@nanostores/lit";
 import * as CID from '@atcute/cid';
+import mime from 'mime';
 import {
   currentTile,
   $router,
@@ -76,6 +77,7 @@ export class PinkgillTileEditor extends LitElement {
     let name = inp.name;
     let value = inp.value;
     let type = inp.type;
+    console.warn(`handling HIGHER form update`, name, value);
     if (type === 'number' && /^\d+$/.test(value)) value = parseInt(value, 10);
     if (name === 'icons') {
       if (value) {
@@ -92,20 +94,24 @@ export class PinkgillTileEditor extends LitElement {
       const height = document.querySelector('sl-input[name="sizing.height"]')?.value || 1;
       value = inp.checked ? { width, height } : null;
     }
+    else if (/resources\.\w+/.test(name)) {
+      name = `resources.${value.name}`; // because it can change
+      value = { src: value.src, mediaType: value.mediaType };
+      console.warn(`was a resource`, name, value);
+    }
     updateCurrentTile(name, value);
   }
   handleAddResource () {
     addResourceToCurrentTile();
   }
   handleRemoveResource (ev) {
-    removeResourceFromCurrentTile(ev.target.dataset.name);
+    removeResourceFromCurrentTile(parseInt(ev.target.dataset.idx, 10));
   }
   handleAddWish () {
     addWishToCurrentTile();
   }
   handleRemoveWish (ev) {
-    const idx = parseInt(ev.target.dataset.idx, 10);
-    removeWishfromCurrentTile(idx);
+    removeWishfromCurrentTile(parseInt(ev.target.dataset.idx, 10));
   }
   render () {
     // XXX
@@ -114,13 +120,15 @@ export class PinkgillTileEditor extends LitElement {
     // And make sure to wipe it.
     // XXX
     // NOTE: loading should be handled differently (form disabled, progress show in there)
+    // ALSO NOTE: when in edit mode, set a hidden prev
     const mode = (this.#router.value?.route === 'edit') ? 'edit' : 'new';
     // const loading = this.#actorProfile.value.loading;
     const { name, description, background_color, icons, sizing, wishes, resources } = this.#tile.value?.data || {};
     const selectedIcon = icons?.length ? icons[0].src : null;
     // XXX
     // - automatically update currentTile
-    // - have that maintain dirty state and validation
+    // - have that maintain dirty state
+    // - validate on save
     return html`<form>
       <h2>${mode === 'edit' ? 'Edit Tile' : 'Create Tile'}</h2>
       <sl-input
@@ -198,17 +206,13 @@ export class PinkgillTileEditor extends LitElement {
       <fieldset>
         <legend>Resources</legend>
         <!--
-        - path
-        - drop zone
-        - automatically extract and show CID
-        - automatically upload but check first if CID already exists
         - must have one default path mapping to / (radio? autodetect index.html if so)
         - minimum one
         - plus to add, minus to remove
         -->
-        ${Object.keys(resources || {}).sort().map(k => html`<div class="resource-line">
-          <pg-resource-editor name=${`resources.${k}`} .value=${{...resources[k], name: k }} @sl-input=${this.handleFormUpdate}></pg-resource-editor>
-          <sl-icon-button name="x-square" label="Remove resource" data-name=${k} @click=${this.handleRemoveResource}></sl-icon-button>
+        ${(resources || []).map((r, idx) => html`<div class="resource-line">
+          <pg-resource-editor name=${`resources[${idx}]`} .value=${r} @input=${this.handleFormUpdate}></pg-resource-editor>
+          <sl-icon-button name="x-square" label="Remove resource" data-idx=${idx} @click=${this.handleRemoveResource}></sl-icon-button>
         </div>`)}
         <div class="action">
           <sl-button @click=${this.handleAddResource}>
@@ -220,7 +224,7 @@ export class PinkgillTileEditor extends LitElement {
       <fieldset>
         <legend>Wishes</legend>
         ${(wishes || []).map((w, idx) => html`<div class="wish-line">
-          <pg-wish-editor name=${`wishes[${idx}]`} .value=${w} @sl-input=${this.handleFormUpdate}></pg-wish-editor>
+          <pg-wish-editor name=${`wishes[${idx}]`} .value=${w} @input=${this.handleFormUpdate}></pg-wish-editor>
           <sl-icon-button name="x-square" label="Remove wish" data-idx=${idx} @click=${this.handleRemoveWish}></sl-icon-button>
         </div>`)}
         <div class="action">
@@ -292,41 +296,32 @@ customElements.define('pg-resource-editor', class extends LitElement {
       }
     `,
   ];
-  // value is { name: path, src, mediaType }
+  // value is { path, src, mediaType }
   handleResourceUpdate (ev) {
-    // const inp = ev.target;
-    // if (!this.value) this.value = {};
-    // let name = inp.name;
-    // let value = inp.value;
-    // if (name === 'can' && value === '') value = null;
-    // this.value = { ...this.value, [name]: value };
+    console.warn(`…RECEIVING`);
+    const inp = ev.target;
+    if (!this.value) this.value = {};
+    let name = inp.name;
+    let value = inp.value;
+    console.warn(`handling resource update`, this.value, name, value);
+    this.value = { ...this.value, [name]: value };
     this.dispatchInput();
   }
   handleMimeDetection (ev) {
+    console.warn(`handling mime detection`, ev.detail);
     const mediaType = ev.detail;
     this.value = { ...this.value, mediaType };
     this.dispatchInput();
   }
   dispatchInput () {
-    const iev = new InputEvent('input');
-    this.dispatchEvent(iev);
+    this.dispatchEvent(new InputEvent('input'));
   }
   render () {
-    // - name as path
-    // - mediaType as text
-    // - src as drop/pick:
-    //    - spinner
-    //    - generate CID
-    //    - check hasBlob()
-    //    - if present, go straight to checkmark
-    //    - start upload progress
-    //    - upload blob
-    //    - checkmark (show CID too) + trigger update here
     return html`<div class="resource">
       <sl-input
         type="text"
-        name="name"
-        value=${this.value.name}
+        name="path"
+        value=${this.value.path}
         label="Path"
         helpText="Pick a unique path, starting with /."
         required
@@ -349,7 +344,7 @@ customElements.define('pg-resource-editor', class extends LitElement {
         name="src"
         .value=${this.value.src}
         label="Content"
-        @sl-input=${this.handleResourceUpdate}
+        @input=${this.handleResourceUpdate}
         @mime-detected=${this.handleMimeDetection}
       ></pg-cid-uploader>
     </div>`;
@@ -358,9 +353,11 @@ customElements.define('pg-resource-editor', class extends LitElement {
 
 customElements.define('pg-cid-uploader', class extends LitElement {
   static properties = {
+    name: { type: String },
     value: { attribute: false, state: true },
     hovering: { type: Boolean, state: true },
     spinning: { type: Boolean, state: true },
+    uploading: { type: Boolean, state: true },
     error: { attribute: false, state: true },
   };
   static styles = [
@@ -485,13 +482,18 @@ customElements.define('pg-cid-uploader', class extends LitElement {
     }
     const alreadyDone = doneReq.data?.exists;
     if (!alreadyDone) {
-      // XXX
-      //    - start upload progress
-      //    - upload blob
+      this.uploading = true;
+      const res = await client.uploadBlob({ cid }, buffer);
+      console.warn(`res`, res);
+      this.uploading = false;
+      if (!res.ok) {
+        this.error = res.error;
+        return;
+      }
     }
-    const mime = file.type;
-    console.warn(`MT`, mime);
-    const mimeDetect = new CustomEvent('mime-detected', { detail: mime });
+    const mediaType = fileToMediaType(file);
+    console.warn(`MT`,mediaType);
+    const mimeDetect = new CustomEvent('mime-detected', { detail: mediaType });
     this.dispatchEvent(mimeDetect);
     this.value = { $link: cid };
     this.dispatchInput();
@@ -505,8 +507,8 @@ customElements.define('pg-cid-uploader', class extends LitElement {
     this.error = null;
   }
   dispatchInput () {
-    const iev = new InputEvent('input');
-    this.dispatchEvent(iev);
+    console.warn(`DISPATCHING…`);
+    this.dispatchEvent(new InputEvent('input'));
   }
   render () {
     let forValue = nothing;
@@ -523,6 +525,14 @@ customElements.define('pg-cid-uploader', class extends LitElement {
         body = html`
           <div class="drop">
             <pg-loading></pg-loading>
+          </div>
+        `;
+      }
+      else if (this.uploading) {
+        // TODO: we should have a cancel affordance on this too
+        body = html`
+          <div class="drop">
+            <sl-progress-bar indeterminate></sl-progress-bar>
           </div>
         `;
       }
@@ -557,3 +567,13 @@ customElements.define('pg-cid-uploader', class extends LitElement {
     </div>`;
   }
 });
+
+const typeFixes = {
+  'application/x-javascript': 'application/javascript',
+  'text/javascript': 'application/javascript',
+};
+function fileToMediaType (file) {
+  let type = mime.getType(file.name) || file.type;
+  type = typeFixes[type] || type;
+  return type || 'application/octet-stream';
+}
