@@ -2,6 +2,7 @@
 import { LitElement, html, css, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { StoreController } from "@nanostores/lit";
+import * as CID from '@atcute/cid';
 import {
   currentTile,
   $router,
@@ -11,6 +12,7 @@ import {
   addWishToCurrentTile,
   removeWishfromCurrentTile
 } from '../store.js';
+import client from '../api.js';
 
 const tileFormStyles = css`
   :host {
@@ -298,6 +300,14 @@ customElements.define('pg-resource-editor', class extends LitElement {
     // let value = inp.value;
     // if (name === 'can' && value === '') value = null;
     // this.value = { ...this.value, [name]: value };
+    this.dispatchInput();
+  }
+  handleMimeDetection (ev) {
+    const mediaType = ev.detail;
+    this.value = { ...this.value, mediaType };
+    this.dispatchInput();
+  }
+  dispatchInput () {
     const iev = new InputEvent('input');
     this.dispatchEvent(iev);
   }
@@ -331,7 +341,6 @@ customElements.define('pg-resource-editor', class extends LitElement {
         value=${this.value.mediaType}
         label="Media type"
         helpText="The MIME type."
-        pattern="^[\w-]+\/[\w-]+$"
         maxlength="300"
         autocomplete="off"
         @sl-input=${this.handleResourceUpdate}
@@ -341,6 +350,7 @@ customElements.define('pg-resource-editor', class extends LitElement {
         .value=${this.value.src}
         label="Content"
         @sl-input=${this.handleResourceUpdate}
+        @mime-detected=${this.handleMimeDetection}
       ></pg-cid-uploader>
     </div>`;
   }
@@ -350,6 +360,7 @@ customElements.define('pg-cid-uploader', class extends LitElement {
   static properties = {
     value: { attribute: false, state: true },
     hovering: { type: Boolean, state: true },
+    spinning: { type: Boolean, state: true },
     error: { attribute: false, state: true },
   };
   static styles = [
@@ -452,21 +463,40 @@ customElements.define('pg-cid-uploader', class extends LitElement {
       this.error = 'You can only drop one file on a resource.'
       return;
     }
-    // XXX
-    // - this is where the CID and everything processing happens
-    // - also wire the file input on change/input
-    this.value = { $link: 'bafkreifn5yxi7nkftsn46b6x26grda57ict7md2xuvfbsgkiahe2e7vnq4' };
+    await this.setFile(ev.dataTransfer.items[0].getAsFile());
   }
-  // value is either null or { $link: cid }
-  handleSourceUpdate (ev) {
-    // const inp = ev.target;
-    // if (!this.value) this.value = {};
-    // let name = inp.name;
-    // let value = inp.value;
-    // if (name === 'can' && value === '') value = null;
-    // this.value = { ...this.value, [name]: value };
+  async handleFilePick (ev) {
+    const files = ev.target.files;
+    if (files.length !== 1) {
+      this.error = 'You can only pick one file for a resource.'
+      return;
+    }
+    await this.setFile(files[0]);
+  }
+  async setFile (file) {
+    this.spinning = true;
+    const buffer = await file.arrayBuffer();
+    const cid = CID.toString(await CID.create(CID.CODEC_RAW, buffer));
+    const doneReq = await client.hasBlob({ cid });
+    this.spinning = false;
+    if (!doneReq.ok) {
+      this.error = doneReq.error;
+      return;
+    }
+    const alreadyDone = doneReq.data?.exists;
+    if (!alreadyDone) {
+      // XXX
+      //    - start upload progress
+      //    - upload blob
+    }
+    const mime = file.type;
+    console.warn(`MT`, mime);
+    const mimeDetect = new CustomEvent('mime-detected', { detail: mime });
+    this.dispatchEvent(mimeDetect);
+    this.value = { $link: cid };
     this.dispatchInput();
   }
+  // value is either null or { $link: cid }
   handleClearCID () {
     this.value = null;
     this.dispatchInput();
@@ -488,19 +518,29 @@ customElements.define('pg-cid-uploader', class extends LitElement {
       </div>`
     }
     else if (!this.value?.$link) {
-      forValue = 'file';
-      body = html`
-        <div class=${classMap({ drop: true, dropping: this.hovering })}
-          @dragover=${this.handleDragOver}
-          @dragenter=${this.handleDragEnter}
-          @dragleave=${this.handleDragLeave}
-          @drop=${this.handleDrop}
-          @click=${this.handleClick}
-        >
-          <span>Drop file or click</span>
-        </div>
-        <input type="file" name="file" id="file">
-      `;
+      if (this.spinning) {
+        // TODO: we should have a cancel affordance on this
+        body = html`
+          <div class="drop">
+            <pg-loading></pg-loading>
+          </div>
+        `;
+      }
+      else {
+        forValue = 'file';
+        body = html`
+          <div class=${classMap({ drop: true, dropping: this.hovering })}
+            @dragover=${this.handleDragOver}
+            @dragenter=${this.handleDragEnter}
+            @dragleave=${this.handleDragLeave}
+            @drop=${this.handleDrop}
+            @click=${this.handleClick}
+          >
+            <span>Drop file or click</span>
+          </div>
+          <input type="file" name="file" id="file" @change=${this.handleFilePick}>
+        `;
+      }
     }
     else {
       const cid = this.value.$link.replace(/^(\w{8}).*(\w{16})$/, '$1…$2');
@@ -511,15 +551,6 @@ customElements.define('pg-cid-uploader', class extends LitElement {
         </div>
       `;
     }
-    // - src as drop/pick:
-    //    - spinner
-    //    - generate CID
-    //    - check hasBlob()
-    //    - if present, go straight to checkmark
-    //    - start upload progress
-    //    - upload blob
-    //    - checkmark (show CID too) + trigger update here
-
     return html`<div class="cid-uploader">
        <label for=${forValue}>Content</label>
        ${body}

@@ -4,6 +4,9 @@
   - [ ] space.polypod.getActorTiles()
   - [ ] space.polypod.getInstalledTiles()
   - [ ] space.polypod.searchTiles()
+  - [ ] space.polypod.uploadBlob()
+  - [ ] space.polypod.hasBlob()
+  - [ ] space.polypod.getBlob()
   - [ ] space.polypod.uploadTile() — if it's an update, just include a prev field with the CID
   - [ ] space.polypod.getTile()
   - [ ] space.polypod.deleteTile()
@@ -17,7 +20,12 @@
 - [ ] Make a client for all
 - [ ] Create a store that handles the full state, including logged in and routing
 - [ ] Rebuild UI atop store
+
 - [ ] can: render, what: lexicon — a way for a tile to be used to render a specific lexicon
+- [ ] one-click export to CAR-based tile file
+- [ ] play with including the Unternet kernel that connects tiles together
+- [ ] publish to tiles from online code editors
+- [ ] publish PDFs as just the index
 
 - [ ] the login element should not get its error from the search params, they should be in a store
 - [ ] https://github.com/storacha/bluesky-backup-webapp

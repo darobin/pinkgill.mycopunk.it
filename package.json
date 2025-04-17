@@ -36,6 +36,7 @@
     "rules": {}
   },
   "dependencies": {
+    "@atcute/cid": "^2.2.1",
     "@atproto/api": "^0.13.6",
     "@atproto/identity": "^0.4.1",
     "@atproto/lexicon": "^0.4.1",
