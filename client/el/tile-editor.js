@@ -51,6 +51,10 @@ const tileFormStyles = css`
 export class PinkgillTileEditor extends LitElement {
   #tile = new StoreController(this, currentTile.store);
   #router = new StoreController(this, $router);
+  static properties = {
+    defaultResource: { attribute: false, state: true },
+    prevResourceArray: { attribute: false, state: true },
+  };
   static styles = [
     tileFormStyles,
     css`
@@ -77,7 +81,6 @@ export class PinkgillTileEditor extends LitElement {
     let name = inp.name;
     let value = inp.value;
     let type = inp.type;
-    console.warn(`handling HIGHER form update`, name, value);
     if (type === 'number' && /^\d+$/.test(value)) value = parseInt(value, 10);
     if (name === 'icons') {
       if (value) {
@@ -97,9 +100,11 @@ export class PinkgillTileEditor extends LitElement {
     else if (/resources\.\w+/.test(name)) {
       name = `resources.${value.name}`; // because it can change
       value = { src: value.src, mediaType: value.mediaType };
-      console.warn(`was a resource`, name, value);
     }
     updateCurrentTile(name, value);
+  }
+  handleDefaultResourceUpdate (ev) {
+    this.defaultResource = ev.target.value;
   }
   handleAddResource () {
     addResourceToCurrentTile();
@@ -112,6 +117,17 @@ export class PinkgillTileEditor extends LitElement {
   }
   handleRemoveWish (ev) {
     removeWishfromCurrentTile(parseInt(ev.target.dataset.idx, 10));
+  }
+  willUpdate () {
+    const res = this.#tile.value?.data?.resources;
+    if (this.prevResourceArray && this.prevResourceArray === res) return;
+    console.warn(`res changed`, res?.find(r => r.path === '/'), res?.find(r => r.path === '/index.html'));
+    this.prevResourceArray = res;
+    if (res?.find(r => r.path === '/')) this.defaultResource = res?.findIndex(r => r.path === '/');
+    else if (this.defaultResource != null && res?.find(r => r.path === '/index.html')) {
+      this.defaultResource = res?.findIndex(r => r.path === '/index.html');
+    }
+    console.warn(`dr`, this.defaultResource);
   }
   render () {
     // XXX
@@ -170,7 +186,7 @@ export class PinkgillTileEditor extends LitElement {
         helpText="Pick an icon from the resources."
         clearable
         @sl-input=${this.handleFormUpdate}
-      >${filterImages(resources).map(k => html`<s-option value=${k}>${k}</s-option>`)}</sl-select>
+      >${filterImages(resources).map(k => html`<sl-option value=${k.path}>${k.path}</sl-option>`)}</sl-select>
       <fieldset>
         <legend>Sizing</legend>
         <div class="sizes">
@@ -205,6 +221,14 @@ export class PinkgillTileEditor extends LitElement {
       </fieldset>
       <fieldset>
         <legend>Resources</legend>
+        <sl-select
+          name="default_resource"
+          value=${this.defaultResource}
+          label="Default resource"
+          helpText="Pick a default resource if none is already '/'."
+          required
+          @sl-input=${this.handleDefaultResourceUpdate}
+        >${resources.filter(r => /^\/[^/]*$/.test(r.path)).map((k, idx) => html`<sl-option value=${idx}>${k.path}</sl-option>`)}</sl-select>
         <!--
         - must have one default path mapping to / (radio? autodetect index.html if so)
         - minimum one
@@ -245,10 +269,7 @@ customElements.define('pg-tile-editor', PinkgillTileEditor);
 
 function filterImages (res) {
   if (!res) return [];
-  return Object.entries(res)
-    .filter(([, v]) => /^image\//.test(v.mediaType))
-    .map(([k]) => k)
-  ;
+  return res.filter(r => /^image\//.test(r.mediaType));
 }
 
 const canVerbs = ['instantiate'];
@@ -298,17 +319,14 @@ customElements.define('pg-resource-editor', class extends LitElement {
   ];
   // value is { path, src, mediaType }
   handleResourceUpdate (ev) {
-    console.warn(`…RECEIVING`);
     const inp = ev.target;
     if (!this.value) this.value = {};
     let name = inp.name;
     let value = inp.value;
-    console.warn(`handling resource update`, this.value, name, value);
     this.value = { ...this.value, [name]: value };
     this.dispatchInput();
   }
   handleMimeDetection (ev) {
-    console.warn(`handling mime detection`, ev.detail);
     const mediaType = ev.detail;
     this.value = { ...this.value, mediaType };
     this.dispatchInput();
@@ -507,7 +525,6 @@ customElements.define('pg-cid-uploader', class extends LitElement {
     this.error = null;
   }
   dispatchInput () {
-    console.warn(`DISPATCHING…`);
     this.dispatchEvent(new InputEvent('input'));
   }
   render () {
