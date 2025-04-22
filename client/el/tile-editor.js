@@ -48,6 +48,55 @@ const tileFormStyles = css`
   }
 `;
 
+const droppableStyles = css`
+  .drop {
+    background-color: var(--sl-color-primary-100);
+    color: var(--sl-color-primary-600);
+    border-radius: var(--sl-spacing-x-small);
+    border: 1px solid var(--sl-color-primary-600);
+    padding: 0 var(--sl-spacing-x-large);
+    height: var(--sl-input-height-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .drop.larger {
+    flex-direction: column;
+    padding: 3rem;
+    margin-bottom: 1rem;
+  }
+  .drop.dropping {
+    background-color: var(--sl-color-primary-600);
+    color: white;
+  }
+  .drop > div {
+    user-select: none;
+    pointer-events: none;
+  }
+  .drop > div.help {
+    font-size: 0.9rem;
+  }
+  input[type="file"] {
+    display: none;
+  }
+  .error {
+    display: flex;
+    border: 1px solid var(--sl-color-danger-600);
+    border-radius: var(--sl-border-radius-small);
+    color: var(--sl-color-danger-600);
+    background: var(--sl-color-danger-300);
+    padding: var(--sl-spacing-medium);
+  }
+  .error > div {
+    flex-grow: 1;
+  }
+  .error sl-icon-button {
+    margin: -0.5rem -0.5rem 0.5rem 0.5rem;
+    color: var(--sl-color-danger-600);
+  }
+`;
+
+// ~~~ The Overall Tile Editor
 export class PinkgillTileEditor extends LitElement {
   #tile = new StoreController(this, currentTile.store);
   #router = new StoreController(this, $router);
@@ -147,6 +196,7 @@ export class PinkgillTileEditor extends LitElement {
     // - validate on save
     return html`<form>
       <h2>${mode === 'edit' ? 'Edit Tile' : 'Create Tile'}</h2>
+      <pg-tile-source-uploader></pg-tile-source-uploader>
       <sl-input
         type="text"
         name="name"
@@ -272,6 +322,7 @@ function filterImages (res) {
   return res.filter(r => /^image\//.test(r.mediaType));
 }
 
+// ~~~ The Editor for Individual Wishes
 const canVerbs = ['instantiate'];
 customElements.define('pg-wish-editor', class extends LitElement {
   static properties = {
@@ -303,6 +354,7 @@ customElements.define('pg-wish-editor', class extends LitElement {
   }
 });
 
+// ~~~ The Editor for Individual Resources
 customElements.define('pg-resource-editor', class extends LitElement {
   static properties = {
     name: { type: String },
@@ -369,6 +421,7 @@ customElements.define('pg-resource-editor', class extends LitElement {
   }
 });
 
+// ~~~ Show a CID or upload one, after checking
 customElements.define('pg-cid-uploader', class extends LitElement {
   static properties = {
     name: { type: String },
@@ -380,6 +433,7 @@ customElements.define('pg-cid-uploader', class extends LitElement {
   };
   static styles = [
     tileFormStyles,
+    droppableStyles,
     css`
       :host {
         width: 100%;
@@ -391,28 +445,6 @@ customElements.define('pg-cid-uploader', class extends LitElement {
         display: block;
         font-weight: bold;
         margin-bottom: var(--sl-spacing-3x-small);
-      }
-      .drop {
-        background-color: var(--sl-color-primary-100);
-        color: var(--sl-color-primary-600);
-        border-radius: var(--sl-spacing-x-small);
-        border: 1px solid var(--sl-color-primary-600);
-        padding: 0 var(--sl-spacing-x-large);
-        height: var(--sl-input-height-medium);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .drop.dropping {
-        background-color: var(--sl-color-primary-600);
-        color: white;
-      }
-      .drop > span {
-        user-select: none;
-        pointer-events: none;
-      }
-      input[type="file"] {
-        display: none;
       }
       .cid {
         display: flex;
@@ -435,21 +467,6 @@ customElements.define('pg-cid-uploader', class extends LitElement {
       }
       .cid sl-icon-button::part(base) {
         padding: 0 var(--sl-spacing-x-small);
-      }
-      .error {
-        display: flex;
-        border: 1px solid var(--sl-color-danger-600);
-        border-radius: var(--sl-border-radius-small);
-        color: var(--sl-color-danger-600);
-        background: var(--sl-color-danger-300);
-        padding: var(--sl-spacing-medium);
-      }
-      .error > div {
-        flex-grow: 1;
-      }
-      .error sl-icon-button {
-        margin: -0.5rem -0.5rem 0.5rem 0.5rem;
-        color: var(--sl-color-danger-600);
       }
     `,
   ];
@@ -563,7 +580,7 @@ customElements.define('pg-cid-uploader', class extends LitElement {
             @drop=${this.handleDrop}
             @click=${this.handleClick}
           >
-            <span>Drop file or click</span>
+            <div>Drop file or click</div>
           </div>
           <input type="file" name="file" id="file" @change=${this.handleFilePick}>
         `;
@@ -593,4 +610,170 @@ function fileToMediaType (file) {
   let type = mime.getType(file.name) || file.type;
   type = typeFixes[type] || type;
   return type || 'application/octet-stream';
+}
+
+// ~~~ Upload a directory that is the tile's source
+customElements.define('pg-tile-source-uploader', class extends LitElement {
+  static properties = {
+    // name: { type: String },
+    // value: { attribute: false, state: true },
+    hovering: { type: Boolean, state: true },
+    spinning: { type: Boolean, state: true },
+    // uploading: { type: Boolean, state: true },
+    error: { attribute: false, state: true },
+  };
+  static styles = [
+    tileFormStyles,
+    droppableStyles,
+    css`
+      :host {
+        width: 100%;
+      }
+      * {
+        box-sizing: border-box;
+      }
+    `,
+  ];
+  hover () {
+    this.hovering = true;
+  }
+  unhover () {
+    this.hovering = false;
+  }
+  handleDragOver (ev) {
+    ev.preventDefault();
+  }
+  handleDragEnter () {
+    this.hover();
+  }
+  handleDragLeave () {
+    this.unhover();
+  }
+  handleClick () {
+    this.shadowRoot.getElementById('file').click();
+  }
+  async handleDrop (ev) {
+    ev.preventDefault();
+    this.unhover();
+    if (!('webkitGetAsEntry' in DataTransferItem.prototype)) {
+      this.error = 'Your browser does not support dropping directories.'
+      return;
+    }
+    if (ev.dataTransfer.items.length > 1 || ev.dataTransfer.items[0].kind !== 'file') {
+      this.error = 'Only drop one directory.'
+      return;
+    }
+    const entry = ev.dataTransfer.items[0].webkitGetAsEntry();
+    if (!entry.isDirectory) {
+      this.error = 'Drop must be a directory.'
+      return;
+    }
+    const tree = {};
+    await getResourceTree(entry, '/', tree);
+    await this.processTileSource(tree);
+  }
+  // We get a list of files but webkitEntries is empty unless there's a drop
+  // (in Firefox). So we convert the list of files to a resource map that we
+  // pass on to central processing.
+  // Even with directory picking, we only get files so we have to use their
+  // paths to infer the directory.
+  async handleFilePick (ev) {
+    console.warn(ev.target.webkitEntries, ev.target.files);
+    const files = [...ev.target.files];
+    if (!files.length) {
+      this.error = 'Empty directory selected.';
+      return;
+    }
+    const dirPath = files[0].webkitRelativePath.replace(/\/.+$/, '');
+    if (files.find(f => !f.webkitRelativePath.startsWith(`${dirPath}/`))) {
+      this.error = 'Not all selected files are in the same directory.';
+      return;
+    }
+    const tree = {};
+    files.forEach(f => {
+      const path = f.webkitRelativePath.replace(dirPath, '');
+      if (ignoreFiles.find(fn => fn === f.name)) return;
+      tree[path] = f;
+    });
+    await this.processTileSource(tree);
+  }
+  async processTileSource (tree) {
+    console.warn(tree);
+    if (!tree['/manifest.json']) {
+      this.error = 'Cannot find a /manifest.json in the tile.';
+      return;
+    }
+    let manifest;
+    try {
+      manifest = JSON.parse(await tree['/manifest.json'].text());
+    }
+    catch (err) {
+      this.error = `Failed to parse manifest: ${err.message}`;
+      return;
+    }
+    console.warn(manifest);
+    ['name', 'description', 'background_color', 'sizing', 'wishes'].forEach(k => {
+      if (manifest[k]) updateCurrentTile(k, manifest[k]);
+    });
+    // XXX
+    // for each file, add an empty resource then set file
+    // select default resource automatically either from / or index.html (adding it)
+    // if there are icons, pick the first one and check that it matches a resource, then set
+  }
+  handleClearError () {
+    this.error = null;
+  }
+  dispatchInput () {
+    this.dispatchEvent(new InputEvent('input'));
+  }
+  render () {
+    let body;
+    if (this.error) {
+      body = html`<div class="error">
+        <div><strong>Error</strong>: ${this.error}</div>
+        <sl-icon-button name="x-circle-fill" label="Clear error" @click=${this.handleClearError}></sl-icon-button>
+      </div>`
+    }
+    else if (this.uploading) {
+      // TODO: we should have a cancel affordance on this too
+      body = html`
+        <div class="drop">
+          <sl-progress-bar indeterminate></sl-progress-bar>
+        </div>
+      `;
+    }
+    else {
+      body = html`
+        <div class=${classMap({ drop: true, larger: true, dropping: this.hovering })}
+          @dragover=${this.handleDragOver}
+          @dragenter=${this.handleDragEnter}
+          @dragleave=${this.handleDragLeave}
+          @drop=${this.handleDrop}
+          @click=${this.handleClick}
+        >
+          <div>You may drop a directory with the tile's source</div>
+          <div class="help"><u>Caution</u>: this will override changes made in the form below</div>
+        </div>
+        <input type="file" name="file" id="file" @change=${this.handleFilePick} webkitdirectory>
+      `;
+    }
+    return html`<div class="tile-uploader">${body}</div>`;
+  }
+});
+
+const ignoreFiles = ['.DS_Store'];
+async function getResourceTree (dir, parentPath, resources) {
+  const dr = dir.createReader();
+  const entries = await new Promise((resolve, reject) => dr.readEntries(resolve, reject));
+  for (let entry of entries) {
+    if (ignoreFiles.find(fn => fn === entry.name)) continue;
+    const path = `${parentPath}${entry.name}${entry.isDirectory ? '/' : ''}`;
+    if (entry.isFile) {
+      const file = await new Promise((resolve, reject) => entry.file(resolve, reject));
+      resources[path] = file;
+    }
+    else {
+      await getResourceTree(entry, path, resources);
+    }
+  }
 }

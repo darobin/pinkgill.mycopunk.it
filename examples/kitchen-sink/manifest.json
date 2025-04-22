@@ -1,0 +1,17 @@
+{
+  "name": "Kitchen Sink Testing Tile",
+  "description": "This tile is used to test the uploader by exercising all of its aspects",
+  "background_color": "#5dd6f5",
+  "icons": [
+    { "src": "/icon.svg" }
+  ],
+  "sizing": {
+    "width": 400,
+    "height": 150
+  },
+  "wishes": [
+    {
+      "can": "instantiate"
+    }
+  ]
+}
