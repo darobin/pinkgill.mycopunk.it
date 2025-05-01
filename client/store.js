@@ -9,13 +9,17 @@ import client from "./api.js";
 //  - status: HTTP response code
 //  - available: this resource is potentially available (but may be loading, may fail)
 //  - data: whatever was loaded
-const resourceDefaults = { loading: false, error: false, status: 0, available: false, data: null };
+const resourceDefaults = { loading: false, error: false, status: 0, available: false, dirty: false, data: null };
 class Resource {
   #store;
   #options;
   constructor (options) {
     this.#options = options || {};
     this.#store = deepMap({ ...resourceDefaults, ...(options?.defaults || {}) });
+    this.#store.listen((s, old, key) => {
+      if (!/^data/.test(key)) return;
+      this.#store.setKey('dirty', true);
+    });
   }
   async load (prm) {
     if (!this.#options.load) throw new Error(`Cannot load() a resource with no load endpoint.`);
@@ -38,6 +42,9 @@ class Resource {
   }
   reset () {
     this.#store.set({ ...resourceDefaults, ...(this.#options.defaults || {}) });
+  }
+  markSaved () {
+    this.#store.setKey('dirty', false);
   }
 }
 
@@ -94,6 +101,20 @@ export const currentTile = new Resource({
     prev: null,
   }},
 });
+function realTileFromCurrent (dr) {
+  const real = structuredClone(currentTile.store.get()?.data);
+  Object.keys(real).forEach(k => {
+    if (Array.isArray(real[k]) && !real[k].length) delete real[k];
+    if (real[k] == null) delete real[k];
+  });
+  const res = {};
+  (real.resources || []).forEach(r => {
+    res[r.path] = { src: r.src, mediaType: r.mediaType };
+  });
+  if (!res['/'] && dr && res[dr]) res['/'] = structuredClone(res[dr]);
+  real.resources = res;
+  return real;
+}
 export function updateCurrentTile (key, value) {
   currentTile.store.setKey(`data.${key}`, value);
 }
@@ -118,6 +139,53 @@ export function removeWishfromCurrentTile (idx) {
   const cur = [...(s.data?.wishes || [])];
   cur.splice(idx, 1);
   currentTile.store.setKey(`data.wishes`, cur);
+}
+export function validateCurrentTile (dr) {
+  const tile = realTileFromCurrent(dr);
+  const report = { count: 0, errors: {} };
+  const error = (k, msg) => {
+    report.count++;
+    if (!report.errors[k]) report.errors[k] = [];
+    report.errors[k].push(msg);
+  };
+  // name
+  if (!tile.name) error('name', 'Required')
+  if (tile.name?.length > 100) error('name', 'Longer than 100')
+  // description
+  if (tile.description?.length > 300) error('description', 'Longer than 300')
+  // background_color — no checks
+  // icons
+  if (tile.icons) {
+    const { src } = tile.icons[0] || {};
+    if (!src) error('icons[0]', 'No source');
+    const res = tile.resources[src];
+    if (!res) error('icons[0]', 'Source does not match a resource');
+    if (res && !/^image\//.test(res.mediaType)) error('icons[0]', 'Source should point to an image');
+  }
+  // sizing
+  if (tile.sizing) {
+    ['width', 'height'].forEach(k => {
+      if (!tile.sizing[k]) error(`sizing`, `${k} is required and must be positive`);
+      if (!/^\d+$/.test(tile.sizing[k])) error(`sizing`, `${k} must be a positive number`);
+    });
+  }
+  // wishes
+  const canSet = new Set(['instantiate']);
+  if (tile.wishes) {
+    tile.wishes.forEach((w, idx) => {
+      if (!w.can) error(`wishes[${idx}]`, `can is required`);
+      if (w.can && !canSet.has(w.can)) error(`wishes[${idx}]`, `${w.can} is not a valid can value`);
+    });
+  }
+  // resources
+  if (!Object.keys(tile.resources || {}).length) error('resources', 'Required');
+  Object.entries(tile.resources || {}).forEach(([k, r]) => {
+    if (!/^\//.test(k)) error(`resources`, `Path "${k}" needs to start with a '/'"`);
+    if (!r.mediaType) error(`resources`, `Media type required for "${k}"`);
+    if (!r.src?.$link) error(`resources`, `Source required for "${k}"`);
+  });
+  if (Object.keys(tile.resources || {}).length && !tile.resources['/']) error('default_resource', 'A default resource must be specified');
+  return report;
 }
 
 // ~~ Ok, let's drive these resources from the route

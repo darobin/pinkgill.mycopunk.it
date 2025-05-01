@@ -11,7 +11,8 @@ import {
   addResourceToCurrentTile,
   removeResourceFromCurrentTile,
   addWishToCurrentTile,
-  removeWishfromCurrentTile
+  removeWishfromCurrentTile,
+  validateCurrentTile,
 } from '../store.js';
 import client from '../api.js';
 
@@ -103,6 +104,7 @@ export class PinkgillTileEditor extends LitElement {
   static properties = {
     defaultResource: { attribute: false, state: true },
     prevResourceArray: { attribute: false, state: true },
+    validationReport: { attribute: false, state: true },
   };
   static styles = [
     tileFormStyles,
@@ -172,6 +174,13 @@ export class PinkgillTileEditor extends LitElement {
       this.defaultResource = res.findIndex(r => r.path === '/index.html');
     }
   }
+  handleSave () {
+    this.validationReport = validateCurrentTile(this.defaultResource)?.errors;
+    if (this.validationReport.count) return;
+    // XXX
+    // - submit, report errors from submission if any
+    // - once that clears, use the returned CID to navigate to the tile
+  }
   render () {
     // XXX
     // If not logged in, just show a link to login.
@@ -183,11 +192,8 @@ export class PinkgillTileEditor extends LitElement {
     const mode = (this.#router.value?.route === 'edit') ? 'edit' : 'new';
     // const loading = this.#actorProfile.value.loading;
     const { name, description, background_color, icons, sizing, wishes, resources } = this.#tile.value?.data || {};
+    const dirty = this.#tile.value?.dirty;
     const selectedIcon = icons?.length ? icons[0].src : null;
-    // XXX
-    // - automatically update currentTile
-    // - have that maintain dirty state
-    // - validate on save
     return html`<form>
       <h2>${mode === 'edit' ? 'Edit Tile' : 'Create Tile'}</h2>
       <pg-tile-source-uploader></pg-tile-source-uploader>
@@ -198,10 +204,11 @@ export class PinkgillTileEditor extends LitElement {
         label="Name"
         helpText="Enter a name for your tile."
         required
-        maxlength="300"
+        maxlength="100"
         autocomplete="off"
         @sl-input=${this.handleFormUpdate}
       ></sl-input>
+      <pg-render-errors .errors=${this.validationReport?.name}></pg-render-errors>
       <sl-textarea
         name="description"
         value=${description}
@@ -212,6 +219,7 @@ export class PinkgillTileEditor extends LitElement {
         resize="auto"
         @sl-input=${this.handleFormUpdate}
       ></sl-textarea>
+      <pg-render-errors .errors=${this.validationReport?.description}></pg-render-errors>
       <div class="input-line">
         <label for="background_color">Background Colour</label>
         <sl-color-picker
@@ -221,6 +229,7 @@ export class PinkgillTileEditor extends LitElement {
           label="Pick colour"
           @sl-input=${this.handleFormUpdate}
         ></sl-color-picker>
+        <pg-render-errors .errors=${this.validationReport?.background_color}></pg-render-errors>
       </div>
       <!-- note that we can use multiple below, when that becomes desirable -->
       <sl-select
@@ -231,6 +240,7 @@ export class PinkgillTileEditor extends LitElement {
         clearable
         @sl-input=${this.handleFormUpdate}
       >${filterImages(resources).map(k => html`<sl-option value=${k.path}>${k.path}</sl-option>`)}</sl-select>
+      <pg-render-errors .errors=${this.validationReport?.['icons[0]']}></pg-render-errors>
       <fieldset>
         <legend>Sizing</legend>
         <div class="sizes">
@@ -257,6 +267,7 @@ export class PinkgillTileEditor extends LitElement {
             @sl-input=${this.handleFormUpdate}
           ></sl-input>
         </div>
+        <pg-render-errors .errors=${this.validationReport?.sizing}></pg-render-errors>
         <sl-checkbox
           name="do-sizing"
           ?checked=${!!sizing}
@@ -265,6 +276,7 @@ export class PinkgillTileEditor extends LitElement {
       </fieldset>
       <fieldset>
         <legend>Resources</legend>
+        <pg-render-errors .errors=${this.validationReport?.resources}></pg-render-errors>
         <sl-select
           name="default_resource"
           value=${this.defaultResource}
@@ -273,11 +285,7 @@ export class PinkgillTileEditor extends LitElement {
           required
           @sl-input=${this.handleDefaultResourceUpdate}
         >${resources.filter(r => /^\/[^/]*$/.test(r.path)).map((k, idx) => html`<sl-option value=${idx}>${k.path}</sl-option>`)}</sl-select>
-        <!--
-        - must have one default path mapping to / (radio? autodetect index.html if so)
-        - minimum one
-        - plus to add, minus to remove
-        -->
+        <pg-render-errors .errors=${this.validationReport?.default_resource}></pg-render-errors>
         ${(resources || []).map((r, idx) => html`<div class="resource-line">
           <pg-resource-editor name=${`resources[${idx}]`} .value=${r} @input=${this.handleFormUpdate}></pg-resource-editor>
           <sl-icon-button name="x-square" label="Remove resource" data-idx=${idx} @click=${this.handleRemoveResource}></sl-icon-button>
@@ -294,7 +302,7 @@ export class PinkgillTileEditor extends LitElement {
         ${(wishes || []).map((w, idx) => html`<div class="wish-line">
           <pg-wish-editor name=${`wishes[${idx}]`} .value=${w} @input=${this.handleFormUpdate}></pg-wish-editor>
           <sl-icon-button name="x-square" label="Remove wish" data-idx=${idx} @click=${this.handleRemoveWish}></sl-icon-button>
-        </div>`)}
+        </div><pg-render-errors .errors=${this.validationReport?.[`wishes[${idx}]`]}></pg-render-errors>`)}
         <div class="action">
           <sl-button @click=${this.handleAddWish}>
             <sl-icon slot="prefix" name="plus-square"></sl-icon>
@@ -302,7 +310,12 @@ export class PinkgillTileEditor extends LitElement {
           </sl-button>
         </div>
       </fieldset>
-
+      <div class="action">
+        <sl-button variant="primary" @click=${this.handleSave} ?disabled=${!dirty}>
+          <sl-icon slot="prefix" name="floppy2-fill"></sl-icon>
+          ${mode === 'edit' ? 'Update' : 'Create'}
+        </sl-button>
+      </div>
       <hr>
       <pre>${JSON.stringify(this.#tile.value?.data, null, 2)}</pre>
     </form>`;
@@ -789,3 +802,28 @@ async function getResourceTree (dir, parentPath, resources) {
     }
   }
 }
+
+// ~~~ Show errors nicely
+customElements.define('pg-render-errors', class extends LitElement {
+  static properties = {
+    errors: { attribute: false, state: true },
+  };
+  static styles = [
+    css`
+      :host {
+        display: block;
+      }
+      * {
+        box-sizing: border-box;
+        color: var(--sl-color-danger-600);
+      }
+      ul {
+        margin-top: -0.5rem;
+      }
+    `,
+  ];
+  render () {
+    if (!this.errors?.length) return nothing;
+    return html`<ul>${this.errors.map(err => html`<li>${err}.</li>`)}</ul>`;
+  }
+});
