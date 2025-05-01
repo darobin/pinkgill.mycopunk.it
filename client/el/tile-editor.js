@@ -146,10 +146,6 @@ export class PinkgillTileEditor extends LitElement {
       const height = document.querySelector('sl-input[name="sizing.height"]')?.value || 1;
       value = inp.checked ? { width, height } : null;
     }
-    else if (/resources\.\w+/.test(name)) {
-      name = `resources.${value.name}`; // because it can change
-      value = { src: value.src, mediaType: value.mediaType };
-    }
     updateCurrentTile(name, value);
   }
   handleDefaultResourceUpdate (ev) {
@@ -170,13 +166,11 @@ export class PinkgillTileEditor extends LitElement {
   willUpdate () {
     const res = this.#tile.value?.data?.resources;
     if (this.prevResourceArray && this.prevResourceArray === res) return;
-    console.warn(`res changed`, res?.find(r => r.path === '/'), res?.find(r => r.path === '/index.html'));
     this.prevResourceArray = res;
-    if (res?.find(r => r.path === '/')) this.defaultResource = res?.findIndex(r => r.path === '/');
-    else if (this.defaultResource != null && res?.find(r => r.path === '/index.html')) {
-      this.defaultResource = res?.findIndex(r => r.path === '/index.html');
+    if (res?.find(r => r.path === '/')) this.defaultResource = res.findIndex(r => r.path === '/');
+    else if (this.defaultResource == null && res?.find(r => r.path === '/index.html')) {
+      this.defaultResource = res.findIndex(r => r.path === '/index.html');
     }
-    console.warn(`dr`, this.defaultResource);
   }
   render () {
     // XXX
@@ -312,7 +306,6 @@ export class PinkgillTileEditor extends LitElement {
       <hr>
       <pre>${JSON.stringify(this.#tile.value?.data, null, 2)}</pre>
     </form>`;
-    // XXX the whole thing is a dropzone and if there's a manifest it just updates the fields from it
   }
 }
 customElements.define('pg-tile-editor', PinkgillTileEditor);
@@ -385,6 +378,9 @@ customElements.define('pg-resource-editor', class extends LitElement {
   }
   dispatchInput () {
     this.dispatchEvent(new InputEvent('input'));
+  }
+  async setFile (f) {
+    return await this.shadowRoot.querySelector('pg-cid-uploader')?.setFile(f);
   }
   render () {
     return html`<div class="resource">
@@ -519,7 +515,6 @@ customElements.define('pg-cid-uploader', class extends LitElement {
     if (!alreadyDone) {
       this.uploading = true;
       const res = await client.uploadBlob({ cid }, buffer);
-      console.warn(`res`, res);
       this.uploading = false;
       if (!res.ok) {
         this.error = res.error;
@@ -527,7 +522,6 @@ customElements.define('pg-cid-uploader', class extends LitElement {
       }
     }
     const mediaType = fileToMediaType(file);
-    console.warn(`MT`,mediaType);
     const mimeDetect = new CustomEvent('mime-detected', { detail: mediaType });
     this.dispatchEvent(mimeDetect);
     this.value = { $link: cid };
@@ -678,7 +672,6 @@ customElements.define('pg-tile-source-uploader', class extends LitElement {
   // Even with directory picking, we only get files so we have to use their
   // paths to infer the directory.
   async handleFilePick (ev) {
-    console.warn(ev.target.webkitEntries, ev.target.files);
     const files = [...ev.target.files];
     if (!files.length) {
       this.error = 'Empty directory selected.';
@@ -698,7 +691,6 @@ customElements.define('pg-tile-source-uploader', class extends LitElement {
     await this.processTileSource(tree);
   }
   async processTileSource (tree) {
-    console.warn(tree);
     if (!tree['/manifest.json']) {
       this.error = 'Cannot find a /manifest.json in the tile.';
       return;
@@ -711,14 +703,34 @@ customElements.define('pg-tile-source-uploader', class extends LitElement {
       this.error = `Failed to parse manifest: ${err.message}`;
       return;
     }
-    console.warn(manifest);
     ['name', 'description', 'background_color', 'sizing', 'wishes'].forEach(k => {
       if (manifest[k]) updateCurrentTile(k, manifest[k]);
     });
-    // XXX
-    // for each file, add an empty resource then set file
-    // select default resource automatically either from / or index.html (adding it)
-    // if there are icons, pick the first one and check that it matches a resource, then set
+    const resources = Object.keys(tree)
+      .filter(k => k !== '/manifest.json')
+      .map(path => ({ path, mediaType: null, src: null }))
+    ;
+    updateCurrentTile('resources', resources);
+    // Find editor host.
+    let ed = this;
+    while (ed && ed.localName !== 'pg-tile-editor') {
+      ed = ed.getRootNode()?.host;
+    }
+    if (!ed) throw new Error(`Element pg-tile-source-uploader is not inside a pg-tile-editor.`);
+    await ed.updateComplete;
+    await Promise.all(
+      [...ed.shadowRoot.querySelectorAll('pg-resource-editor')].map(re => {
+        const { path } = re.value;
+        if (!tree[path]) return Promise.resolve();
+        return re.setFile(tree[path]);
+      })
+    );
+    await ed.updateComplete;
+    // If there are icons, we only care about the first (for now).
+    if (manifest.icons) {
+      const { src } = manifest.icons[0] || {};
+      if (src && tree[src]) updateCurrentTile('icons', [manifest.icons[0]]);
+    }
   }
   handleClearError () {
     this.error = null;
