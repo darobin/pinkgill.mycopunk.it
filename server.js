@@ -33,11 +33,11 @@ export class Server {
     const oauthClient = await createClient(db);
     const baseIdResolver = createIdResolver();
     const resolver = createBidirectionalResolver(baseIdResolver);
-    // const ingester = await createIngester(db, baseIdResolver);
     const ingester = await createJetStreamIngester(dbWrapper);
     const ctx = {
       db,
       dbEvents,
+      dbWrapper,
       ingester,
       logger,
       oauthClient,

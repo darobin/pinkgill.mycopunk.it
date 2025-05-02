@@ -1,5 +1,5 @@
 
-import { LitElement, html, css } from 'lit';
+import { LitElement, html, css, nothing } from 'lit';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { header2, buttons } from './styles.js';
 
@@ -25,7 +25,9 @@ class PinkgillLogin extends LitElement {
     buttons,
   ];
   render () {
-    const errMsg = new URL(window.location).searchParams.get('error');
+    const search = new URL(window.location).searchParams;
+    const errMsg = search.get('error');
+    const ret = search.get('return');
     const match = (document.cookie || '').match(/\bhandle=([\w.-]+)\b/);
     let handle;
     if (match) handle = match[1];
@@ -38,6 +40,7 @@ class PinkgillLogin extends LitElement {
       </sl-alert>
       <form action="/api/login" method="post">
         <sl-input name="handle" placeholder="Enter your handle (e.g. alice.bsky.social)" value=${ifDefined(handle)} required></sl-input>
+        ${ ret ? html`<input type="hidden" name="return" value=${ret}>` : nothing }
         <sl-button type="submit" class="action">Log in</sl-button>
       </form>
     </sl-card>`;

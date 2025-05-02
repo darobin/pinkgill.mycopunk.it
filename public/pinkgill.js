@@ -3,6 +3,7 @@ import { loadProfile } from '../client/store.js';
 
 import '@shoelace-style/shoelace';
 
+
 import '../client/el/404.js';
 import '../client/el/nav.js';
 import '../client/el/avatar.js';
@@ -20,6 +21,12 @@ import '../client/el/tile-editor.js';
 // import '../client/el/timeline.js'; // XXX needs update
 // import '../client/el/upload.js'; // XXX needs update
 // import '../client/el/wish-dialog.js'; // XXX needs update
+
+const ret = (document.cookie || '').split(/\s*;\s*/).find((it) => it.startsWith("return="))?.split('=')[1];
+if (ret) {
+  document.cookie = "return=;";
+  window.location = decodeURIComponent(ret);
+}
 
 (async function () {
   await loadProfile();

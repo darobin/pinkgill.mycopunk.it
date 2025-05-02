@@ -5,14 +5,18 @@ import { StoreController } from "@nanostores/lit";
 import * as CID from '@atcute/cid';
 import mime from 'mime';
 import {
+  profile,
+  isLoggedIn,
   currentTile,
   $router,
+  goto,
   updateCurrentTile,
   addResourceToCurrentTile,
   removeResourceFromCurrentTile,
   addWishToCurrentTile,
   removeWishfromCurrentTile,
   validateCurrentTile,
+  saveCurrentTile,
 } from '../store.js';
 import client from '../api.js';
 
@@ -101,6 +105,8 @@ const droppableStyles = css`
 export class PinkgillTileEditor extends LitElement {
   #tile = new StoreController(this, currentTile.store);
   #router = new StoreController(this, $router);
+  #profile = new StoreController(this, profile.store);
+  #loggedIn = new StoreController(this, isLoggedIn);
   static properties = {
     defaultResource: { attribute: false, state: true },
     prevResourceArray: { attribute: false, state: true },
@@ -174,28 +180,42 @@ export class PinkgillTileEditor extends LitElement {
       this.defaultResource = res.findIndex(r => r.path === '/index.html');
     }
   }
-  handleSave () {
+  async handleSave () {
     this.validationReport = validateCurrentTile(this.defaultResource)?.errors;
     if (this.validationReport.count) return;
-    // XXX
-    // - submit, report errors from submission if any
-    // - once that clears, use the returned CID to navigate to the tile
+    try {
+      const cid = await saveCurrentTile();
+      const { handle } = this.#profile.value?.data || {};
+      if (!handle) throw new Error('No handle found in profile.');
+      goto('tile', { handle, cid });
+    }
+    catch (err) {
+      this.validationReport = {
+        count: 1,
+        errors: {
+          general: err.message,
+        },
+      };
+    }
   }
   render () {
-    // XXX
-    // If not logged in, just show a link to login.
-    // Use a cookie to remember where to redirect to upon returning.
-    // And make sure to wipe it.
+    const loading = this.#profile.value?.loading;
+    if (loading) return html`<pg-loading></pg-loading>`;
+    if (!this.#loggedIn.value) goto('login', {}, { return: window.location.pathname });
     // XXX
     // NOTE: loading should be handled differently (form disabled, progress show in there)
-    // ALSO NOTE: when in edit mode, set a hidden prev
+    // ALSO NOTE: when in edit mode, set a hidden prev (just in the store)
     const mode = (this.#router.value?.route === 'edit') ? 'edit' : 'new';
-    // const loading = this.#actorProfile.value.loading;
     const { name, description, background_color, icons, sizing, wishes, resources } = this.#tile.value?.data || {};
     const dirty = this.#tile.value?.dirty;
     const selectedIcon = icons?.length ? icons[0].src : null;
     return html`<form>
       <h2>${mode === 'edit' ? 'Edit Tile' : 'Create Tile'}</h2>
+      <sl-alert variant="danger" ?open=${!!this.validationReport?.general}>
+        <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
+        <strong>Error saving tile</strong><br />
+        ${this.validationReport?.general}
+      </sl-alert>
       <pg-tile-source-uploader></pg-tile-source-uploader>
       <sl-input
         type="text"

@@ -1,5 +1,5 @@
 
-import { deepMap } from "nanostores";
+import { deepMap, computed } from "nanostores";
 import { createRouter, openPage } from "@nanostores/router";
 import client from "./api.js";
 
@@ -69,8 +69,8 @@ export const $router = createRouter(
     notFound: '/404',
   }
 );
-export function goto (route, params) {
-  openPage($router, route, params);
+export function goto (route, params, search) {
+  openPage($router, route, params, search);
 }
 
 // ~~ Profile resource
@@ -78,6 +78,7 @@ export const profile = new Resource({ load: 'getCurrentProfile', defaults: { ava
 export async function loadProfile () {
   await profile.load();
 }
+export const isLoggedIn = computed(profile.store, p => !!p?.data && !p.loading);
 
 // ~~ Actor profile resource (for the profile page)
 export const actorProfile = new Resource({ load: 'getActorProfile' });
@@ -186,6 +187,16 @@ export function validateCurrentTile (dr) {
   });
   if (Object.keys(tile.resources || {}).length && !tile.resources['/']) error('default_resource', 'A default resource must be specified');
   return report;
+}
+// IMPORTANT: this assumes that validation has already happened
+export async function saveCurrentTile (dr) {
+  const tile = realTileFromCurrent(dr);
+  const r = await client.uploadTile({ tile });
+  if (r.ok) {
+    currentTile.markSaved();
+    return r.data.cid; // we also get an at-uri back but don't need it
+  }
+  throw new Error(r.error);
 }
 
 // ~~ Ok, let's drive these resources from the route

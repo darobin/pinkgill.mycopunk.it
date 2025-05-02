@@ -65,6 +65,9 @@ class PolypodAPI {
   async uploadBlob (prm, body) {
     return this.procedure('uploadBlob', prm, body);
   }
+  async uploadTile (body) {
+    return this.procedure('uploadTile', null, body);
+  }
 }
 
 async function extractError (r) {

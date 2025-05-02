@@ -36,10 +36,11 @@
     "rules": {}
   },
   "dependencies": {
+    "@atcute/cbor": "^2.2.2",
     "@atcute/cid": "^2.2.1",
     "@atproto/api": "^0.13.6",
     "@atproto/identity": "^0.4.1",
-    "@atproto/lexicon": "^0.4.1",
+    "@atproto/lexicon": "^0.4.10",
     "@atproto/oauth-client-node": "^0.1.0",
     "@atproto/sync": "^0.1.1",
     "@atproto/syntax": "^0.3.0",
@@ -47,7 +48,7 @@
     "@nanostores/lit": "^0.2.2",
     "@nanostores/router": "^0.16.1",
     "better-sqlite3": "^11.3.0",
-    "cookie-parser": "^1.4.6",
+    "cookie-parser": "^1.4.7",
     "express": "^4.20.0",
     "iron-session": "^8.0.3",
     "kysely": "^0.27.4",

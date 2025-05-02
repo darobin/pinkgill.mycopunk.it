@@ -2,11 +2,11 @@
 import { LitElement, html, css } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { StoreController } from "@nanostores/lit";
-import { profile, $router } from '../store.js';
+import { isLoggedIn, $router } from '../store.js';
 import navigationalClickHandler from '../lib/nav-click.js';
 
 export class PinkgillNav extends LitElement {
-  #profile = new StoreController(this, profile.store);
+  #loggedIn = new StoreController(this, isLoggedIn);
   #router = new StoreController(this, $router);
   static styles = [
     css`
@@ -41,9 +41,7 @@ export class PinkgillNav extends LitElement {
     `
   ];
   render () {
-    const p = this.#profile.value;
-    // Maybe make this a store, since it's fiddly
-    const loggedIn = !!p?.data && !p.loading;
+    const loggedIn = this.#loggedIn.value;
     const { route } = this.#router.value;
 
     return html`<nav>
