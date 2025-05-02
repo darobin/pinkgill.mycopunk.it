@@ -1,11 +1,12 @@
 
 import { LitElement, html, css } from 'lit';
 import { StoreController } from "@nanostores/lit";
-import { actorProfile } from '../store.js';
+import { $router, actorProfile, currentTile, goto, link } from '../store.js';
 
 export class PinkgillProfile extends LitElement {
   #actorProfile = new StoreController(this, actorProfile.store);
-  // #router = new StoreController(this, $router);
+  #currentTile = new StoreController(this, currentTile.store);
+  #router = new StoreController(this, $router);
   static styles = [
     css`
       :host {
@@ -27,13 +28,14 @@ export class PinkgillProfile extends LitElement {
         background-position: left 50% top 50%;
         background-size: cover;
       }
-      .avatar {
+      .profile sl-avatar {
         --bs: 3px;
-        max-width: max(15%, 90px);
+        --size: max(15%, 90px);
+        /* max-width: max(15%, 90px);
         max-height: auto;
-        border-radius: 50%;
+        border-radius: 50%; */
         margin-top: calc(-1 * max(45px, 7.5%) - var(--bs));
-        border: var(--bs) solid white;
+        /* border: var(--bs) solid white; */
         margin-left: 1rem;
       }
       h2 {
@@ -52,28 +54,90 @@ export class PinkgillProfile extends LitElement {
         text-overflow: ellipsis;
         margin-left: 1rem;
       }
+      .tile-author sl-avatar {
+        --size: 1rem;
+      }
+      .tile {
+        padding-top: 2rem;
+      }
+      .tile-bar {
+        display: flex;
+        gap: var(--sl-spacing-small);
+      }
+      .tile-bar h3 {
+        margin: 0;
+      }
+      .tile-meta {
+        font-size: 0.9rem;
+      }
+      .tile-meta time {
+        color: var(--sl-color-neutral-500);
+      }
     `,
   ];
   render () {
     // XXX use this later when we also do tiles
-    // const route = this.#router.value.route;
+    const loading = this.#actorProfile.value.loading || this.#currentTile.value.loading;
+    if (loading) return html`<div class="loading"><pg-loading></pg-loading></div>`;
+    const route = this.#router.value.route;
     // XXX
     // - if there's a tile
-    //    - this doesn't render the full header
-    //    - check that the CID really belongs to this person
     //    - pg-tile component
     //    - loads iframe https://tile.<domain>/#cid
-    //    - that's a static site, with a worker — it operates purely on the tile, no knowledge of the rest
-    const loading = this.#actorProfile.value.loading;
-    if (loading) return html`<div class="loading"><pg-loading></pg-loading></div>`;
+    //    - that's a static site, with a worker — it operates purely on the tile, no knowledge of the rest apart from loading blobs
+    //    - is it possible to inject an API
+    //    - right sandbox + CSP options
+    // cid,
+    // uri: tileURI(did, tid),
+    // author,
+    // tile,
+    // createdAt,
+    // indexedAt,
+    // - if not
+    //    - show tile list!
+    //    - store to get that stuff
+    //    - blob
     const { handle, displayName, avatar, description, banner } = this.#actorProfile.value?.data || {};
-    return html`<div class="profile">
-      <div style=${`--banner: url(${banner})`} class="banner"></div>
-      <img src=${avatar} class="avatar">
-      <h2>${displayName}</h2>
-      <span class="handle">@${handle}</span>
-      <p class="description">${description}</p>
-    </div>`;
+    if (route === 'profile') {
+      return html`<div class="profile">
+        <div style=${`--banner: url(${banner})`} class="banner"></div>
+        <sl-avatar image=${avatar} label=${displayName || handle}></sl-avatar>
+        <!-- <img src=${avatar} class="avatar"> -->
+        <h2>${displayName}</h2>
+        <span class="handle">@${handle}</span>
+        <p class="description">${description}</p>
+      </div>`;
+    }
+    else {
+      const { cid, author, tile: { name, icons }, createdAt } = this.#currentTile.value?.data || {};
+      if (author?.handle !== handle) goto(route, { handle, cid });
+      const icon = (icons?.[0]?.src?.$link) ? `/xrpc/space.polypod.getBlob?cid=${icons[0].src.$link}` : null;
+      return html`<div class="tile">
+        <div class="tile-bar">
+          <div class="tile-icon">
+            <sl-avatar image=${icon} label=${name}><sl-icon name="window" slot="icon"></sl-icon></sl-avatar>
+          </div>
+          <div class="tile-meta">
+            <h3>${name}</h3>
+            <div class="tile-author">
+              <sl-avatar image=${avatar} label=${displayName || handle}></sl-avatar>
+              <span class="displayName">${displayName}</span>
+              (<a href=${link('profile', { handle })}>@${handle}</a>)
+              •
+              <time datetime=${createdAt}>${createdAt}</time>
+            </div>
+          </div>
+        </div>
+        <div class="tile-body">
+          <pg-tile src=${cid}></pg-tile>
+        </div>
+        <div class="tile-footer">
+          <!-- (un)install -->
+          <!-- edit -->
+          <!-- reload -->
+        </div>
+      </div>`;
+    }
   }
 }
 

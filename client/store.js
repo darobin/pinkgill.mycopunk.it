@@ -1,6 +1,6 @@
 
 import { deepMap, computed } from "nanostores";
-import { createRouter, openPage } from "@nanostores/router";
+import { createRouter, openPage, getPagePath } from "@nanostores/router";
 import client from "./api.js";
 
 // All resource stores have the same semantics:
@@ -71,6 +71,9 @@ export const $router = createRouter(
 );
 export function goto (route, params, search) {
   openPage($router, route, params, search);
+}
+export function link (route, params, search) {
+  return getPagePath($router, route, params, search);
 }
 
 // ~~ Profile resource

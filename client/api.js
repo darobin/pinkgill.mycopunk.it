@@ -62,6 +62,9 @@ class PolypodAPI {
   async uploadTile (body) {
     return this.procedure('uploadTile', null, body);
   }
+  async getTile (prm) {
+    return this.query('getTile', prm);
+  }
 }
 
 async function extractError (r) {
