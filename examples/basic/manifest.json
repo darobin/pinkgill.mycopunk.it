@@ -1,4 +1,7 @@
 {
+  "name": "Noodle",
+  "description": "A picture of my cat.",
+  "background_color": "#5dd6f5",
   "sizing": {
     "width": 600,
     "height": 800

@@ -16,12 +16,6 @@ class PolypodAPI {
     const binaryDataTypeNames = ['Blob', 'File', 'ArrayBuffer'].map(n => `[object ${n}]`);
     try {
       const headers = {};
-      console.warn(`BLOBTYPE`, body, `str=${body}`,
-        body instanceof Blob, Object.prototype.toString.call(body) === '[object Blob]',
-        body instanceof File, Object.prototype.toString.call(body) === '[object File]',
-        body instanceof ArrayBuffer, Object.prototype.toString.call(body) === '[object ArrayBuffer]'
-      );
-      // if (body instanceof Blob || Object.prototype.toString.call(body) === '[object Blob]') {
       if (binaryDataTypes.find(t => body instanceof t) || binaryDataTypeNames.find(n => Object.prototype.toString.call(body) === n)) {
         headers['content-type'] = 'application/object-stream';
       }
