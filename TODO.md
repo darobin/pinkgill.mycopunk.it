@@ -7,7 +7,6 @@
   - [ ] space.polypod.uploadBlob()
   - [ ] space.polypod.hasBlob()
   - [ ] space.polypod.getBlob()
-  - [ ] space.polypod.uploadTile() — if it's an update, just include a prev field with the CID
   - [ ] space.polypod.getTile()
   - [ ] space.polypod.deleteTile()
   - [ ] space.polypod.installTile()
@@ -15,7 +14,6 @@
   - [ ] space.polypod.createInstance()
   - [ ] space.polypod.deleteInstance()
 - [ ] Connect these to XRPC
-- [ ] Connect XRPC to the router
 - [ ] Restart DB from scratch
 - [ ] Make a client for all
 - [ ] Create a store that handles the full state, including logged in and routing

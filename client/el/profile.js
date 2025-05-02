@@ -57,6 +57,13 @@ export class PinkgillProfile extends LitElement {
   render () {
     // XXX use this later when we also do tiles
     // const route = this.#router.value.route;
+    // XXX
+    // - if there's a tile
+    //    - this doesn't render the full header
+    //    - check that the CID really belongs to this person
+    //    - pg-tile component
+    //    - loads iframe https://tile.<domain>/#cid
+    //    - that's a static site, with a worker — it operates purely on the tile, no knowledge of the rest
     const loading = this.#actorProfile.value.loading;
     if (loading) return html`<div class="loading"><pg-loading></pg-loading></div>`;
     const { handle, displayName, avatar, description, banner } = this.#actorProfile.value?.data || {};
