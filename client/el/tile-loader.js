@@ -32,6 +32,21 @@ export class PinkgillTileLoader extends LitElement {
     if (this.dynHeight) style['--dynamic-height'] = `${this.dynHeight}px`;
     const src = `https://tile.${window.location.host}/.well-known/web-tiles/?cid=${this.cid}`
     console.warn(`in <pg-tile-loader>`, src);
+    // const sandbox = [
+    //   'allow-downloads',
+    //   'allow-forms',
+    //   // 'allow-modals',
+    //   // 'allow-orientation-lock',
+    //   // 'allow-pointer-lock',
+    //   // 'allow-popups',
+    //   // 'allow-popups-to-escape-sandbox',
+    //   // 'allow-presentation',
+    //   // 'allow-same-origin',
+    //   'allow-scripts',
+    //   // 'allow-top-navigation',
+    //   'allow-top-navigation-by-user-activation',
+    //   // 'allow-top-navigation-to-custom-protocols',
+    // ].join(' ');
     return html`<iframe src=${src} style=${styleMap(style)} loading="lazy"></iframe>`;
   }
 }
