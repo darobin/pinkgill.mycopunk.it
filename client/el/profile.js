@@ -109,8 +109,8 @@ export class PinkgillProfile extends LitElement {
       </div>`;
     }
     else {
-      const { cid, author, tile: { name, icons }, createdAt } = this.#currentTile.value?.data || {};
-      if (author?.handle !== handle) goto(route, { handle, cid });
+      const { cid, author, tile: { name, icons } = {}, createdAt } = this.#currentTile.value?.data || {};
+      if (author && author?.handle !== handle) goto(route, { handle, cid });
       const icon = (icons?.[0]?.src?.$link) ? `/xrpc/space.polypod.getBlob?cid=${icons[0].src.$link}` : null;
       return html`<div class="tile">
         <div class="tile-bar">
@@ -129,7 +129,7 @@ export class PinkgillProfile extends LitElement {
           </div>
         </div>
         <div class="tile-body">
-          <pg-tile src=${cid}></pg-tile>
+          <pg-tile-loader cid=${cid}></pg-tile-loader>
         </div>
         <div class="tile-footer">
           <!-- (un)install -->

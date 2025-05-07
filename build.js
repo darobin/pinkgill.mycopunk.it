@@ -19,13 +19,23 @@ const loaderOptions = {
   sourcemap: isWatch,
   // plugins: [wasmLoader()],
 };
+const swOptions = {
+  entryPoints: ['tile-loader/sw.js'],
+  bundle: true,
+  outfile: 'tile-loader/sw.min.js',
+  format: 'esm',
+  sourcemap: isWatch,
+  // plugins: [wasmLoader()],
+};
 
 if (isWatch) {
   const appCtx = await esbuild.context(appOptions);
   const loaderCtx = await esbuild.context(loaderOptions);
-  await Promise.all([appCtx.watch(), loaderCtx.watch()]);
+  const swCtx = await esbuild.context(swOptions);
+  await Promise.all([appCtx.watch(), loaderCtx.watch(), swCtx.watch()]);
 }
 else {
   esbuild.build(appOptions);
   esbuild.build(loaderOptions);
+  esbuild.build(swOptions);
 }
