@@ -20,8 +20,16 @@ const maslHeaders = [
 
 // XXX
 // NEXT STEPS TO MAKE THIS WORK
+//    BEST OPTION
+//      - Use greenlock + plugin to generate a wildcard cert
+//      - scp it to the server
+//      - make Caddy use that in prod
+//      - have local Caddy support wildcards
+//      - weekly cron job once that works (that emails success or failure)
+//      - use <CID>.tile.polypod.space
 // - MAYBE: we can make the origin sandboxed again and see if warn() was what was missing?
 //  THIS DOESN'T SEEM TO BE WORKING, like it's not using the SW for the sub-iframe
+// - MAYBE use a mixed context but still the SW so we can have <CID>.tile.HOST w/o wildcard certs
 // - MAYBE look at srcdoc?
 // - try seeing if we can have a stable context for the fetch events. clientId doesn't seem to be it
 //  MAYBE: try starting with /.well-known/web-tiles/load/<CID> and redirect, then see if that's stable
