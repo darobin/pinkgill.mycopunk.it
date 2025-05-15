@@ -36,17 +36,13 @@ class TileContext {
     const { promise, resolve } = Promise.withResolvers();
     this.loading = promise;
     this.manifest = decode(await this.fetchCIDAsArrayBuffer(this.cid));
-    warn(`manifest`, this.manifest);
-    // XXX check what we get for links in here
-    Object.values(this.manifest.resources).forEach(r => {
-      if (typeof r.src !== 'string') r.src = r.src.toString();
-    });
+    warn(`manifest`, JSON.stringify(this.manifest, null, 2));
     resolve();
   }
   async fetchCIDAsArrayBuffer (cid) {
     try {
       const url = this.raslURL(cid);
-      warn(`Fetch of ${url}`);
+      warn(`Fetching arraybuffer ${url}`);
       const r = await fetch(url);
       warn(`  GOT ${r.status}: ${r.statusText}`);
       const buf = new Uint8Array(await r.arrayBuffer());
@@ -87,6 +83,7 @@ self.addEventListener('fetch', async (ev) => {
   if (!tc.manifest) return ev.respondWith(new Response(`Could not load tile manifest for CID ${tc.cid}`, response(404)));
   const res = tc.manifest.resources?.[url.pathname];
   if (!res) return ev.respondWith(new Response(`Not found: ${url.pathname.replace(/</g, '&gt;')}`, response(404)));
+  warn(`• we have a res ${res.mediaType}`)
   // Here we have to be careful not to have a nested await (of a fetch at least).
   const headers = {};
   maslHeaders.forEach(h => {
@@ -95,7 +92,11 @@ self.addEventListener('fetch', async (ev) => {
       headers[h] = res[h];
     }
   })
-  ev.respondWith(fetch(tc.raslURL(res.src)), response(200, res.mediaType, headers));
+  const { promise, resolve } = Promise.withResolvers();
+  ev.respondWith(promise);
+  const r = await fetch(tc.raslURL(res.src.$link));
+  warn(`• fetch ${res.src.$link} got ${r.status}`)
+  resolve(new Response(r.body, response(r.status, res.mediaType, headers)));
 });
 
 function response (status = 200, mediaType = 'text/plain', headers = {}) {

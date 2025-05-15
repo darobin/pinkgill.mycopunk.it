@@ -45,33 +45,45 @@ navigator.serviceWorker.onmessage = (ev) => {
     console.warn(`[SW]`, ...ev.data.msg);
   }
   else if (ev.data?.state === 'ready') {
-    console.warn(`SW loaded`, ev.data);
-    wipe();
-    el(
-      'iframe',
-      {
-        src: '/',
-        // src,
-        frameborder: '0', // oh hell yeah
-        // XXX make this correct
-        sandbox: [
-          'allow-downloads',
-          'allow-forms',
-          // 'allow-modals',
-          // 'allow-orientation-lock',
-          // 'allow-pointer-lock',
-          // 'allow-popups',
-          // 'allow-popups-to-escape-sandbox',
-          // 'allow-presentation',
-          // 'allow-same-origin',
-          'allow-scripts',
-          // 'allow-top-navigation',
-          'allow-top-navigation-by-user-activation',
-          // 'allow-top-navigation-to-custom-protocols',
-        ].join(' '),
+    console.warn(`Service worker declared as loaded`, ev.data);
+    setTimeout(
+      async () => {
+        wipe();
+        console.warn(`DEBUGGING for domain ${document.location.hostname}`);
+        const urls = [`/.well-known/web-tiles/index.html`, `/img/noodle.jpg`, `/`, `/index.html`];
+        for (const u of urls) {
+          console.warn(`# fetching ${u}`);
+          const res = await fetch(u);
+          console.warn(`• [${u}] ${res.status} ${res.statusText}`);
+        }
+        el(
+          'iframe',
+          {
+            src: '/index.html', //XXXX XXX XXX XXX XXX SWITCH BACK TO / WHEN DEBUGGED
+            // src,
+            frameborder: '0', // oh hell yeah
+            // XXX make this correct
+            sandbox: [
+              'allow-downloads',
+              'allow-forms',
+              // 'allow-modals',
+              // 'allow-orientation-lock',
+              // 'allow-pointer-lock',
+              // 'allow-popups',
+              // 'allow-popups-to-escape-sandbox',
+              // 'allow-presentation',
+              'allow-same-origin',
+              'allow-scripts',
+              // 'allow-top-navigation',
+              'allow-top-navigation-by-user-activation',
+              // 'allow-top-navigation-to-custom-protocols',
+            ].join(' '),
+          },
+          [],
+          document.body
+        );
       },
-      [],
-      document.body
+      1000
     );
   }
 };
