@@ -30,7 +30,7 @@ export class PinkgillTileLoader extends LitElement {
     if (!this.cid) return nothing;
     const style = {};
     if (this.dynHeight) style['--dynamic-height'] = `${this.dynHeight}px`;
-    const src = `https://tile.${window.location.host}/.well-known/web-tiles/?cid=${this.cid}`
+    const src = `https://${this.cid}.tile.${window.location.host}/.well-known/web-tiles/`
     console.warn(`in <pg-tile-loader>`, src);
     // const sandbox = [
     //   'allow-downloads',

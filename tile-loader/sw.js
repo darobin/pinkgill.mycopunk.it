@@ -18,33 +18,18 @@ const maslHeaders = [
   'x-content-type-options',
 ];
 
-// XXX
-// NEXT STEPS TO MAKE THIS WORK
-//    BEST OPTION
-//      - Use greenlock + plugin to generate a wildcard cert
-//      - scp it to the server
-//      - make Caddy use that in prod
-//      - have local Caddy support wildcards
-//      - weekly cron job once that works (that emails success or failure)
-//      - use <CID>.tile.polypod.space
-// - MAYBE: we can make the origin sandboxed again and see if warn() was what was missing?
-//  THIS DOESN'T SEEM TO BE WORKING, like it's not using the SW for the sub-iframe
-// - MAYBE use a mixed context but still the SW so we can have <CID>.tile.HOST w/o wildcard certs
-// - MAYBE look at srcdoc?
-// - try seeing if we can have a stable context for the fetch events. clientId doesn't seem to be it
-//  MAYBE: try starting with /.well-known/web-tiles/load/<CID> and redirect, then see if that's stable
-// - if that doesn't work, we might have to return to server-side…
-//  MAYBE: if we sandbox the origin, can we use a cookie for the manifest-cid
-//
-
+let tc;
 class TileContext {
   cid;
-  #clientId;
+  hostname;
   loading = Promise.resolve();
   manifest;
-  constructor (cid, clientId) {
+  constructor (cid, hostname) {
     this.cid = cid;
-    this.#clientId = clientId;
+    this.hostname = hostname;
+  }
+  raslURL (cid) {
+    return `https://${this.hostname}/.well-known/rasl/${cid}`;
   }
   async fetchManifest () {
     warn(`in fecthManifest(${this.cid})`);
@@ -60,7 +45,7 @@ class TileContext {
   }
   async fetchCIDAsArrayBuffer (cid) {
     try {
-      const url = raslURL(cid);
+      const url = this.raslURL(cid);
       warn(`Fetch of ${url}`);
       const r = await fetch(url);
       warn(`  GOT ${r.status}: ${r.statusText}`);
@@ -76,42 +61,27 @@ class TileContext {
   }
 }
 
-const clientMap = {};
 self.addEventListener('message', async (ev) => {
-  warn(`MESSAGE`, ev.source.id);
+  warn(`MESSAGE`, ev.data);
   const { action } = ev.data || {};
-  const clientId = ev.source.id;
   if (!action) return;
   if (action === 'load') {
-    const tc = new TileContext(ev.data?.cid, clientId);
-    clientMap[clientId] = tc;
-    warn(`LOADED ${clientId}`);
+    tc = new TileContext(ev.data?.cid, ev.data?.hostname);
+    warn(`LOADED`);
     await tc.fetchManifest();
     ev.source.postMessage({ state: 'ready', manifest: tc.manifest, cid: ev.data?.cid });
   }
-  else if (action === 'unload') {
-    warn(`UNLOADING ${clientId}`);
-    delete clientMap[clientId];
-  }
 });
-
-function raslURL (cid) {
-  return `/.well-known/rasl/${cid}`;
-}
 
 self.addEventListener('fetch', async (ev) => {
   warn('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-  warn(`FETCH "${ev.clientId}|${ev.replacesClientId}|${ev.resultingClientId}" of "${ev.request.url}"`);
-  console.error(`################ FETCH EVENT #############`, ev);
+  warn(`FETCH of "${ev.request.url}"`);
   const url = new URL(ev.request.url);
   // XXX IMPORTANT
   // We have to let this through since we do need to load the loader. But it means that tiles
   // can themselves load anything in loader space. We should add further protection later based
   // on fetch context or some such.
   if (/^\/\.well-known\/web-tiles\//.test(url.pathname)) return;
-  const tc = clientMap[ev.clientId];
-  // XXX BUUUUG
-  // when fetching / clientId is set to '' and we have resultingClientId instead, but it's a different source
   if (!tc) return ev.respondWith(new Response('No CID available yet.', response()));
   await tc.loading;
   if (!tc.manifest) return ev.respondWith(new Response(`Could not load tile manifest for CID ${tc.cid}`, response(404)));
@@ -125,7 +95,7 @@ self.addEventListener('fetch', async (ev) => {
       headers[h] = res[h];
     }
   })
-  ev.respondWith(fetch(raslURL(res.src)), response(200, res.mediaType, headers));
+  ev.respondWith(fetch(tc.raslURL(res.src)), response(200, res.mediaType, headers));
 });
 
 function response (status = 200, mediaType = 'text/plain', headers = {}) {

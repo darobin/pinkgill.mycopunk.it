@@ -21,7 +21,8 @@
 //    x verify when loading
 
 (async function () {
-  const cid = new URLSearchParams(document.location.search)?.get('cid');
+  const cid = document.location.hostname.replace(/\..+/, '');
+  const hostname = document.location.hostname.replace(/^.+\.tile\./, '');
   if (!cid) return error('No CID', 'The tile loader received no CID.');
   if (top === window) return error('Not Embedded', 'The tile loader only works embedded.');
   let curSWReg = await navigator.serviceWorker.getRegistration();
@@ -31,10 +32,10 @@
     await navigator.serviceWorker.ready;
     console.warn(`ready`, curSWReg.active, curSWReg.waiting);
   }
-  curSWReg.active.postMessage({ action: 'load', cid });
-  window.addEventListener('beforeunload', () => {
-    curSWReg?.active?.postMessage({ action: 'unload' });
-  });
+  curSWReg.active.postMessage({ action: 'load', cid, hostname });
+  // window.addEventListener('beforeunload', () => {
+  //   curSWReg?.active?.postMessage({ action: 'unload' });
+  // });
   console.warn(`waiting for service worker to signal load ${cid}`);
 })();
 
@@ -45,8 +46,6 @@ navigator.serviceWorker.onmessage = (ev) => {
   }
   else if (ev.data?.state === 'ready') {
     console.warn(`SW loaded`, ev.data);
-    // const src = `https://${ev.data.cid}@${window.location.host}/`;
-    // console.warn(`SRC=${src}`);
     wipe();
     el(
       'iframe',
