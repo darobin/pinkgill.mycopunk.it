@@ -52,6 +52,7 @@
     "better-sqlite3": "^11.3.0",
     "commander": "^13.1.0",
     "cookie-parser": "^1.4.7",
+    "execa": "^9.5.2",
     "express": "^4.20.0",
     "greenlock": "^2.8.9",
     "greenlock-store-fs": "^3.2.2",
