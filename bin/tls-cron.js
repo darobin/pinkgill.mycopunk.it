@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/opt/homebrew/bin/node
 
 import process from "node:process";
 import { join } from "node:path";
