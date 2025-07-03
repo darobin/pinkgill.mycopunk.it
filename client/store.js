@@ -90,21 +90,24 @@ export const actorProfile = new Resource({ load: 'getActorProfile' });
 // IMPORTANT NOTE:
 // The `resources` field is a map, but maps are really painful to deal with
 // in forms, with a virtual DOM, etc. So we map it to an array both ways.
-export const currentTile = new Resource({
-  load: 'getTile',
-  save: 'uploadTile',
-  delete: 'deleteTile',
-  defaults: { data: {
-    name: null,
-    description: null,
-    background_color: null,
-    icons: [],
-    sizing: null,
-    wishes: [],
-    resources: [],
-    prev: null,
-  }},
-});
+export function createTileResource () {
+  return new Resource({
+    load: 'getTile',
+    save: 'uploadTile',
+    delete: 'deleteTile',
+    defaults: { data: {
+      name: null,
+      description: null,
+      background_color: null,
+      icons: [],
+      sizing: null,
+      wishes: [],
+      resources: [],
+      prev: null,
+    }},
+  });
+}
+export const currentTile = createTileResource();
 function realTileFromCurrent (dr) {
   const real = structuredClone(currentTile.store.get()?.data);
   Object.keys(real).forEach(k => {

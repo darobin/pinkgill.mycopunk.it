@@ -17,6 +17,7 @@ const rel = makeRel(import.meta.url);
 const basePath = rel('../scratch/greenlock');
 const env = 'prod';
 const domains = [`polypod.space`, `*.polypod.space`, `*.tile.polypod.space`];
+const POLITY2 = '174.138.76.168';
 
 program
   .command('token <token>')
@@ -105,10 +106,10 @@ async function productionCert () {
   const localDir = join(basePath, env, domains[0]);
   const res = await Promise.all(
     ['privkey', 'fullchain'].map(n => {
-      return execa('scp', [join(localDir, `${n}.pem`), `root@${process.env.POLITY2}:/var/www/certs/${n}.pem`]);
+      return execa('scp', [join(localDir, `${n}.pem`), `root@${POLITY2}:/var/www/certs/${n}.pem`]);
     })
   );
   res.forEach(({ all }) => all && console.warn(all));
-  const { all } = await execa('ssh', ['-l', 'root', process.env.POLITY2, 'systemctl reload caddy']);
+  const { all } = await execa('ssh', ['-l', 'root', POLITY2, 'systemctl reload caddy']);
   if (all) console.warn(all);
 }

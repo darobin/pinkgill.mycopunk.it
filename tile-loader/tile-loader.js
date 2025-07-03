@@ -20,13 +20,6 @@
 //    x map everything just right, use MASL
 //    x verify when loading
 
-// NEXT
-// - sizing
-// - check sandbox & CSP
-// - install / uninstall
-// - reload
-// - wishes
-
 (async function () {
   const cid = document.location.hostname.replace(/\..+/, '');
   const hostname = document.location.hostname.replace(/^.+\.tile\./, '');
