@@ -5,7 +5,7 @@ import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import express from 'express';
 import { HOST, PORT, DB_PATH, UPLOAD_PATH, BLOB_PATH } from './lib/config.js';
-import { pino } from 'pino'
+import { pino } from 'pino';
 
 import createRouter from './lib/router.js';
 import { PinkgillDatabase, createDB, migrateToLatest, dbEvents } from './lib/db.js';
